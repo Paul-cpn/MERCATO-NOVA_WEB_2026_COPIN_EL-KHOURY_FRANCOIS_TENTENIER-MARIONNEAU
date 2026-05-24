@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Produit - Mercato Nova</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bleu: #68c3e2;
+      --rose: #e6678f;
+      --jaune: #e4ca3e;
+      --vert: #7ed957;
+      --violet: #e2a9f1;
+      --rouge: #ff5757;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #eaf6fb;
+    }
+
+    /* HEADER */
+    header {
+      background-color: #fff;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      padding: 0 2rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+
+    header h1 {
+      color: #111;
+      font-size: 1.3rem;
+      letter-spacing: 3px;
+      font-weight: 900;
+    }
+
+    header h1 span {
+      color: var(--bleu);
+    }
+
+    /* SWITCH */
+    .switch-bar {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      padding: 1rem;
+      background-color: #eaf6fb;
+    }
+
+    .switch-bar button {
+      padding: 0.6rem 2rem;
+      border-radius: 30px;
+      border: none;
+      background-color: #fff;
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+      color: #aaa;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .switch-bar button#btn-switch-achat.active {
+      background-color: var(--bleu);
+      color: #fff;
+    }
+
+    .switch-bar button#btn-switch-enchere.active {
+      background-color: var(--rouge);
+      color: #fff;
+    }
+
+    /* CONTENU */
+    .product-page {
+      max-width: 1050px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      display: flex;
+      gap: 2rem;
+    }
+
+    /* GALERIE */
+    .gallery {
+      flex: 1;
+    }
+
+    .main-image-container {
+      background-color: #fff;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    }
+
+    .main-image-container img {
+      width: 100%;
+      height: 440px;
+      object-fit: cover;
+      display: block;
+    }
+
+    .thumbnails {
+      display: flex;
+      gap: 0.6rem;
+      margin-top: 0.75rem;
+    }
+
+    .thumbnails img {
+      width: 76px;
+      height: 76px;
+      object-fit: cover;
+      border-radius: 12px;
+      cursor: pointer;
+      border: 3px solid transparent;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    }
+
+    .thumbnails img.active {
+      border: 3px solid var(--bleu);
+    }
+
+    /* CARD INFOS */
+    .product-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    /* CARD GENERALE */
+    .card {
+      background-color: #fff;
+      border-radius: 20px;
+      padding: 1.25rem 1.5rem;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+    }
+
+    .brand {
+      color: var(--bleu);
+      font-weight: 700;
+      font-size: 0.75rem;
+      letter-spacing: 2px;
+      margin-bottom: 0.3rem;
+      text-transform: uppercase;
+    }
+
+    .product-info h2 {
+      font-size: 1.6rem;
+      font-weight: 900;
+      color: #111;
+      margin-bottom: 0.5rem;
+    }
+
+    .rating {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .rating p {
+      color: #999;
+      font-size: 0.85rem;
+    }
+
+    /* CARD PRIX */
+    .price-card {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .price {
+      font-size: 2.2rem;
+      font-weight: 900;
+      color: var(--rouge);
+    }
+
+    .old-price {
+      font-size: 1rem;
+      color: #bbb;
+      text-decoration: line-through;
+    }
+
+    .discount {
+      background-color: var(--vert);
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 30px;
+    }
+
+    /* CARD TAGS */
+    .tags-card {
+      display: flex;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+    }
+
+    .tag {
+      background-color: #eaf6fb;
+      border-radius: 10px;
+      padding: 6px 14px;
+      font-size: 0.82rem;
+      color: #333;
+      font-weight: 600;
+    }
+
+    .tag span {
+      color: #777;
+      font-weight: 400;
+    }
+
+    /* CARD VENDEUR */
+    .seller-card {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      cursor: pointer;
+    }
+
+    .seller-avatar {
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      background-color: var(--violet);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-weight: 700;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+
+    .seller-info p {
+      font-weight: 700;
+      color: #111;
+      font-size: 0.95rem;
+    }
+
+    .seller-info small {
+      color: #999;
+      font-size: 0.8rem;
+    }
+
+    .seller-arrow {
+      margin-left: auto;
+      color: #ccc;
+      font-size: 1.5rem;
+    }
+
+    /* CARD ACTIONS */
+    .btn-buy {
+      width: 100%;
+      background-color: var(--rouge);
+      color: #fff;
+      border: none;
+      padding: 1rem;
+      border-radius: 14px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      margin-bottom: 0.6rem;
+    }
+
+    .btn-cart {
+      width: 100%;
+      background-color: var(--bleu);
+      color: #fff;
+      border: none;
+      padding: 1rem;
+      border-radius: 14px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      margin-bottom: 0.6rem;
+    }
+
+    .btn-negociate {
+      width: 100%;
+      background-color: #fff;
+      color: var(--violet);
+      border: 2px solid var(--violet);
+      padding: 0.85rem;
+      border-radius: 14px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    /* CARD ENCHERE */
+    .enchere-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .enchere-header h3 {
+      font-size: 1rem;
+      font-weight: 800;
+      color: #111;
+    }
+
+    .timer {
+      background-color: #fff0f0;
+      color: var(--rouge);
+      font-weight: 700;
+      font-size: 0.85rem;
+      padding: 5px 12px;
+      border-radius: 20px;
+    }
+
+    .enchere-stats {
+      display: flex;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+
+    .stat-box {
+      flex: 1;
+      background-color: #f7f7f7;
+      border-radius: 12px;
+      padding: 0.75rem;
+      text-align: center;
+    }
+
+    .stat-box p {
+      font-size: 0.75rem;
+      color: #999;
+      margin-bottom: 0.2rem;
+    }
+
+    .stat-box strong {
+      font-size: 1.1rem;
+      color: #111;
+    }
+
+    .stat-box strong.meilleure {
+      color: var(--rouge);
+    }
+
+    .bid-input-group {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .bid-input-group input {
+      flex: 1;
+      padding: 0.85rem 1rem;
+      border: 2px solid #eee;
+      border-radius: 14px;
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    .bid-input-group input:focus {
+      outline: none;
+      border-color: var(--rouge);
+    }
+
+    .bid-input-group button {
+      background-color: var(--rouge);
+      color: #fff;
+      border: none;
+      padding: 0.85rem 1.5rem;
+      border-radius: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 0.95rem;
+    }
+
+    .historique {
+      font-size: 0.8rem;
+      color: #bbb;
+      text-align: center;
+      cursor: pointer;
+      text-decoration: underline;
+      margin-top: 0.75rem;
+      display: block;
+    }
+
+    /* CARD BADGES */
+    .badges-card {
+      display: flex;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+    }
+
+    .badge {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 6px 14px;
+      border-radius: 10px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    .badge-livraison {
+      background-color: #eaf6fb;
+      color: #2a9bbf;
+    }
+
+    .badge-retour {
+      background-color: #fffbe6;
+      color: #b89a00;
+    }
+
+    .badge-securite {
+      background-color: #f0ffe8;
+      color: #4a9e27;
+    }
+
+    /* TABS */
+    .tabs {
+      max-width: 1050px;
+      margin: 0 auto 3rem;
+      padding: 0 1rem;
+    }
+
+    .tab-buttons {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .tab-buttons button {
+      padding: 0.6rem 1.5rem;
+      border: none;
+      border-radius: 30px;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 0.9rem;
+      background-color: #fff;
+      color: #aaa;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+
+    .tab-buttons button.active {
+      background-color: var(--rose);
+      color: #fff;
+    }
+
+    .tab-content {
+      display: none;
+      background-color: #fff;
+      border-radius: 20px;
+      padding: 1.5rem;
+      color: #444;
+      line-height: 1.8;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .tab-content ul {
+      padding-left: 1.25rem;
+    }
+
+    .review {
+      background-color: #f9f9f9;
+      border-radius: 12px;
+      padding: 1rem 1.25rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .review-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.4rem;
+    }
+
+    .review-header strong { color: #111; }
+    .review-header span { color: #bbb; font-size: 0.8rem; }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <h1>MERCATO <span>NOVA</span></h1>
+  </header>
+
+  <!-- SWITCH -->
+  <div class="switch-bar">
+    <button id="btn-switch-achat" class="active">🛒 Achat / Négociation</button>
+    <button id="btn-switch-enchere">🔨 Enchère</button>
+  </div>
+
+  <!-- PAGE PRODUIT -->
+  <div class="product-page">
+
+    <!-- GALERIE -->
+    <div class="gallery">
+      <div class="main-image-container">
+        <img id="main-image" src="https://images.unsplash.com/photo-1551232864-3f0890e580d9?w=600" alt="produit">
+      </div>
+      <div class="thumbnails">
+        <img src="https://images.unsplash.com/photo-1551232864-3f0890e580d9?w=200" alt="vue 1" class="active">
+        <img src="https://images.unsplash.com/photo-1509631179647-0177331693ae?w=200" alt="vue 2">
+        <img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=200" alt="vue 3">
+        <img src="https://images.unsplash.com/photo-1496747611176-843222e1e57c?w=200" alt="vue 4">
+      </div>
+    </div>
+
+    <!-- INFOS -->
+    <div class="product-info">
+
+      <!-- NOM + NOTE -->
+      <div class="card">
+        <p class="brand">Mercato Nova</p>
+        <h2>Veste Oversize Premium</h2>
+        <div class="rating">
+          <span style="color:#e4ca3e; font-size:1rem;">★★★★</span>
+          <span style="color:#ddd; font-size:1rem;">★</span>
+          <p>4.0 · 128 avis</p>
+        </div>
+      </div>
+
+      <!-- PRIX -->
+      <div class="card price-card">
+        <span class="price">89.99€</span>
+        <span class="old-price">129.99€</span>
+        <span class="discount">-31%</span>
+      </div>
+
+      <!-- TAGS -->
+      <div class="card tags-card">
+        <div class="tag">Taille <span>M</span></div>
+        <div class="tag">Couleur <span>Noir</span></div>
+        <div class="tag">État <span>Très bon état</span></div>
+        <div class="tag">Marque <span>Zara</span></div>
+      </div>
+
+      <!-- VENDEUR -->
+      <div class="card seller-card">
+        <div class="seller-avatar">SM</div>
+        <div class="seller-info">
+          <p>Sophie M.</p>
+          <small>⭐ 4.8 · 47 ventes · Paris</small>
+        </div>
+        <span class="seller-arrow">›</span>
+      </div>
+
+      <!-- MODE ACHAT -->
+      <div id="mode-achat" class="card">
+        <button class="btn-buy">⚡ ACHAT IMMÉDIAT — 89.99€</button>
+        <button class="btn-cart">🛒 AJOUTER AU PANIER</button>
+        <button class="btn-negociate">💬 FAIRE UNE OFFRE</button>
+      </div>
+
+      <!-- MODE ENCHERE -->
+      <div id="mode-enchere" class="card" style="display:none;">
+        <div class="enchere-header">
+          <h3>🔨 Enchère en cours</h3>
+          <span class="timer">⏱ <span id="timer">01:23:45</span></span>
+        </div>
+        <div class="enchere-stats">
+          <div class="stat-box">
+            <p>Prix départ</p>
+            <strong>50.00€</strong>
+          </div>
+          <div class="stat-box">
+            <p>Meilleure offre</p>
+            <strong class="meilleure" id="best-bid">75.00€</strong>
+          </div>
+          <div class="stat-box">
+            <p>Enchères</p>
+            <strong id="bid-count">8</strong>
+          </div>
+        </div>
+        <div class="bid-input-group">
+          <input type="number" id="bid-amount" placeholder="Votre offre en €" min="76">
+          <button id="btn-place-bid">Enchérir</button>
+        </div>
+        <a class="historique">Voir l'historique des offres</a>
+      </div>
+
+      <!-- BADGES -->
+      <div class="card badges-card">
+        <span class="badge badge-livraison">🚚 Livraison gratuite</span>
+        <span class="badge badge-retour">↩️ Retour 30j</span>
+        <span class="badge badge-securite">🔒 Paiement sécurisé</span>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <div class="tab-buttons">
+      <button class="active" data-tab="description">Description</button>
+      <button data-tab="avis">Avis (128)</button>
+    </div>
+
+    <div id="description" class="tab-content active">
+      <p>Veste oversize tendance, coupe moderne et confortable. Parfaite pour toutes les saisons.</p>
+      <ul>
+        <li>Matière : 70% coton, 30% polyester</li>
+        <li>Coupe oversize</li>
+        <li>Fermeture par boutons</li>
+        <li>Poches latérales</li>
+        <li>Lavable en machine à 30°</li>
+      </ul>
+    </div>
+
+    <div id="avis" class="tab-content">
+      <div class="review">
+        <div class="review-header">
+          <strong>Sophie M.</strong>
+          <span>il y a 2 jours</span>
+        </div>
+        <p>★★★★★ Super qualité, je recommande vivement !</p>
+      </div>
+      <div class="review">
+        <div class="review-header">
+          <strong>Lucas D.</strong>
+          <span>il y a 1 semaine</span>
+        </div>
+        <p>★★★★☆ Très bonne veste, taille un peu grand.</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+
+      // SWITCH MODE
+      let btnAchat = document.getElementById("btn-switch-achat");
+      let btnEnchere = document.getElementById("btn-switch-enchere");
+      let modeAchat = document.getElementById("mode-achat");
+      let modeEnchere = document.getElementById("mode-enchere");
+
+      btnAchat.addEventListener("click", function() {
+        btnAchat.classList.add("active");
+        btnEnchere.classList.remove("active");
+        modeAchat.style.display = "block";
+        modeEnchere.style.display = "none";
+      });
+
+      btnEnchere.addEventListener("click", function() {
+        btnEnchere.classList.add("active");
+        btnAchat.classList.remove("active");
+        modeEnchere.style.display = "block";
+        modeAchat.style.display = "none";
+      });
+
+      // GALERIE
+      let thumbnails = document.querySelectorAll(".thumbnails img");
+      let mainImage = document.getElementById("main-image");
+
+      thumbnails.forEach(function(thumb) {
+        thumb.addEventListener("click", function() {
+          thumbnails.forEach(function(t) { t.classList.remove("active"); });
+          thumb.classList.add("active");
+          mainImage.src = thumb.src.replace("w=200", "w=600");
+        });
+      });
+
+      // TIMER
+      let totalSeconds = 5025;
+      let timerDisplay = document.getElementById("timer");
+
+      setInterval(function() {
+        if (totalSeconds > 0) {
+          totalSeconds--;
+          let h = Math.floor(totalSeconds / 3600);
+          let m = Math.floor((totalSeconds % 3600) / 60);
+          let s = totalSeconds % 60;
+          timerDisplay.textContent =
+            String(h).padStart(2, "0") + ":" +
+            String(m).padStart(2, "0") + ":" +
+            String(s).padStart(2, "0");
+        }
+      }, 1000);
+
+      // ENCHERIR
+      let bestBid = 75;
+      let bidCount = 8;
+
+      document.getElementById("btn-place-bid").addEventListener("click", function() {
+        let amount = parseFloat(document.getElementById("bid-amount").value);
+        if (isNaN(amount) || amount <= bestBid) {
+          alert("Votre offre doit être supérieure à " + bestBid + "€");
+          return;
+        }
+        bestBid = amount;
+        bidCount++;
+        document.getElementById("best-bid").textContent = bestBid.toFixed(2) + "€";
+        document.getElementById("bid-count").textContent = bidCount;
+        document.getElementById("bid-amount").value = "";
+        alert("Offre de " + bestBid.toFixed(2) + "€ placée !");
+      });
+
+      // TABS
+      let tabBtns = document.querySelectorAll(".tab-buttons button");
+      let tabContents = document.querySelectorAll(".tab-content");
+
+      tabBtns.forEach(function(btn) {
+        btn.addEventListener("click", function() {
+          tabBtns.forEach(function(b) { b.classList.remove("active"); });
+          tabContents.forEach(function(c) { c.classList.remove("active"); });
+          btn.classList.add("active");
+          document.getElementById(btn.getAttribute("data-tab")).classList.add("active");
+        });
+      });
+
+    });
+  </script>
+
+</body>
