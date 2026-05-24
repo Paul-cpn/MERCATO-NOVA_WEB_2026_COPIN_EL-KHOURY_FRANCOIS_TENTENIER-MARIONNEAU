@@ -1,15 +1,4 @@
-const { useState } = React;
-
-const articles = [
-  { id: 1, titre: "Jean slim délavé", prix: "25,00 €", taille: "M", couleur: "Bleu", bg: "#b8d4e8" },
-  { id: 2, titre: "Robe fleurie d'été", prix: "18,00 €", taille: "S", couleur: "Rose", bg: "#f5c6cb" },
-  { id: 3, titre: "Veste en cuir noir", prix: "55,00 €", taille: "L", couleur: "Noir", bg: "#c8c8c8" },
-  { id: 4, titre: "Pull en laine douce", prix: "22,00 €", taille: "M", couleur: "Beige", bg: "#e8dcc8" },
-  { id: 5, titre: "Manteau long gris", prix: "45,00 €", taille: "M", couleur: "Gris", bg: "#d0d0d0" },
-  { id: 6, titre: "Chemise à carreaux", prix: "15,00 €", taille: "XL", couleur: "Rouge", bg: "#f5b8b8" },
-  { id: 7, titre: "Jogging enfant", prix: "12,00 €", taille: "4 ans", couleur: "Bleu marine", bg: "#b8c8e8" },
-  { id: 8, titre: "T-shirt rayé", prix: "8,00 €", taille: "6 ans", couleur: "Blanc/Bleu", bg: "#d8e8f5" },
-];
+const { useState, useEffect } = React;
 
 function Header() {
   return (
@@ -55,30 +44,73 @@ function NavBar() {
 }
 
 function ArticleCard({ article }) {
+  // Formatage du prix
+  const prixFormate = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(article.prix_annonce);
+
   return (
     <a href="#" className="article-card">
       <div className="article-info">
-        <div className="article-titre">{article.titre}</div>
-        <div className="article-prix">{article.prix}</div>
+        <div className="article-titre">{article.titre_annonce}</div>
+        <div className="article-prix">{prixFormate}</div>
         <div className="article-details">
-          <div className="article-detail">Taille : <span>{article.taille}</span></div>
-          <div className="article-detail">Couleur : <span>{article.couleur}</span></div>
+          {article.taille_annonce && <div className="article-detail">Taille : <span>{article.taille_annonce}</span></div>}
+          {article.couleur_annonce && <div className="article-detail">Couleur : <span>{article.couleur_annonce}</span></div>}
         </div>
       </div>
-      <div className="article-image" style={{ backgroundColor: article.bg }}>
-        Photo
+      <div className="article-image" style={{ 
+          backgroundColor: '#e0e0e0',
+          backgroundImage: article.image_url ? `url(${article.image_url})` : 'none',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center'
+        }}>
+        {!article.image_url && 'Photo'}
       </div>
     </a>
   );
 }
 
 function ArticlesSection() {
+  const [articles, setArticles] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    // On appelle notre fichier PHP
+    fetch('../scripts/get_articles.php')
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Erreur réseau lors de la récupération');
+        }
+        return response.json();
+      })
+      .then(data => {
+        if (data.error) {
+          throw new Error(data.error);
+        }
+        setArticles(data);
+        setLoading(false);
+      })
+      .catch(error => {
+        console.error("Erreur :", error);
+        setError(error.message);
+        setLoading(false);
+      });
+  }, []);
+
   return (
     <main className="main">
       <h2 className="section-title">Dernières annonces</h2>
+      
+      {loading && <p style={{ padding: '20px' }}>Chargement des annonces...</p>}
+      {error && <p style={{ padding: '20px', color: 'red' }}>Erreur : {error}</p>}
+      
+      {!loading && !error && articles.length === 0 && (
+        <p style={{ padding: '20px' }}>Aucune annonce disponible pour le moment.</p>
+      )}
+
       <div className="articles-grid">
         {articles.map(article => (
-          <ArticleCard key={article.id} article={article} />
+          <ArticleCard key={article.id_annonce} article={article} />
         ))}
       </div>
     </main>
