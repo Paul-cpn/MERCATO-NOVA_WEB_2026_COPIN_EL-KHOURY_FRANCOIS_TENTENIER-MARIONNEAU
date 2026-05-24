@@ -1,0 +1,257 @@
+const { useState, useEffect } = React;
+
+const images = [
+  "https://images.unsplash.com/photo-1551232864-3f0890e580d9?w=600",
+  "https://images.unsplash.com/photo-1509631179647-0177331693ae?w=600",
+  "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=600",
+  "https://images.unsplash.com/photo-1496747611176-843222e1e57c?w=600",
+];
+
+const article = {
+  titre:      "Veste Oversize Premium",
+  marque:     "Zara",
+  taille:     "M",
+  couleur:    "Noir",
+  etat:       "Très bon état",
+  prix:       89.99,
+  ancienPrix: 129.99,
+  vendeur: {
+    initiales: "SM",
+    nom:       "Sophie M.",
+    note:      4.8,
+    ventes:    47,
+    ville:     "Paris"
+  },
+  description: "Veste oversize tendance, coupe moderne et confortable. Parfaite pour toutes les saisons.",
+  details: [
+    "Matière : 70% coton, 30% polyester",
+    "Coupe oversize",
+    "Fermeture par boutons",
+    "Poches latérales",
+    "Lavable en machine à 30°"
+  ],
+  avis: [
+    { nom: "Sophie M.", note: "★★★★★", texte: "Super qualité, je recommande vivement !", date: "il y a 2 jours" },
+    { nom: "Lucas D.",  note: "★★★★☆", texte: "Très bonne veste, taille un peu grand.",  date: "il y a 1 semaine" },
+  ]
+};
+
+function Galerie({ images }) {
+  const [mainImg, setMainImg] = useState(0);
+  return (
+    <div className="gallery">
+      <div className="main-image-container">
+        <img src={images[mainImg]} alt="produit" />
+      </div>
+      <div className="thumbnails">
+        {images.map((img, i) => (
+          <img
+            key={i}
+            src={img.replace("w=600", "w=200")}
+            alt={"vue " + (i+1)}
+            className={"thumb" + (mainImg === i ? " active" : "")}
+            onClick={() => setMainImg(i)}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ModeAchat({ prix }) {
+  return (
+    <div className="card">
+      <button className="btn-buy">⚡ ACHAT IMMÉDIAT — {prix.toFixed(2)}€</button>
+      <button className="btn-cart">🛒 AJOUTER AU PANIER</button>
+      <button className="btn-negociate">💬 FAIRE UNE OFFRE</button>
+    </div>
+  );
+}
+
+function ModeEnchere() {
+  const [bestBid,  setBestBid]  = useState(75);
+  const [bidCount, setBidCount] = useState(8);
+  const [bidInput, setBidInput] = useState("");
+  const [seconds,  setSeconds]  = useState(5025);
+
+  useEffect(() => {
+    let interval = setInterval(() => {
+      setSeconds(s => s > 0 ? s - 1 : 0);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  function formatTimer(s) {
+    let h   = Math.floor(s / 3600);
+    let m   = Math.floor((s % 3600) / 60);
+    let sec = s % 60;
+    return String(h).padStart(2,"0") + ":" + String(m).padStart(2,"0") + ":" + String(sec).padStart(2,"0");
+  }
+
+  function placerOffre() {
+    let amount = parseFloat(bidInput);
+    if (isNaN(amount) || amount <= bestBid) {
+      alert("Votre offre doit être supérieure à " + bestBid + "€");
+      return;
+    }
+    setBestBid(amount);
+    setBidCount(c => c + 1);
+    setBidInput("");
+    alert("Offre de " + amount.toFixed(2) + "€ placée !");
+  }
+
+  return (
+    <div className="card">
+      <div className="enchere-header">
+        <h3>🔨 Enchère en cours</h3>
+        <span className="timer">⏱ {formatTimer(seconds)}</span>
+      </div>
+      <div className="enchere-stats">
+        <div className="stat-box">
+          <p>Prix départ</p>
+          <strong>50.00€</strong>
+        </div>
+        <div className="stat-box">
+          <p>Meilleure offre</p>
+          <strong className="meilleure">{bestBid.toFixed(2)}€</strong>
+        </div>
+        <div className="stat-box">
+          <p>Enchères</p>
+          <strong>{bidCount}</strong>
+        </div>
+      </div>
+      <div className="bid-input-group">
+        <input
+          type="number"
+          placeholder="Votre offre en €"
+          value={bidInput}
+          onChange={e => setBidInput(e.target.value)}
+        />
+        <button onClick={placerOffre}>Enchérir</button>
+      </div>
+      <span className="historique">Voir l'historique des offres</span>
+    </div>
+  );
+}
+
+function Tabs({ description, details, avis }) {
+  const [activeTab, setActiveTab] = useState("description");
+  return (
+    <div className="tabs">
+      <div className="tab-buttons">
+        <button
+          className={"tab-btn" + (activeTab === "description" ? " active" : "")}
+          onClick={() => setActiveTab("description")}
+        >Description</button>
+        <button
+          className={"tab-btn" + (activeTab === "avis" ? " active" : "")}
+          onClick={() => setActiveTab("avis")}
+        >Avis ({avis.length})</button>
+      </div>
+      <div className="tab-content">
+        {activeTab === "description" && (
+          <div>
+            <p>{description}</p>
+            <ul>
+              {details.map((d, i) => <li key={i}>{d}</li>)}
+            </ul>
+          </div>
+        )}
+        {activeTab === "avis" && (
+          <div>
+            {avis.map((a, i) => (
+              <div className="review" key={i}>
+                <div className="review-header">
+                  <strong>{a.nom}</strong>
+                  <span>{a.date}</span>
+                </div>
+                <p>{a.note} {a.texte}</p>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function App() {
+  const [mode, setMode] = useState("achat");
+  const reduction = Math.round((1 - article.prix / article.ancienPrix) * 100);
+
+  return (
+    <div>
+      <Header />
+      <NavBar />
+      
+      {/* SWITCH */}
+      <div className="switch-bar">
+        <button
+          className={"switch-btn" + (mode === "achat" ? " active-achat" : "")}
+          onClick={() => setMode("achat")}
+        >🛒 Achat / Négociation</button>
+        <button
+          className={"switch-btn" + (mode === "enchere" ? " active-enchere" : "")}
+          onClick={() => setMode("enchere")}
+        >🔨 Enchère</button>
+      </div>
+
+      {/* PAGE */}
+      <div className="product-page">
+        <Galerie images={images} />
+        <div className="product-info">
+          {/* GROS BLOC INFOS */}
+          <div className="card" style={{display:"flex", flexDirection:"column", gap:"1.25rem"}}>
+            <div>
+              <p className="brand">Mercato Nova</p>
+              <h2 className="product-title">{article.titre}</h2>
+              <div className="rating">
+                <span style={{color:"#e4ca3e"}}>★★★★</span>
+                <span style={{color:"#ddd"}}>★</span>
+                <p>4.0 · 128 avis</p>
+              </div>
+            </div>
+            <hr className="divider" />
+            <div className="price-card">
+              <span className="price">{article.prix.toFixed(2)}€</span>
+              <span className="old-price">{article.ancienPrix.toFixed(2)}€</span>
+              <span className="discount">-{reduction}%</span>
+            </div>
+            <hr className="divider" />
+            <div className="tags-card">
+              <div className="tag">Taille <span>{article.taille}</span></div>
+              <div className="tag">Couleur <span>{article.couleur}</span></div>
+              <div className="tag">État <span>{article.etat}</span></div>
+              <div className="tag">Marque <span>{article.marque}</span></div>
+            </div>
+            <hr className="divider" />
+            <div className="seller-card">
+              <div className="seller-avatar">{article.vendeur.initiales}</div>
+              <div className="seller-info">
+                <p>{article.vendeur.nom}</p>
+                <small>⭐ {article.vendeur.note} · {article.vendeur.ventes} ventes · {article.vendeur.ville}</small>
+              </div>
+              <span className="seller-arrow">›</span>
+            </div>
+          </div>
+          {mode === "achat" ? <ModeAchat prix={article.prix} /> : <ModeEnchere />}
+          <div className="card badges-card">
+            <span className="badge badge-livraison">🚚 Livraison gratuite</span>
+            <span className="badge badge-retour">↩️ Retour 30j</span>
+            <span className="badge badge-securite">🔒 Paiement sécurisé</span>
+          </div>
+        </div>
+      </div>
+
+      <Tabs
+        description={article.description}
+        details={article.details}
+        avis={article.avis}
+      />
+      <Footer />
+    </div>
+  );
+}
+
+const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(<App />);

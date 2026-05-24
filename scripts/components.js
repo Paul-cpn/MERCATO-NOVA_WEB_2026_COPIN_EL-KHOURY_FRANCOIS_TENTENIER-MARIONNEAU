@@ -56,7 +56,7 @@ window.Footer = function() {
   return (
     <footer className="footer">
       <div className="footer-links">
-        <a href="#" className="footer-link">À propos</a>
+        <a href="apropo.html" className="footer-link">À propos</a>
         <a href="#" className="footer-link">FAQ</a>
         <a href="#" className="footer-link">Contactez-nous</a>
       </div>
