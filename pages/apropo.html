@@ -3,200 +3,68 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>À propos - Mercato Nova</title>
+    <title>Produit - Mercato Nova</title>
     <link rel="stylesheet" href="../style.css" />
     <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>  
   </head>
   <body>
     <div id="root"></div>
 
-    <script type="text/babel">
+<section class="about-hero">
+  <h1>Tu ne le portes plus ? Vends-le !</h1>
+  <p>Découvrez notre plateforme communautaire qui donne une seconde vie à vos objets. Ensemble, changeons notre façon de consommer au quotidien de manière plus responsable et économique.</p>
+</section>
 
-      const valeurs = [
-        { icon: "🤝", couleur: "jaune", titre: "Confiance",     texte: "Chaque vendeur est vérifié. Chaque transaction est protégée." },
-        { icon: "♻️", couleur: "vert",  titre: "Durabilité",    texte: "Donner une seconde vie aux vêtements pour réduire le gaspillage." },
-        { icon: "💬", couleur: "bleu",  titre: "Transparence",  texte: "Des prix justes, des descriptions honnêtes, sans mauvaise surprise." },
-        { icon: "🛡️", couleur: "rose",  titre: "Sécurité",      texte: "Paiements sécurisés et service client disponible 7j/7." },
-      ];
+<main class="about-container">
 
-      const equipe = [
-        { initiales: "AL", nom: "Alice L.",   role: "Co-fondatrice & CEO",      bg: "#e4ca3e" },
-        { initiales: "TM", nom: "Thomas M.",  role: "Co-fondateur & CTO",       bg: "#68c3e2" },
-        { initiales: "SC", nom: "Sarah C.",   role: "Responsable communauté",   bg: "#e6678f" },
-      ];
+  <div class="about-grid">
+    <div class="about-card">
+      <div class="icon-box" style="background-color: var(--jaune);">🏷️</div>
+      <h3>Vendez simplement</h3>
+      <p>Prenez vos articles en photo, ajoutez une description et fixez votre prix. C'est entièrement gratuit et cela ne prend que quelques minutes.</p>
+    </div>
 
-      const faqs = [
-        { question: "Comment vendre sur Mercato Nova ?",         reponse: "Créez un compte, publiez votre annonce avec photos et description, fixez votre prix. C'est aussi simple que ça !" },
-        { question: "Quels modes de transaction sont disponibles ?", reponse: "Vous pouvez vendre à prix fixe, par enchère ou via une négociation directe avec l'acheteur." },
-        { question: "Comment sont protégés mes paiements ?",     reponse: "Tous les paiements transitent par notre système sécurisé. L'argent n'est libéré au vendeur qu'une fois la livraison confirmée." },
-        { question: "Puis-je vendre autre chose que des vêtements ?", reponse: "Pour l'instant, Mercato Nova est spécialisé dans la mode. D'autres catégories arriveront prochainement !" },
-      ];
+    <div class="about-card">
+      <div class="icon-box" style="background-color: var(--bleu);">📦</div>
+      <h3>Envoi sécurisé</h3>
+      <p>Imprimez votre bordereau d'envoi prépayé. Grâce à nos partenaires de livraison, expédiez vos colis l'esprit tranquille et suivez-les en temps réel.</p>
+    </div>
 
-      function Header() {
-        return (
-          <header className="header">
-            <a href="../index.html" className="header-logo">
-              <div className="logo-icon">MN</div>
-              <span className="logo-name">Mercato Nova</span>
-            </a>
-            <div className="header-search">
-              <input type="text" placeholder="Rechercher un article..." />
-              <button className="search-btn">Rechercher</button>
-            </div>
-            <nav className="header-actions">
-              <a href="#" className="action-item"><span className="action-icon">🛒</span><span>Panier</span></a>
-              <a href="#" className="action-item"><span className="action-icon">❤️</span><span>Favoris</span></a>
-              <a href="#" className="action-item"><span className="action-icon">✉️</span><span>Messages</span></a>
-              <a href="#" className="action-item"><span className="action-icon">👤</span><span>Mon compte</span></a>
-            </nav>
-          </header>
-        );
-      }
+    <div class="about-card">
+      <div class="icon-box" style="background-color: var(--rose);">🛡️</div>
+      <h3>Achat protégé</h3>
+      <p>Notre système de paiement bloque l'argent en toute sécurité. Le vendeur n'est payé que lorsque vous validez la bonne réception de votre commande.</p>
+    </div>
+  </div>
 
-      function FaqItem({ question, reponse }) {
-        const [open, setOpen] = React.useState(false);
-        return (
-          <div className="faq-item">
-            <h4 onClick={() => setOpen(!open)}>
-              {question}
-              <span>{open ? "−" : "+"}</span>
-            </h4>
-            {open && <p>{reponse}</p>}
-          </div>
-        );
-      }
+  <div class="about-section-inline">
+    <div class="about-inline-content">
+      <h2>Notre Mission</h2>
+      <p>Nous pensons que le beau ne devrait pas rimer avec le neuf. En facilitant l'échange, l'achat en direct ou via notre système unique d'enchères, nous permettons à des milliers d'utilisateurs de vider leurs placards tout en gagnant de l'argent.</p>
+      <p>Faites de la place pour ce qui compte vraiment aujourd'hui, et laissez quelqu'un d'autre profiter de ce que vous avez adoré hier.</p>
+    </div>
+    <div class="about-inline-img">
+      [ Illustration Seconde Main ]
+    </div>
+  </div>
 
-      function App() {
-        return (
-          <div>
-            <Header />
+  <div class="about-section-inline" style="flex-direction: row-reverse;">
+    <div class="about-inline-content">
+      <h2>Deux façons d'acheter</h2>
+      <p>Parce que chaque expérience est unique, notre plateforme vous propose d'acheter immédiatement vos coups de cœur au prix affiché, ou de participer à des <strong>enchères excitantes</strong> pour dénicher la perle rare au meilleur prix.</p>
+      <p>Négociez directement avec les vendeurs et faites partie d'une communauté active et passionnée.</p>
+    </div>
+    <div class="about-inline-img">
+      [ Aperçu des Fonctionnalités ]
+    </div>
+  </div>
 
-            <div className="about-page">
+  <div class="cta-box">
+    <h2>Prêt à faire de la place dans vos placards ?</h2>
+    <p>Rejoignez notre communauté dès aujourd'hui et commencez à vendre ou à chiner de façon plus responsable.</p>
+    <a href="#" class="cta-btn">Commencer à vendre</a>
+  </div>
 
-              {/* HERO */}
-              <div className="hero-card">
-                <div className="logo-big">MN</div>
-                <h1>Mercato Nova</h1>
-                <p>La plateforme de mode de seconde main pensée pour tous. Achetez, vendez, négociez et enchérissez en toute confiance.</p>
-              </div>
-
-              {/* STATS */}
-              <div className="card">
-                <p className="section-label">En chiffres</p>
-                <h2 className="section-title">Mercato Nova aujourd'hui</h2>
-                <div className="stats-grid">
-                  <div className="stat-card">
-                    <div className="stat-number">+50k</div>
-                    <div className="stat-label">Utilisateurs actifs</div>
-                  </div>
-                  <div className="stat-card">
-                    <div className="stat-number">+120k</div>
-                    <div className="stat-label">Articles vendus</div>
-                  </div>
-                  <div className="stat-card">
-                    <div className="stat-number">98%</div>
-                    <div className="stat-label">Avis positifs</div>
-                  </div>
-                </div>
-              </div>
-
-              {/* HISTOIRE */}
-              <div className="card">
-                <p className="section-label">Notre histoire</p>
-                <h2 className="section-title">Pourquoi Mercato Nova ?</h2>
-                <p className="section-text">
-                  Mercato Nova est né d'une idée simple : rendre le commerce de seconde main plus humain, plus flexible et plus juste. Fondée en 2024 par une équipe passionnée de mode et de technologie, notre plateforme permet à chacun d'acheter et de vendre des vêtements de qualité, avec trois mécanismes de transaction uniques : l'achat immédiat, la négociation et les enchères.
-                </p>
-                <br />
-                <p className="section-text">
-                  Nous croyons que chaque vêtement mérite une seconde vie, et que chaque transaction doit être une bonne expérience pour les deux parties.
-                </p>
-              </div>
-
-              {/* VALEURS */}
-              <div className="card">
-                <p className="section-label">Ce qui nous guide</p>
-                <h2 className="section-title">Nos valeurs</h2>
-                <div className="valeurs-grid">
-                  {valeurs.map((v, i) => (
-                    <div className="valeur-item" key={i}>
-                      <div className={"valeur-icon " + v.couleur}>{v.icon}</div>
-                      <div className="valeur-info">
-                        <h4>{v.titre}</h4>
-                        <p>{v.texte}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* EQUIPE */}
-              <div className="card">
-                <p className="section-label">Les gens derrière le projet</p>
-                <h2 className="section-title">Notre équipe</h2>
-                <div className="equipe-grid">
-                  {equipe.map((m, i) => (
-                    <div className="membre-card" key={i}>
-                      <div className="membre-avatar" style={{backgroundColor: m.bg}}>{m.initiales}</div>
-                      <h4>{m.nom}</h4>
-                      <p>{m.role}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* FAQ */}
-              <div className="card">
-                <p className="section-label">Questions fréquentes</p>
-                <h2 className="section-title">FAQ</h2>
-                {faqs.map((f, i) => (
-                  <FaqItem key={i} question={f.question} reponse={f.reponse} />
-                ))}
-              </div>
-
-              {/* CONTACT */}
-              <div className="card">
-                <p className="section-label">On est là pour vous</p>
-                <h2 className="section-title">Nous contacter</h2>
-                <div className="contact-grid">
-                  <div className="contact-item">
-                    <span className="contact-icon">✉️</span>
-                    <h4>Email</h4>
-                    <p>Réponse sous 24h</p>
-                    <a href="mailto:contact@mercatonova.fr">contact@mercatonova.fr</a>
-                  </div>
-                  <div className="contact-item">
-                    <span className="contact-icon">💬</span>
-                    <h4>Chat en direct</h4>
-                    <p>Disponible 7j/7</p>
-                    <a href="#">Ouvrir le chat</a>
-                  </div>
-                  <div className="contact-item">
-                    <span className="contact-icon">📱</span>
-                    <h4>Réseaux sociaux</h4>
-                    <p>@mercatonova</p>
-                    <a href="#">Nous suivre</a>
-                  </div>
-                </div>
-              </div>
-
-            </div>
-
-            <footer className="footer">
-              <div className="footer-links">
-                <a href="#" className="footer-link">À propos</a>
-                <a href="#" className="footer-link">FAQ</a>
-                <a href="#" className="footer-link">Contactez-nous</a>
-              </div>
-            </footer>
-
-          </div>
-        );
-      }
-
-      ReactDOM.createRoot(document.getElementById("root")).render(<App />);
-    </script>
-  </body>
-</html>
+</main>
