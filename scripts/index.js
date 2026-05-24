@@ -1,48 +1,5 @@
 const { useState, useEffect } = React;
 
-function Header() {
-  return (
-    <header className="header">
-      <a href="#" className="header-logo">
-        <div className="logo-icon">MN</div>
-        <span className="logo-name">Mercato Nova</span>
-      </a>
-      <div className="header-search">
-        <input type="text" placeholder="Rechercher un article..." />
-        <button className="search-btn">Rechercher</button>
-      </div>
-      <nav className="header-actions">
-        <a href="#" className="action-item">
-          <span className="action-icon">🛒</span>
-          <span>Panier</span>
-        </a>
-        <a href="#" className="action-item">
-          <span className="action-icon">❤️</span>
-          <span>Favoris</span>
-        </a>
-        <a href="#" className="action-item">
-          <span className="action-icon">✉️</span>
-          <span>Messages</span>
-        </a>
-        <a href="#" className="action-item">
-          <span className="action-icon">👤</span>
-          <span>Mon compte</span>
-        </a>
-      </nav>
-    </header>
-  );
-}
-
-function NavBar() {
-  return (
-    <nav className="navbar">
-      <a href="#" className="nav-link">Homme</a>
-      <a href="#" className="nav-link">Femme</a>
-      <a href="#" className="nav-link">Enfant</a>
-    </nav>
-  );
-}
-
 function ArticleCard({ article }) {
   // Formatage du prix
   const prixFormate = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(article.prix_annonce);
@@ -114,18 +71,6 @@ function ArticlesSection() {
         ))}
       </div>
     </main>
-  );
-}
-
-function Footer() {
-  return (
-    <footer className="footer">
-      <div className="footer-links">
-        <a href="#" className="footer-link">À propos</a>
-        <a href="#" className="footer-link">FAQ</a>
-        <a href="#" className="footer-link">Contactez-nous</a>
-      </div>
-    </footer>
   );
 }
 

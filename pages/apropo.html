@@ -12,6 +12,7 @@
   <body>
     <div id="root"></div>
 
+    <script type="text/babel" src="../scripts/components.js"></script>
     <script type="text/babel">
 
       const valeurs = [
@@ -33,27 +34,6 @@
         { question: "Comment sont protégés mes paiements ?",     reponse: "Tous les paiements transitent par notre système sécurisé. L'argent n'est libéré au vendeur qu'une fois la livraison confirmée." },
         { question: "Puis-je vendre autre chose que des vêtements ?", reponse: "Pour l'instant, Mercato Nova est spécialisé dans la mode. D'autres catégories arriveront prochainement !" },
       ];
-
-      function Header() {
-        return (
-          <header className="header">
-            <a href="../index.html" className="header-logo">
-              <div className="logo-icon">MN</div>
-              <span className="logo-name">Mercato Nova</span>
-            </a>
-            <div className="header-search">
-              <input type="text" placeholder="Rechercher un article..." />
-              <button className="search-btn">Rechercher</button>
-            </div>
-            <nav className="header-actions">
-              <a href="#" className="action-item"><span className="action-icon">🛒</span><span>Panier</span></a>
-              <a href="#" className="action-item"><span className="action-icon">❤️</span><span>Favoris</span></a>
-              <a href="#" className="action-item"><span className="action-icon">✉️</span><span>Messages</span></a>
-              <a href="#" className="action-item"><span className="action-icon">👤</span><span>Mon compte</span></a>
-            </nav>
-          </header>
-        );
-      }
 
       function FaqItem({ question, reponse }) {
         const [open, setOpen] = React.useState(false);
@@ -107,7 +87,7 @@
                 <p className="section-label">Notre histoire</p>
                 <h2 className="section-title">Pourquoi Mercato Nova ?</h2>
                 <p className="section-text">
-                  Mercato Nova est né d'une idée simple : rendre le commerce de seconde main plus humain, plus flexible et plus juste. Fondée en 2024 par une équipe passionnée de mode et de technologie, notre plateforme permet à chacun d'acheter et de vendre des vêtements de qualité, avec trois mécanismes de transaction uniques : l'achat immédiat, la négociation et les enchères.
+                  Mercato Nova est né d'une idée simple : rendre le commerce de seconde main plus humain, plus flexible et plus juste. Fondée in 2024 par une équipe passionnée de mode et de technologie, notre plateforme permet à chacun d'acheter et de vendre des vêtements de qualité, avec trois mécanismes de transaction uniques : l'achat immédiat, la négociation et les enchères.
                 </p>
                 <br />
                 <p className="section-text">
@@ -184,13 +164,7 @@
 
             </div>
 
-            <footer className="footer">
-              <div className="footer-links">
-                <a href="#" className="footer-link">À propos</a>
-                <a href="#" className="footer-link">FAQ</a>
-                <a href="#" className="footer-link">Contactez-nous</a>
-              </div>
-            </footer>
+            <Footer />
 
           </div>
         );

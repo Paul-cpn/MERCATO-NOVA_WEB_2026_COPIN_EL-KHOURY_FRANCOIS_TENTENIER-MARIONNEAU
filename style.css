@@ -32,23 +32,29 @@ body {
 }
 
 .logo-icon {
-  width: 40px;
-  height: 40px;
-  background-color: #e4ca3e;
-  color: #fff;
-  border-radius: 8px;
+  width: 200px;
+  height: 80px;
+  background-image: url('images/LOGO-NOVA.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-color: transparent;
+  border-radius: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 700;
-  font-size: 14px;
   flex-shrink: 0;
 }
 
 .logo-name {
-  font-size: 20px;
-  font-weight: 700;
-  color: #e4ca3e;
+  display: none;
+}
+
+.header-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
 }
 
 .header-search {
@@ -110,7 +116,44 @@ body {
 }
 
 .action-icon {
-  font-size: 22px;
+  width: 24px;
+  height: 24px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  display: inline-block;
+}
+
+.cart-icon {
+  background-image: url('images/panier_classique.png');
+}
+
+.action-item:hover .cart-icon {
+  background-image: url('images/panier_survoler.png');
+}
+
+.heart-icon {
+  background-image: url('images/coeur_classique.png');
+}
+
+.action-item:hover .heart-icon {
+  background-image: url('images/coeur_survole.png');
+}
+
+.message-icon {
+  background-image: url('images/message_classique.png');
+}
+
+.action-item:hover .message-icon {
+  background-image: url('images/message_survole.png');
+}
+
+.user-icon {
+  background-image: url('images/user_classique.png');
+}
+
+.action-item:hover .user-icon {
+  background-image: url('images/user_survole.png');
 }
 
 /* ─── NAVBAR ─────────────────────────────────────────── */

@@ -12,6 +12,7 @@
   <body>
     <div id="root"></div>
 
+    <script type="text/babel" src="../scripts/components.js"></script>
     <script type="text/babel">
 
       const images = [
@@ -49,27 +50,6 @@
           { nom: "Lucas D.",  note: "★★★★☆", texte: "Très bonne veste, taille un peu grand.",  date: "il y a 1 semaine" },
         ]
       };
-
-      function Header() {
-        return (
-          <header className="header">
-            <a href="../index.html" className="header-logo">
-              <div className="logo-icon">MN</div>
-              <span className="logo-name">Mercato Nova</span>
-            </a>
-            <div className="header-search">
-              <input type="text" placeholder="Rechercher un article..." />
-              <button className="search-btn">Rechercher</button>
-            </div>
-            <nav className="header-actions">
-              <a href="#" className="action-item"><span className="action-icon">🛒</span><span>Panier</span></a>
-              <a href="#" className="action-item"><span className="action-icon">❤️</span><span>Favoris</span></a>
-              <a href="#" className="action-item"><span className="action-icon">✉️</span><span>Messages</span></a>
-              <a href="#" className="action-item"><span className="action-icon">👤</span><span>Mon compte</span></a>
-            </nav>
-          </header>
-        );
-      }
 
       function Galerie({ images }) {
         const [mainImg, setMainImg] = React.useState(0);
@@ -296,6 +276,8 @@
               details={article.details}
               avis={article.avis}
             />
+
+            <Footer />
 
           </div>
         );
