@@ -95,7 +95,15 @@ function Galerie({ images, isFavorite, onToggleFavorite }) {
 }
 
 // COMPOSANT MODE ACHAT
-function ModeAchat({ prix, originalPrix, isNegotiated, onAddToCart, isInCart, onMakeOffer, onDirectBuy }) {
+function ModeAchat({ prix, originalPrix, isNegotiated, onAddToCart, isInCart, onSubmitOffer, onDirectBuy }) {
+  const [isOfferMode, setIsOfferMode] = useState(false);
+  const [offerVal, setOfferVal] = useState(prix);
+
+  const handleConfirm = () => {
+    onSubmitOffer(offerVal);
+    setIsOfferMode(false);
+  };
+
   return (
     <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
       <div style={{ marginBottom: '5px' }}>
@@ -106,7 +114,10 @@ function ModeAchat({ prix, originalPrix, isNegotiated, onAddToCart, isInCart, on
         </div>
       </div>
       
-      <button className="btn-buy" onClick={onDirectBuy}>
+      <button 
+        className="btn-buy" 
+        onClick={onDirectBuy}
+      >
         <img src="../images/achatimediat.png" style={{height: '18px', verticalAlign: 'middle', marginRight: '8px'}} alt="achat" /> ACHAT IMMÉDIAT
       </button>
       
@@ -121,9 +132,50 @@ function ModeAchat({ prix, originalPrix, isNegotiated, onAddToCart, isInCart, on
         }
       </button>
       
-      <button className="btn-negociate" onClick={onMakeOffer}>
-        <img src="../images/faireOffre.png" style={{height: '18px', verticalAlign: 'middle', marginRight: '8px'}} alt="offre" /> FAIRE UNE OFFRE
-      </button>
+      {!isOfferMode ? (
+        <button className="btn-negociate" onClick={() => setIsOfferMode(true)}>
+          <img src="../images/faireOffre.png" style={{height: '18px', verticalAlign: 'middle', marginRight: '8px'}} alt="offre" /> FAIRE UNE OFFRE
+        </button>
+      ) : (
+        <div style={{ display: 'flex', gap: '5px' }}>
+          <input 
+            type="number" 
+            className="btn-negociate"
+            style={{ flex: 1, padding: '10px', borderRadius: '14px', textAlign: 'center' }}
+            value={offerVal}
+            onChange={e => setOfferVal(e.target.value)}
+            autoFocus
+          />
+          <button 
+            onClick={handleConfirm}
+            style={{ 
+              background: 'var(--bleu)', 
+              color: '#fff', 
+              border: 'none', 
+              borderRadius: '12px', 
+              padding: '0 15px', 
+              fontWeight: '800', 
+              cursor: 'pointer' 
+            }}
+          >
+            OK
+          </button>
+          <button 
+            onClick={() => setIsOfferMode(false)}
+            style={{ 
+              background: '#eee', 
+              color: '#666', 
+              border: 'none', 
+              borderRadius: '12px', 
+              padding: '0 10px', 
+              fontWeight: '800', 
+              cursor: 'pointer' 
+            }}
+          >
+            ✕
+          </button>
+        </div>
+      )}
     </div>
   );
 }
@@ -264,52 +316,6 @@ function Tabs({ description, avis }) {
   );
 }
 
-// COMPOSANT MODAL POUR FAIRE UNE OFFRE
-function OfferModal({ isOpen, onClose, onSubmit, initialPrice }) {
-  const [montant, setMontant] = useState(initialPrice);
-  
-  if (!isOpen) return null;
-
-  return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content" onClick={e => e.stopPropagation()} style={{ maxWidth: '400px' }}>
-        <span className="close-sidebar" style={{ top: '10px', right: '10px' }} onClick={onClose}>&times;</span>
-        <h2 style={{ marginBottom: '20px' }}>Faire une offre</h2>
-        <div style={{ marginBottom: '20px' }}>
-          <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600' }}>Votre proposition (€)</label>
-          <input 
-            type="number" 
-            value={montant} 
-            onChange={e => setMontant(e.target.value)}
-            style={{ 
-              width: '100%', 
-              padding: '12px', 
-              borderRadius: '10px', 
-              border: '1px solid #ddd',
-              fontSize: '16px'
-            }}
-          />
-        </div>
-        <button 
-          onClick={() => onSubmit(montant)}
-          style={{ 
-            width: '100%', 
-            padding: '12px', 
-            background: 'var(--jaune)', 
-            color: '#fff', 
-            border: 'none', 
-            borderRadius: '10px', 
-            fontWeight: '800', 
-            cursor: 'pointer' 
-          }}
-        >
-          Envoyer l'offre
-        </button>
-      </div>
-    </div>
-  );
-}
-
 function App() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -317,7 +323,6 @@ function App() {
   const [isInCart, setIsInCart] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
   const [feedback, setFeedback] = useState({ message: '', type: '' });
-  const [isOfferModalOpen, setIsOfferModalOpen] = useState(false);
 
   let user = null;
   try {
@@ -434,14 +439,6 @@ function App() {
     });
   };
 
-  const handleMakeOffer = () => {
-    if (!user) {
-        window.dispatchEvent(new CustomEvent('openAuthModal'));
-        return;
-    }
-    setIsOfferModalOpen(true);
-  };
-
   const submitOffer = (montant) => {
     if (!user) {
         window.dispatchEvent(new CustomEvent('openAuthModal'));
@@ -463,7 +460,6 @@ function App() {
     .then(res => res.json())
     .then(resData => {
         if (resData.success) {
-            setIsOfferModalOpen(false);
             setFeedback({ message: "Votre offre a été envoyée ! Redirection...", type: 'success' });
             setTimeout(() => window.location.href = "messages.html", 2000);
         } else {
@@ -661,7 +657,7 @@ function App() {
                 isNegotiated={annonce.is_negotiated}
                 onAddToCart={handleAddToCart} 
                 isInCart={isInCart} 
-                onMakeOffer={handleMakeOffer}
+                onSubmitOffer={submitOffer}
                 onDirectBuy={handleDirectBuy}
             />
           )}
@@ -679,13 +675,6 @@ function App() {
           </div>
         </div>
       </div>
-
-      <OfferModal 
-        isOpen={isOfferModalOpen}
-        onClose={() => setIsOfferModalOpen(false)}
-        onSubmit={submitOffer}
-        initialPrice={annonce.prix_annonce}
-      />
 
       {FooterComp && <FooterComp />}
     </div>

@@ -9,6 +9,8 @@ function PaiementPage() {
   const [loading, setLoading] = useState(true);
   const [isSuccess, setIsSuccess] = useState(false);
   const [transactionIds, setTransactionIds] = useState({});
+  const [showRecap, setShowRecap] = useState(false);
+  const [orderDate, setOrderDate] = useState(null);
   const [ratingsSubmitted, setRatingsSubmitted] = useState({});
   const [selectedNotes, setSelectedNotes] = useState({});
   const [comments, setComments] = useState({});
@@ -88,6 +90,7 @@ function PaiementPage() {
     .then(data => {
         if (data.success) {
             setTransactionIds(data.transactionIds || {});
+            setOrderDate(new Date());
             setIsSuccess(true);
             setLoading(false);
         } else {
@@ -155,6 +158,54 @@ function PaiementPage() {
     );
   }
 
+  if (isSuccess && showRecap) {
+    const dateCommande = orderDate || new Date();
+    const dateLivraison = new Date(dateCommande);
+    dateLivraison.setDate(dateLivraison.getDate() + 5);
+    const optionsDate = { day: '2-digit', month: 'long', year: 'numeric' };
+
+    return (
+        <div>
+            <Header />
+            <main className="main success-view">
+                <h1 style={{textAlign: 'center'}}>Merci {user.prenom_user} pour votre commande !</h1>
+                <p style={{textAlign: 'center'}}>Voici le récapitulatif de votre achat sur Mercato Nova.</p>
+
+                <div style={{marginTop: '40px', background: '#fff', padding: '30px', borderRadius: '20px', maxWidth: '500px', margin: '40px auto', textAlign: 'left'}}>
+                    <h3 style={{marginBottom: '15px'}}>Articles commandés</h3>
+                    {items.map((item, i) => (
+                        <div key={i} className="summary-item">
+                            <span>{item.titre}</span>
+                            <span>{parseFloat(item.prix || 0).toFixed(2)}€</span>
+                        </div>
+                    ))}
+                    <div className="summary-total">
+                        <span>Total</span>
+                        <span style={{color: 'var(--jaune)'}}>{total.toFixed(2)}€</span>
+                    </div>
+
+                    <h3 style={{margin: '25px 0 10px'}}>Adresse de livraison</h3>
+                    <p style={{color: '#333', margin: 0}}>{user.prenom_user} {user.nom_user}</p>
+                    <p style={{color: '#555', marginTop: '4px'}}>
+                        {user.adresse_user ? user.adresse_user : "Aucune adresse renseignée dans votre profil."}
+                    </p>
+
+                    <div style={{marginTop: '20px', padding: '15px', borderRadius: '12px', background: '#fdf8e1', border: '1px solid var(--jaune)'}}>
+                        <p style={{margin: 0, fontWeight: '700'}}>📦 Votre colis arrive sous 5 jours</p>
+                        <p style={{margin: '6px 0 0', fontSize: '13px', color: '#555'}}>
+                            Commande passée le {dateCommande.toLocaleDateString('fr-FR', optionsDate)}.<br/>
+                            Livraison estimée le <strong>{dateLivraison.toLocaleDateString('fr-FR', optionsDate)}</strong>.
+                        </p>
+                    </div>
+                </div>
+
+                <a href="index.html" className="cta-btn">Retour à l'accueil</a>
+            </main>
+            <Footer />
+        </div>
+    );
+  }
+
   if (isSuccess) {
     const vendeursUniques = Array.from(new Set(items.map(i => i.id_vendeur)))
                                  .map(id => items.find(i => i.id_vendeur === id));
@@ -211,7 +262,9 @@ function PaiementPage() {
                     ))}
                 </div>
 
-                <a href="index.html" className="cta-btn">Retour à l'accueil</a>
+                <button onClick={() => setShowRecap(true)} className="cta-btn" style={{border: 'none', cursor: 'pointer'}}>
+                    Voir le récapitulatif de ma commande
+                </button>
             </main>
             <Footer />
         </div>
