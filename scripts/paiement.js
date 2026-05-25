@@ -11,7 +11,14 @@ function PaiementPage() {
   const [transactionIds, setTransactionIds] = useState({});
   const [ratingsSubmitted, setRatingsSubmitted] = useState({});
   const [status, setStatus] = useState({ message: '', type: '' });
-  const user = JSON.parse(localStorage.getItem('user'));
+  
+  let user = null;
+  try {
+    const savedUser = localStorage.getItem('user');
+    user = savedUser ? JSON.parse(savedUser) : null;
+  } catch (e) {
+    console.error("Erreur parsing user:", e);
+  }
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -166,8 +173,8 @@ function PaiementPage() {
                                         <button 
                                             key={n} 
                                             onClick={() => submitRating(v.id_vendeur, v.id_annonce, n)}
-                                            style={{background: 'none', border: '1px solid #ddd', borderRadius: '50%', width: '35px', height: '32px', cursor: 'pointer', fontSize: '16px'}}
-                                        >{n}★</button>
+                                            style={{background: 'none', border: '1px solid #ddd', borderRadius: '50%', width: '40px', height: '40px', cursor: 'pointer', fontSize: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '2px'}}
+                                        >{n} <img src="../images/star.png" style={{height: '14px'}} alt="star" /></button>
                                     ))}
                                 </div>
                             )}

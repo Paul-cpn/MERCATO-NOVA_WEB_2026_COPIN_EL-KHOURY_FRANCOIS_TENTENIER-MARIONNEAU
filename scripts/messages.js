@@ -12,7 +12,13 @@ function MessagesPage() {
   const [status, setStatus] = useState({ message: '', type: '' });
   const chatEndRef = useRef(null);
   
-  const user = JSON.parse(localStorage.getItem('user'));
+  let user = null;
+  try {
+    const savedUser = localStorage.getItem('user');
+    user = savedUser ? JSON.parse(savedUser) : null;
+  } catch (e) {
+    console.error("Erreur parsing user:", e);
+  }
 
   const fetchNegotiations = () => {
     if (!user) return;

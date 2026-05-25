@@ -73,7 +73,13 @@ function MesArticlesPage() {
   const [articles, setArticles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [status, setStatus] = useState({ message: '', type: '' });
-  const user = JSON.parse(localStorage.getItem('user'));
+  let user = null;
+  try {
+    const savedUser = localStorage.getItem('user');
+    user = savedUser ? JSON.parse(savedUser) : null;
+  } catch (e) {
+    console.error("Erreur parsing user:", e);
+  }
 
   useEffect(() => {
     if (!user || (user.role_user !== 'vendeur' && user.role_user !== 'admin')) {

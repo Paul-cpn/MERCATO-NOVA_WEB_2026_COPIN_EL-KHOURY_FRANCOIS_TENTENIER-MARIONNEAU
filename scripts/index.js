@@ -397,12 +397,26 @@ function ArticlesSection() {
   const [filters, setFilters] = useState({});
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [initialCategory, setInitialCategory] = useState(null);
-  const [currentUser, setCurrentUser] = useState(JSON.parse(localStorage.getItem('user')));
+  const [currentUser, setCurrentUser] = useState(() => {
+    try {
+      const savedUser = localStorage.getItem('user');
+      return savedUser ? JSON.parse(savedUser) : null;
+    } catch (e) {
+      console.error("Erreur parsing user:", e);
+      return null;
+    }
+  });
   const [notification, setNotification] = useState({ message: '', type: '' });
 
   useEffect(() => {
     const handleUserChange = () => {
-        const u = JSON.parse(localStorage.getItem('user'));
+        let u = null;
+        try {
+          const savedUser = localStorage.getItem('user');
+          u = savedUser ? JSON.parse(savedUser) : null;
+        } catch (e) {
+          console.error("Erreur parsing user:", e);
+        }
         setCurrentUser(u);
     };
     window.addEventListener('userLoggedIn', handleUserChange);

@@ -80,7 +80,13 @@ function FavorisPage() {
   const [error, setError] = useState(null);
   const [notification, setNotification] = useState({ message: '', type: '' });
   
-  const user = JSON.parse(localStorage.getItem('user'));
+  let user = null;
+  try {
+    const savedUser = localStorage.getItem('user');
+    user = savedUser ? JSON.parse(savedUser) : null;
+  } catch (e) {
+    console.error("Erreur parsing user:", e);
+  }
   const isAdmin = user && user.role_user === 'admin';
 
   const fetchFavoris = () => {

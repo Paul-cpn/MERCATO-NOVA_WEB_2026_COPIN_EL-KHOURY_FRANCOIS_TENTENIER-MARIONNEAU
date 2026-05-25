@@ -201,12 +201,18 @@ window.Header = function({ onCategoryClick, isSidebarOpen }) {
   };
 
   useEffect(() => {
-    const savedUser = localStorage.getItem('user');
-    const u = savedUser ? JSON.parse(savedUser) : null;
+    let u = null;
+    try {
+        const savedUser = localStorage.getItem('user');
+        u = savedUser ? JSON.parse(savedUser) : null;
+    } catch (e) {
+        console.error("Erreur parsing user:", e);
+    }
+
     if (u) {
         setUser(u);
         fetchNotifCount(u);
-        fetchCartCount(u); // <--- Récupération automatique au chargement initial
+        fetchCartCount(u); 
     } else {
         localStorage.setItem('cart_count', '0');
         setCartCount(0);

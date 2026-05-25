@@ -81,15 +81,20 @@ function CartItem({ article, isFav, onFavToggle, onRemoveFromCart, isAdmin, onAd
 
         <div style={{display: 'flex', gap: '10px', alignItems: 'center'}}>
           <button onClick={handleRemoveClick}
-            style={{padding: '7px 14px', backgroundColor: '#fff', color: '#ff5757', border: '1px solid #ff5757', borderRadius: '8px', fontSize: '12px', fontWeight: '700', cursor: 'pointer'}}
+            style={{padding: '7px 14px', backgroundColor: '#fff', color: '#ff5757', border: '1px solid #ff5757', borderRadius: '8px', fontSize: '12px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px'}}
             onMouseEnter={e => { e.currentTarget.style.background = '#ff5757'; e.currentTarget.style.color = '#fff'; }}
             onMouseLeave={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.color = '#ff5757'; }}
-          >🗑 Retirer</button>
+          >
+            <img src="../images/croix.png" style={{height: '12px'}} alt="retirer" /> Retirer
+          </button>
 
           <button onClick={handleFavClick}
-            style={{padding: '7px 14px', backgroundColor: isFav ? '#fdf8e1' : '#fff', color: 'var(--jaune)', border: '1px solid var(--jaune)', borderRadius: '8px', fontSize: '12px', fontWeight: '700', cursor: 'pointer'}}
+            style={{padding: '7px 14px', backgroundColor: isFav ? '#fdf8e1' : '#fff', color: 'var(--jaune)', border: '1px solid var(--jaune)', borderRadius: '8px', fontSize: '12px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px'}}
           >
-            {isFav ? '♥ Favori' : '♡ Ajouter aux favoris'}
+            {isFav ? 
+              <><img src="../images/coeur_survole.png" style={{height: '14px'}} /> Favori</> : 
+              <><img src="../images/coeur_classique.png" style={{height: '14px'}} /> Ajouter aux favoris</>
+            }
           </button>
         </div>
       </div>
@@ -103,7 +108,13 @@ function PanierPage() {
   const [loading, setLoading] = useState(true);
   const [notification, setNotification] = useState({ message: '', type: '' });
 
-  const user = JSON.parse(localStorage.getItem('user'));
+  let user = null;
+  try {
+      const savedUser = localStorage.getItem('user');
+      user = savedUser ? JSON.parse(savedUser) : null;
+  } catch (e) {
+      console.error("Erreur parsing user:", e);
+  }
   const isAdmin = user && user.role_user === 'admin';
 
   const fetchCart = () => {
@@ -228,7 +239,9 @@ function PanierPage() {
 
         {!loading && articles.length === 0 && (
           <div style={{textAlign: 'center', padding: '80px 0'}}>
-            <div style={{fontSize: '48px', marginBottom: '16px'}}>🛒</div>
+            <div style={{marginBottom: '16px'}}>
+              <img src="../images/panier_classique.png" style={{height: '64px'}} alt="panier vide" />
+            </div>
             <p style={{fontSize: '18px', color: '#666', marginBottom: '16px'}}>Votre panier est vide.</p>
             <a href="index.html" style={{
               display: 'inline-block', background: 'var(--jaune)', color: '#fff',

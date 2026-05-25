@@ -5,7 +5,13 @@ const Header = window.Header;
 const Footer = window.Footer;
 
 function VendrePage() {
-  const user = JSON.parse(localStorage.getItem('user'));
+  let user = null;
+  try {
+    const savedUser = localStorage.getItem('user');
+    user = savedUser ? JSON.parse(savedUser) : null;
+  } catch (e) {
+    console.error("Erreur parsing user:", e);
+  }
   
   // États pour les catégories hiérarchiques
   const [categoryTree, setCategoryTree] = useState([]);

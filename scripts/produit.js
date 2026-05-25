@@ -1,10 +1,5 @@
 const { useState, useEffect } = React;
 
-// Récupération des composants globaux
-const Header = window.Header;
-const NavBar = window.NavBar;
-const Footer = window.Footer;
-
 // COMPOSANT GALERIE : Fixé pour occuper un grand espace même sans image chargée
 function Galerie({ images, isFavorite, onToggleFavorite }) {
   const [mainImg, setMainImg] = useState(0);
@@ -23,20 +18,20 @@ function Galerie({ images, isFavorite, onToggleFavorite }) {
     <div className="gallery" style={{ position: 'relative', width: '100%' }}>
       {/* Bouton Favoris */}
       <button 
+        className="btn-fav"
         onClick={onToggleFavorite}
         style={{
           position: 'absolute',
           top: '15px',
           right: '15px',
-          background: '#ffffff',
+          background: '#fff',
           border: 'none',
           borderRadius: '50%',
-          width: '40px',
-          height: '40px',
+          width: '45px',
+          height: '45px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          fontSize: '20px',
           cursor: 'pointer',
           boxShadow: '0 4px 10px rgba(0,0,0,0.15)',
           zIndex: 10,
@@ -45,8 +40,12 @@ function Galerie({ images, isFavorite, onToggleFavorite }) {
         onMouseEnter={(e) => e.target.style.transform = 'scale(1.1)'}
         onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
       >
-        {isFavorite ? '❤️' : '🤍'}
+        {isFavorite ? 
+          <img src="../images/coeur_survole.png" style={{height: '24px'}} alt="favori" /> : 
+          <img src="../images/coeur_classique.png" style={{height: '24px'}} alt="favori" />
+        }
       </button>
+
 
       {/* Conteneur Image principale : forcé à 500px de haut minimum */}
       <div className="main-image-container" style={{ 
@@ -107,17 +106,24 @@ function ModeAchat({ prix, originalPrix, isNegotiated, onAddToCart, isInCart, on
         </div>
       </div>
       
-      <button className="btn-buy" onClick={onDirectBuy}>⚡ ACHAT IMMÉDIAT</button>
+      <button className="btn-buy" onClick={onDirectBuy}>
+        <img src="../images/achatimediat.png" style={{height: '18px', verticalAlign: 'middle', marginRight: '8px'}} alt="achat" /> ACHAT IMMÉDIAT
+      </button>
       
       <button 
         className={`btn-cart ${isInCart ? 'active' : ''}`} 
         onClick={onAddToCart}
         style={isInCart ? { backgroundColor: '#ff5757', color: '#fff' } : {}}
       >
-        {isInCart ? '❌ RETIRER DU PANIER' : '🛒 AJOUTER AU PANIER'}
+        {isInCart ? 
+          <><img src="../images/croix.png" style={{height: '18px', verticalAlign: 'middle', marginRight: '8px'}} alt="retirer" /> RETIRER DU PANIER</> : 
+          <><img src="../images/panier_survoler.png" style={{height: '18px', verticalAlign: 'middle', marginRight: '8px'}} alt="panier" /> AJOUTER AU PANIER</>
+        }
       </button>
       
-      <button className="btn-negociate" onClick={onMakeOffer}>💬 FAIRE UNE OFFRE</button>
+      <button className="btn-negociate" onClick={onMakeOffer}>
+        <img src="../images/faireOffre.png" style={{height: '18px', verticalAlign: 'middle', marginRight: '8px'}} alt="offre" /> FAIRE UNE OFFRE
+      </button>
     </div>
   );
 }
@@ -227,7 +233,17 @@ function Tabs({ description, avis }) {
                           <strong>{a.auteur_nom || "Anonyme"}</strong>
                           <span style={{ color: '#aaa', fontWeight: '400' }}>{new Date(a.date_avis).toLocaleDateString()}</span>
                         </div>
-                        <p style={{ margin: 0 }}>{"★".repeat(a.note_avis)}{"☆".repeat(5-a.note_avis)} {a.commentaire_avis}</p>
+                        <div className="review-rating" style={{ display: 'flex', gap: '2px', marginBottom: '4px' }}>
+                          {[...Array(5)].map((_, j) => (
+                            <img 
+                              key={j} 
+                              src="../images/star.png" 
+                              style={{ height: '12px', opacity: j < a.note_avis ? 1 : 0.2 }} 
+                              alt="star" 
+                            />
+                          ))}
+                        </div>
+                        <p style={{ margin: 0 }}>{a.commentaire_avis}</p>
                     </div>
                 ))
             ) : (
@@ -256,7 +272,16 @@ function App() {
   const [isFavorite, setIsFavorite] = useState(false);
   const [feedback, setFeedback] = useState({ message: '', type: '' });
 
-  const user = JSON.parse(localStorage.getItem('user'));
+  let user = null;
+  try {
+    const savedUser = localStorage.getItem('user');
+    user = savedUser ? JSON.parse(savedUser) : null;
+  } catch (e) {
+    console.error("Erreur parsing user:", e);
+  }
+  const HeaderComp = window.Header;
+  const NavBarComp = window.NavBar;
+  const FooterComp = window.Footer;
 
   const fetchData = () => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -427,8 +452,23 @@ function App() {
     });
   };
 
-  if (loading) return <div style={{padding: '50px', textAlign: 'center'}}>{Header && <Header/>}{NavBar && <NavBar/>}<main>Chargement...</main>{Footer && <Footer/>}</div>;
-  if (error) return <div style={{padding: '50px', textAlign: 'center', color: 'red'}}>{Header && <Header/>}{NavBar && <NavBar/>}<main>Erreur : {error}</main>{Footer && <Footer/>}</div>;
+  if (loading) return (
+    <div style={{padding: '50px', textAlign: 'center'}}>
+      {HeaderComp && <HeaderComp />}
+      {NavBarComp && <NavBarComp />}
+      <main>Chargement...</main>
+      {FooterComp && <FooterComp />}
+    </div>
+  );
+
+  if (error) return (
+    <div style={{padding: '50px', textAlign: 'center', color: 'red'}}>
+      {HeaderComp && <HeaderComp />}
+      {NavBarComp && <NavBarComp />}
+      <main>Erreur : {error}</main>
+      {FooterComp && <FooterComp />}
+    </div>
+  );
 
   const { annonce, images, avis } = data;
   const isEnchere = annonce.type_vente_annonce === 'enchere';
@@ -455,8 +495,8 @@ function App() {
 
   return (
     <div>
-      <Header />
-      <NavBar />
+      {HeaderComp && <HeaderComp />}
+      {NavBarComp && <NavBarComp />}
       
       {/* STRUCTURE GRILLE HARMONIEUSE */}
       <div className="product-page" style={{ 
@@ -541,10 +581,16 @@ function App() {
               </div>
               <div className="seller-info" style={{ flexGrow: 1 }}>
                 <p style={{ margin: '0 0 4px 0', fontWeight: '700', fontSize: '14px' }}>{annonce.vendeur_prenom} {annonce.vendeur_nom}</p>
-                <div className="rating" style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '12px' }}>
-                  <span style={{color:"#e4ca3e"}}>{"★".repeat(Math.round(annonce.vendeur_note || 0))}</span>
-                  <span style={{color:"#ddd"}}>{"★".repeat(5 - Math.round(annonce.vendeur_note || 0))}</span>
-                  <span style={{ color: '#666' }}>({parseFloat(annonce.vendeur_note || 0).toFixed(1)} · {annonce.vendeur_ventes || 0} ventes)</span>
+                <div className="rating" style={{ display: 'flex', alignItems: 'center', gap: '2px', fontSize: '12px' }}>
+                  {[...Array(5)].map((_, i) => (
+                    <img 
+                      key={i} 
+                      src="../images/star.png" 
+                      style={{ height: '12px', opacity: i < Math.round(annonce.vendeur_note || 0) ? 1 : 0.2 }} 
+                      alt="star" 
+                    />
+                  ))}
+                  <span style={{ color: '#666', marginLeft: '5px' }}>({parseFloat(annonce.vendeur_note || 0).toFixed(1)} · {annonce.vendeur_ventes || 0} ventes)</span>
                 </div>
               </div>
               <span className="seller-arrow" style={{ fontSize: '20px', color: '#ccc' }}>›</span>
@@ -566,14 +612,20 @@ function App() {
           )}
           
           <div className="card badges-card">
-            <span className="badge badge-livraison">🚚 Livraison gratuite</span>
-            <span className="badge badge-retour">↩️ Retour 30j</span>
-            <span className="badge badge-securite">🔒 Paiement sécurisé</span>
+            <span className="badge badge-livraison">
+              <img src="../images/livraison.png" style={{height: '16px', marginRight: '6px'}} alt="livraison" /> Livraison gratuite
+            </span>
+            <span className="badge badge-retour">
+              <img src="../images/return.png" style={{height: '16px', marginRight: '6px'}} alt="retour" /> Retour 30j
+            </span>
+            <span className="badge badge-securite">
+              <img src="../images/paimentSecurisé.png" style={{height: '16px', marginRight: '6px'}} alt="sécurité" /> Paiement sécurisé
+            </span>
           </div>
         </div>
       </div>
 
-      <Footer />
+      {FooterComp && <FooterComp />}
     </div>
   );
 }
