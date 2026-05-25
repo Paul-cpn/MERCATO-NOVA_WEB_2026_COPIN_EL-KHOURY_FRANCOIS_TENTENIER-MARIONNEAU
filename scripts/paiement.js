@@ -10,6 +10,8 @@ function PaiementPage() {
   const [isSuccess, setIsSuccess] = useState(false);
   const [transactionIds, setTransactionIds] = useState({});
   const [ratingsSubmitted, setRatingsSubmitted] = useState({});
+  const [selectedNotes, setSelectedNotes] = useState({});
+  const [comments, setComments] = useState({});
   const [status, setStatus] = useState({ message: '', type: '' });
   
   let user = null;
@@ -99,12 +101,19 @@ function PaiementPage() {
     });
   };
 
-  const submitRating = (idVendeur, idAnnonce, note) => {
+  const submitRating = (idVendeur, idAnnonce) => {
     const idTransaction = transactionIds[idAnnonce];
     if (!idTransaction) {
         setStatus({ message: "Erreur: ID de transaction manquant pour cet article.", type: 'error' });
         return;
     }
+
+    const note = selectedNotes[idAnnonce];
+    if (!note) {
+        setStatus({ message: "Veuillez sélectionner une note avant d'envoyer votre avis.", type: 'error' });
+        return;
+    }
+    const commentaire = (comments[idAnnonce] || "").trim();
 
     console.log("Envoi d'une note de " + note + " pour le vendeur #" + idVendeur + " (Transaction #" + idTransaction + ")");
     fetch('../scripts/submit_rating.php', {
@@ -115,7 +124,7 @@ function PaiementPage() {
             id_user_cible: idVendeur,
             id_transaction: idTransaction,
             note: note,
-            commentaire: `Achat de l'article #${idAnnonce}`
+            commentaire: commentaire
         })
     })
     .then(res => res.json())
@@ -166,16 +175,36 @@ function PaiementPage() {
                         <div key={v.id_vendeur} style={{marginBottom: '20px', paddingBottom: '15px', borderBottom: '1px solid #eee'}}>
                             <p style={{fontWeight: '700', marginBottom: '10px'}}>Comment s'est passée la vente avec {v.vendeur_nom} ?</p>
                             {ratingsSubmitted[v.id_annonce] ? (
-                                <p style={{color: '#7ed957', fontWeight: '800'}}>Note envoyée ! ✓</p>
+                                <p style={{color: '#7ed957', fontWeight: '800'}}>Avis envoyé ! ✓</p>
                             ) : (
-                                <div style={{display: 'flex', justifyContent: 'center', gap: '10px'}}>
-                                    {[1,2,3,4,5].map(n => (
-                                        <button 
-                                            key={n} 
-                                            onClick={() => submitRating(v.id_vendeur, v.id_annonce, n)}
-                                            style={{background: 'none', border: '1px solid #ddd', borderRadius: '50%', width: '40px', height: '40px', cursor: 'pointer', fontSize: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '2px'}}
-                                        >{n} <img src="../images/star.png" style={{height: '14px'}} alt="star" /></button>
-                                    ))}
+                                <div>
+                                    <div style={{display: 'flex', justifyContent: 'center', gap: '10px'}}>
+                                        {[1,2,3,4,5].map(n => {
+                                            const active = (selectedNotes[v.id_annonce] || 0) >= n;
+                                            return (
+                                                <button
+                                                    key={n}
+                                                    onClick={() => setSelectedNotes(prev => ({...prev, [v.id_annonce]: n}))}
+                                                    style={{background: active ? '#fdf8e1' : 'none', border: `1px solid ${active ? 'var(--jaune)' : '#ddd'}`, borderRadius: '50%', width: '40px', height: '40px', cursor: 'pointer', fontSize: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '2px', opacity: active ? 1 : 0.45}}
+                                                >{n} <img src="../images/star.png" style={{height: '14px'}} alt="star" /></button>
+                                            );
+                                        })}
+                                    </div>
+                                    <textarea
+                                        value={comments[v.id_annonce] || ''}
+                                        onChange={(e) => setComments(prev => ({...prev, [v.id_annonce]: e.target.value}))}
+                                        maxLength={300}
+                                        placeholder="Laissez un avis sur cette vente (qualité de l'article, contact avec le vendeur...)"
+                                        style={{width: '100%', marginTop: '15px', minHeight: '70px', padding: '10px', borderRadius: '12px', border: '1px solid #ddd', fontFamily: 'inherit', fontSize: '13px', resize: 'vertical', boxSizing: 'border-box'}}
+                                    />
+                                    <div style={{textAlign: 'right', fontSize: '11px', color: '#bbb', marginTop: '2px'}}>
+                                        {(comments[v.id_annonce] || '').length}/300
+                                    </div>
+                                    <button
+                                        onClick={() => submitRating(v.id_vendeur, v.id_annonce)}
+                                        disabled={!selectedNotes[v.id_annonce]}
+                                        style={{marginTop: '8px', width: '100%', padding: '10px', borderRadius: '12px', border: 'none', background: selectedNotes[v.id_annonce] ? 'var(--jaune)' : '#eee', color: selectedNotes[v.id_annonce] ? '#000' : '#aaa', fontWeight: '800', cursor: selectedNotes[v.id_annonce] ? 'pointer' : 'not-allowed', fontSize: '14px'}}
+                                    >Envoyer mon avis</button>
                                 </div>
                             )}
                         </div>
