@@ -13,6 +13,7 @@ try {
     // Récupérer les négociations où l'utilisateur est soit acheteur soit vendeur
     $sql = "SELECT n.*, a.titre_annonce, 
                    u_ac.pseudo_user as acheteur_pseudo, u_v.pseudo_user as vendeur_pseudo,
+                   (SELECT url_image FROM image WHERE id_annonce = a.id_annonce ORDER BY ordre_image ASC LIMIT 1) as image_url,
                    (SELECT message_echange FROM echange WHERE id_negociation = n.id_negociation ORDER BY date_echange DESC LIMIT 1) as dernier_message,
                    (SELECT date_echange FROM echange WHERE id_negociation = n.id_negociation ORDER BY date_echange DESC LIMIT 1) as date_dernier_message
             FROM negociation n

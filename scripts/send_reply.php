@@ -16,9 +16,17 @@ $message = $data['message'];
 $montant = isset($data['montant']) ? floatval($data['montant']) : null;
 
 try {
+    $pdo->beginTransaction();
+
     // 1. Ajouter l'échange
     $stmt = $pdo->prepare("INSERT INTO echange (montant_echange, message_echange, id_negociation, id_user) VALUES (:m, :msg, :n, :u)");
     $stmt->execute(['m' => $montant, 'msg' => $message, 'n' => $id_negociation, 'u' => $id_user]);
+
+    // 2. Si c'est une offre, on repasse le statut en 'en_cours' (au cas où c'était refusé)
+    if ($montant !== null) {
+        $stmt = $pdo->prepare("UPDATE negociation SET statut_negociation = 'en_cours' WHERE id_negociation = :id");
+        $stmt->execute(['id' => $id_negociation]);
+    }
 
     // 2. Notifier l'autre personne
     // Trouver qui est l'autre personne
@@ -37,8 +45,10 @@ try {
 
     createNotification($pdo, $id_autre, 'message', $texte, $id_negociation);
 
+    $pdo->commit();
     echo json_encode(['success' => true]);
 } catch (Exception $e) {
+    if ($pdo->inTransaction()) $pdo->rollBack();
     echo json_encode(['error' => $e->getMessage()]);
 }
 ?>

@@ -95,7 +95,8 @@ function MessagesPage() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         id_negociation: activeNeg.id_negociation,
-        statut: statut
+        statut: statut,
+        id_user: user.id_user // On envoie l'ID de celui qui clique
       })
     })
     .then(res => res.json())
@@ -125,8 +126,8 @@ function MessagesPage() {
   }
 
   const lastOfferMessage = [...messages].reverse().find(m => m.montant_echange !== null);
-  const isSeller = activeNeg && activeNeg.id_user_vendeur == user.id_user;
-  const canAccept = isSeller && activeNeg.statut_negociation === 'en_cours' && lastOfferMessage && lastOfferMessage.id_user != user.id_user;
+  // canAccept : on peut accepter si on n'est PAS l'auteur de la dernière offre ET que la négo est en cours
+  const canAccept = activeNeg && activeNeg.statut_negociation === 'en_cours' && lastOfferMessage && lastOfferMessage.id_user != user.id_user;
 
   return (
     <div>
@@ -292,7 +293,6 @@ function MessagesPage() {
                     value={replyText}
                     onChange={e => setReplyText(e.target.value)}
                     onKeyPress={e => e.key === 'Enter' && handleSend()}
-                    disabled={activeNeg.statut_negociation !== 'en_cours'}
                   />
                   <input
                     type="number"
@@ -300,12 +300,12 @@ function MessagesPage() {
                     placeholder="Offre €"
                     value={replyOffer}
                     onChange={e => setReplyOffer(e.target.value)}
-                    disabled={activeNeg.statut_negociation !== 'en_cours'}
+                    disabled={activeNeg.statut_negociation === 'acceptee'}
                   />
                   <button
                     className="chat-send-btn"
                     onClick={handleSend}
-                    disabled={activeNeg.statut_negociation !== 'en_cours'}
+                    disabled={!replyText.trim() && !replyOffer}
                   >
                     Envoyer
                   </button>
