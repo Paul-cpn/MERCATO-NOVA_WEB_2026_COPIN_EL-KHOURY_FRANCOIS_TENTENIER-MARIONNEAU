@@ -1,5 +1,4 @@
 const { useState, useEffect } = React;
-const { Header, Footer, Sidebar } = window;
 
 function Countdown({ dateFinale }) {
   const [temps, setTemps] = useState('');
@@ -123,6 +122,8 @@ function ArticleCard({ article, isFav, onFavToggle, isAdmin, onAdminDelete }) {
   );
 }
 function ArticlesSection() {
+  const Header = window.Header;
+  const Sidebar = window.Sidebar;
   const [articles, setArticles] = useState([]);
   const [favIds, setFavIds] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -221,6 +222,7 @@ function ArticlesSection() {
   };
 
   const handleAdminDelete = (id_annonce) => {
+    if (!currentUser) return;
     fetch('../scripts/admin_delete_annonce.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -308,6 +310,7 @@ function ArticlesSection() {
 }
 
 function App() {
+  const Footer = window.Footer;
   return (
     <div>
       <ArticlesSection />

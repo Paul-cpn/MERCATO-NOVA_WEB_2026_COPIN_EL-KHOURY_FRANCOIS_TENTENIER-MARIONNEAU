@@ -36,7 +36,7 @@ function AuthModal({ isOpen, onClose, onLoginSuccess }) {
           window.dispatchEvent(new CustomEvent('userLoggedIn', { detail: data.user }));
           onClose();
           // Redirection directe vers la page complète du compte après connexion réussie
-          window.location.href = "compte.html";
+          window.location.href = "profil.html";
         } else {
           setSuccess("Compte créé avec succès ! Connectez-vous.");
           setTimeout(() => setIsLogin(true), 2000);
@@ -173,7 +173,275 @@ function NotificationsModal({ isOpen, user, onClose }) {
 }
 
 // ==========================================
-// 3. COMPOSANT HEADER COMMUN (GLOBAL)
+// 3. COMPOSANT SIDEBAR (FILTRES)
+// ==========================================
+window.Sidebar = function({ isOpen, initialCategory, onClose, onFilterChange }) {
+  const [allCategories, setAllCategories] = useState([]);
+  const [displayCategories, setDisplayCategories] = useState([]);
+  const [openCats, setOpenCats] = useState({});
+  
+  const defaultFilters = {
+    categorie_id: null,
+    prix_min: 0,
+    prix_max: 500,
+    etats: [],
+    couleurs: [],
+    matieres: [],
+    tailles: []
+  };
+
+  const [filters, setFilters] = useState(defaultFilters);
+  const maxPossiblePrice = 1000;
+
+  const [isBottomSelected, setIsBottomSelected] = useState(false);
+
+  useEffect(() => {
+    if (filters.categorie_id && allCategories.length > 0) {
+        const findCatAndPath = (list, id, path = []) => {
+            for (let c of list) {
+                if (c.id_categorie === id) return [...path, c];
+                if (c.subs) {
+                    let found = findCatAndPath(c.subs, id, [...path, c]);
+                    if (found) return found;
+                }
+            }
+            return null;
+        };
+        const path = findCatAndPath(allCategories, filters.categorie_id);
+        const hasBottomInPath = path && path.some(c => c.nom_categorie.toLowerCase() === 'bas');
+        setIsBottomSelected(hasBottomInPath);
+    } else {
+        setIsBottomSelected(false);
+    }
+  }, [filters.categorie_id, allCategories]);
+
+  useEffect(() => {
+    if (!isOpen) {
+      setFilters(defaultFilters);
+      setOpenCats({});
+    }
+  }, [isOpen]);
+
+  const updateFilters = (newFields) => {
+    const updated = { ...filters, ...newFields };
+    setFilters(updated);
+    onFilterChange(updated);
+  };
+
+  const [localPrice, setLocalPrice] = useState({ min: 0, max: 500 });
+
+  useEffect(() => {
+    setLocalPrice({ min: filters.prix_min, max: filters.prix_max });
+  }, [filters.prix_min, filters.prix_max]);
+
+  const handlePriceDrag = (e, type) => {
+    const val = parseInt(e.target.value);
+    if (type === 'min') {
+      const newMin = Math.min(val, localPrice.max - 10);
+      setLocalPrice(prev => ({ ...prev, min: newMin }));
+    } else {
+      const newMax = Math.max(val, localPrice.min + 10);
+      setLocalPrice(prev => ({ ...prev, max: newMax }));
+    }
+  };
+
+  const triggerPriceFilter = () => {
+    updateFilters({ prix_min: localPrice.min, prix_max: localPrice.max });
+  };
+
+  useEffect(() => {
+    fetch('../scripts/get_categories.php')
+      .then(res => res.json())
+      .then(data => {
+        setAllCategories(data);
+      });
+  }, []);
+
+  useEffect(() => {
+    if (allCategories.length > 0) {
+      if (initialCategory) {
+        const selectedBranch = allCategories.filter(c => c.nom_categorie === initialCategory);
+        setDisplayCategories(selectedBranch);
+        
+        if (selectedBranch.length > 0) {
+          const catId = selectedBranch[0].id_categorie;
+          setOpenCats({ [catId]: true });
+          const updated = { ...filters, categorie_id: catId };
+          setFilters(updated);
+          onFilterChange(updated);
+        }
+      } else {
+        setDisplayCategories(allCategories);
+      }
+    }
+  }, [initialCategory, allCategories]);
+
+  const toggleCat = (id, e) => {
+    e.stopPropagation();
+    setOpenCats(prev => ({ ...prev, [id]: !prev[id] }));
+  };
+
+  const selectCat = (id) => {
+    updateFilters({ categorie_id: id });
+  };
+
+  const handleCheckbox = (listName, value) => {
+    const list = [...filters[listName]];
+    const index = list.indexOf(value);
+    if (index > -1) list.splice(index, 1);
+    else list.push(value);
+    updateFilters({ [listName]: list });
+  };
+
+  const renderCategory = (cat) => {
+    const hasSubs = cat.subs && cat.subs.length > 0;
+    const isOpened = openCats[cat.id_categorie];
+
+    return (
+      <div key={cat.id_categorie} className="category-node">
+        <div 
+          className={`category-parent ${filters.categorie_id === cat.id_categorie ? 'active' : ''}`}
+          onClick={() => selectCat(cat.id_categorie)}
+        >
+          {cat.nom_categorie}
+          {hasSubs && (
+            <span className="toggle-icon" onClick={(e) => toggleCat(cat.id_categorie, e)}>
+              {isOpened ? '−' : '+'}
+            </span>
+          )}
+        </div>
+        {hasSubs && isOpened && (
+          <div className="category-subs">
+            {cat.subs.map(sub => renderCategory(sub))}
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  return (
+    <>
+      <div className={`sidebar-overlay ${isOpen ? 'active' : ''}`} onClick={onClose}></div>
+      <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
+        <span className="close-sidebar" onClick={onClose}>&times;</span>
+        
+        <div className="filter-group" style={{marginTop: '40px'}}>
+          <h3 className="filter-title">Catégories</h3>
+          <div className="filter-list">
+            {displayCategories.map(cat => renderCategory(cat))}
+          </div>
+        </div>
+
+        <div className="filter-group">
+          <h3 className="filter-title">Prix</h3>
+          <div className="price-inputs">
+            <div className="price-values">
+              <span>{localPrice.min}€</span>
+              <span>{localPrice.max}€</span>
+            </div>
+            <div className="range-slider">
+              <div 
+                className="progress" 
+                style={{ 
+                  left: `${(localPrice.min / maxPossiblePrice) * 100}%`, 
+                  right: `${100 - (localPrice.max / maxPossiblePrice) * 100}%` 
+                }}
+              ></div>
+              <input 
+                type="range" 
+                min="0" 
+                max={maxPossiblePrice} 
+                value={localPrice.min} 
+                onChange={(e) => handlePriceDrag(e, 'min')}
+                onMouseUp={triggerPriceFilter}
+                onTouchEnd={triggerPriceFilter}
+              />
+              <input 
+                type="range" 
+                min="0" 
+                max={maxPossiblePrice} 
+                value={localPrice.max} 
+                onChange={(e) => handlePriceDrag(e, 'max')}
+                onMouseUp={triggerPriceFilter}
+                onTouchEnd={triggerPriceFilter}
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="filter-group">
+          <h3 className="filter-title">État</h3>
+          <div className="filter-list">
+            {['neuf', 'tres_bon', 'bon', 'acceptable'].map(e => (
+              <label key={e} className="filter-item">
+                <input 
+                  type="checkbox" 
+                  checked={filters.etats.includes(e)}
+                  onChange={() => handleCheckbox('etats', e)}
+                />
+                {e.replace('_', ' ')}
+              </label>
+            ))}
+          </div>
+        </div>
+
+        <div className="filter-group">
+          <h3 className="filter-title">Couleur</h3>
+          <div className="filter-list">
+            {['Noir', 'Blanc', 'Bleu', 'Rouge', 'Vert'].map(c => (
+              <label key={c} className="filter-item">
+                <input 
+                  type="checkbox" 
+                  checked={filters.couleurs.includes(c)}
+                  onChange={() => handleCheckbox('couleurs', c)}
+                />
+                {c}
+              </label>
+            ))}
+          </div>
+        </div>
+
+        <div className="filter-group">
+          <h3 className="filter-title">Matière</h3>
+          <div className="filter-list">
+            {['Coton', 'Laine', 'Cuir', 'Soie', 'Synthétique'].map(m => (
+              <label key={m} className="filter-item">
+                <input 
+                  type="checkbox" 
+                  checked={filters.matieres.includes(m)}
+                  onChange={() => handleCheckbox('matieres', m)}
+                />
+                {m}
+              </label>
+            ))}
+          </div>
+        </div>
+
+        <div className="filter-group">
+          <h3 className="filter-title">Taille</h3>
+          <div className="filter-list">
+            {(isBottomSelected 
+              ? ['36', '38', '40', '42', '44', '46'] 
+              : ['XS', 'S', 'M', 'L', 'XL', 'XXL']
+            ).map(t => (
+              <label key={t} className="filter-item">
+                <input 
+                  type="checkbox" 
+                  checked={filters.tailles.includes(t)}
+                  onChange={() => handleCheckbox('tailles', t)}
+                />
+                {t}
+              </label>
+            ))}
+          </div>
+        </div>
+      </aside>
+    </>
+  );
+};
+
+// ==========================================
+// 4. COMPOSANT HEADER COMMUN (GLOBAL)
 // ==========================================
 window.Header = function({ onCategoryClick, isSidebarOpen }) {
   const [user, setUser] = useState(null);
@@ -264,7 +532,7 @@ window.Header = function({ onCategoryClick, isSidebarOpen }) {
   const handleUserClick = (e) => {
     e.preventDefault();
     if (user) {
-      window.location.href = "compte.html";
+      window.location.href = "profil.html";
     } else {
       setIsAuthOpen(true);
     }
