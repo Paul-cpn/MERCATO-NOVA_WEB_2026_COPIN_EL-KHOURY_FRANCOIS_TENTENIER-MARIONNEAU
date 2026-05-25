@@ -430,49 +430,141 @@ body {
 .articles-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 30px; /* Espace d'au moins 20px entre les cartes */
+  gap: 24px;
+}
+
+/* Quand le volet est ouvert, on passe à 3 articles par ligne */
+.catalog-container.sidebar-open .articles-grid {
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
 }
 
 /* ─── CARTE ARTICLE ──────────────────────────────────── */
 
-.article-card {
-  display: flex;
-  flex-direction: row;
-  background-color: #fff;
-  border: 1px solid #e8e8e8;
-  border-radius: 10px;
-  overflow: hidden;
-  text-decoration: none;
-  color: inherit;
-  transition: box-shadow 0.2s, transform 0.2s;
+/* ─── GRILLE D'ARTICLES ──────────────────────────────── */
+
+.articles-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
 }
 
-.article-card:hover {
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
-  transform: translateY(-2px);
+.catalog-container.sidebar-open .articles-grid {
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
 }
+
+/* ─── CARTE ARTICLE ──────────────────────────────────── */
 
 .article-card-container {
   position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.article-card {
+  display: flex;
+  flex-direction: column;
+  background-color: #fff;
+  border: 2px solid #e8e8e8;
+  border-radius: 12px;
+  overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+  cursor: pointer;
+}
+
+.article-card:hover {
+  border-color: #e4ca3e;
+  box-shadow: 0 8px 24px rgba(228, 202, 62, 0.2);
+  transform: translateY(-4px);
+}
+
+.article-image-wrapper {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  position: relative;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.article-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  border-radius: 0;
+  transition: transform 0.3s ease;
+}
+
+.article-card:hover .article-image {
+  transform: scale(1.04);
+}
+
+.article-info {
+  padding: 12px 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.article-titre {
+  font-size: 13px;
+  font-weight: 600;
+  color: #222;
+  white-space: normal;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  line-height: 1.4;
+}
+
+.article-prix {
+  font-size: 16px;
+  font-weight: 700;
+  color: #e4ca3e;
+  margin-top: 4px;
+}
+
+.article-details {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.article-detail {
+  font-size: 12px;
+  color: #999;
+  background: none;
+  padding: 0;
+  border-radius: 0;
+}
+
+.article-detail span {
+  color: #777;
+  font-weight: 400;
 }
 
 .btn-fav-card {
   position: absolute;
   top: 10px;
-  right: 130px; /* Positionné juste à gauche de l'image (qui fait 120px + marge) */
-  width: 28px;
-  height: 28px;
-  background-color: #fff;
+  right: 10px;
+  width: 34px;
+  height: 34px;
+  background-color: rgba(255,255,255,0.9);
   background-image: url('images/coeur_classique.png');
-  background-size: 70%;
+  background-size: 55%;
   background-repeat: no-repeat;
   background-position: center;
   border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.12);
   z-index: 5;
   transition: all 0.2s;
 }
@@ -484,60 +576,6 @@ body {
 
 .btn-fav-card.active {
   background-image: url('images/coeur_survole.png');
-}
-
-.article-info {
-  flex: 1;
-  padding: 14px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  min-width: 0;
-}
-
-.article-titre {
-  font-size: 14px;
-  font-weight: 600;
-  color: #222;
-  margin-bottom: 6px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.article-prix {
-  font-size: 16px;
-  font-weight: 700;
-  color: #e4ca3e;
-  margin-bottom: 10px;
-}
-
-.article-details {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.article-detail {
-  font-size: 12px;
-  color: #888;
-}
-
-.article-detail span {
-  color: #444;
-  font-weight: 500;
-}
-
-.article-image {
-  width: 120px;
-  min-width: 120px;
-  height: 120px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  color: #666;
-  font-weight: 500;
 }
 
 /* ─── FOOTER ─────────────────────────────────────────── */

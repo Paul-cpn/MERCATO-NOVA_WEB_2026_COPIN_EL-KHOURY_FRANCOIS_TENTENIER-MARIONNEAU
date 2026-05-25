@@ -1,6 +1,5 @@
 const { useState, useEffect } = React;
 
-// Récupération des composants globaux
 const Header = window.Header;
 const Footer = window.Footer;
 
@@ -269,6 +268,31 @@ function Sidebar({ isOpen, initialCategory, onClose, onFilterChange }) {
   );
 }
 
+function Countdown({ dateFinale }) {
+  const [temps, setTemps] = useState('');
+
+  useEffect(() => {
+    const calc = () => {
+      const diff = new Date(dateFinale) - new Date();
+      if (diff <= 0) { setTemps('Terminée'); return; }
+      const h = Math.floor(diff / 3600000);
+      const m = Math.floor((diff % 3600000) / 60000);
+      const s = Math.floor((diff % 60000) / 1000);
+      if (h > 24) {
+        const j = Math.floor(h / 24);
+        setTemps(`${j}j ${h % 24}h`);
+      } else {
+        setTemps(`${h}h ${m}m ${s}s`);
+      }
+    };
+    calc();
+    const interval = setInterval(calc, 1000);
+    return () => clearInterval(interval);
+  }, [dateFinale]);
+
+  return <span>{temps}</span>;
+}
+
 function ArticleCard({ article, isFav, onFavToggle, isAdmin, onAdminDelete }) {
   const prixFormate = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(article.prix_annonce);
   
@@ -282,63 +306,89 @@ function ArticleCard({ article, isFav, onFavToggle, isAdmin, onAdminDelete }) {
     e.preventDefault();
     e.stopPropagation();
     if (confirm("Voulez-vous vraiment supprimer cette annonce définitivement (Admin) ?")) {
-        onAdminDelete(article.id_annonce);
+      onAdminDelete(article.id_annonce);
     }
   };
 
   return (
     <div className="article-card-container">
-      <div className={`btn-fav-card ${isFav ? 'active' : ''}`} onClick={handleFavClick}>
-      </div>
-      
+      <div className={`btn-fav-card ${isFav ? 'active' : ''}`} onClick={handleFavClick} />
+
       {isAdmin && (
-        <div 
-            onClick={handleDelete}
-            title="Supprimer l'annonce (Admin)"
-            style={{
-                position: 'absolute', 
-                top: '10px', 
-                left: '10px', 
-                width: '24px', 
-                height: '24px', 
-                background: '#ff5757', 
-                color: '#fff', 
-                borderRadius: '50%', 
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'center', 
-                cursor: 'pointer', 
-                zIndex: 10, 
-                fontSize: '18px',
-                fontWeight: '800',
-                boxShadow: '0 2px 5px rgba(0,0,0,0.2)',
-                lineHeight: 0
-            }}
+        <div
+          onClick={handleDelete}
+          title="Supprimer l'annonce (Admin)"
+          style={{
+            position: 'absolute',
+            top: '10px',
+            left: '10px',
+            width: '24px',
+            height: '24px',
+            background: '#ff5757',
+            color: '#fff',
+            borderRadius: '50%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            zIndex: 10,
+            fontSize: '18px',
+            fontWeight: '800',
+            boxShadow: '0 2px 5px rgba(0,0,0,0.2)',
+            lineHeight: 0
+          }}
         >&times;</div>
       )}
 
       <a href={`produit.html?id=${article.id_annonce}`} className="article-card">
+        <div className="article-image-wrapper">
+          <div
+            className="article-image"
+            style={{
+              backgroundColor: '#e0e0e0',
+              backgroundImage: article.image_url ? `url(${article.image_url})` : 'none',
+              backgroundSize: 'cover',
+              backgroundPosition: 'center top'
+            }}
+          >
+            {!article.image_url && 'Photo'}
+          </div>
+        </div>
         <div className="article-info">
           <div className="article-titre">{article.titre_annonce}</div>
           <div className="article-prix">{prixFormate}</div>
+
+          {article.type_annonce === 'enchere' && article.date_fin_enchere && (
+            <div style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              backgroundColor: '#fff0f5',
+              border: '1px solid #e6678f',
+              borderRadius: '6px',
+              padding: '4px 10px',
+              fontSize: '12px',
+              fontWeight: '700',
+              color: '#e6678f',
+              marginTop: '4px'
+            }}>
+              🔴 Enchère en cours · <Countdown dateFinale={article.date_fin_enchere} />
+            </div>
+          )}
+
           <div className="article-details">
-            {article.taille_annonce && <div className="article-detail">Taille : <span>{article.taille_annonce}</span></div>}
-            {article.couleur_annonce && <div className="article-detail">Couleur : <span>{article.couleur_annonce}</span></div>}
+            {article.taille_annonce && (
+              <div className="article-detail">Taille : <span>{article.taille_annonce}</span></div>
+            )}
+            {article.couleur_annonce && (
+              <div className="article-detail">· Couleur : <span>{article.couleur_annonce}</span></div>
+            )}
           </div>
-        </div>
-        <div className="article-image" style={{ 
-            backgroundColor: '#e0e0e0',
-            backgroundImage: article.image_url ? `url(${article.image_url})` : 'none',
-            backgroundSize: 'cover',
-            backgroundPosition: 'center'
-          }}>
-          {!article.image_url && 'Photo'}
         </div>
       </a>
     </div>
   );
 }
-
 function ArticlesSection() {
   const [articles, setArticles] = useState([]);
   const [favIds, setFavIds] = useState([]);
@@ -353,7 +403,6 @@ function ArticlesSection() {
   useEffect(() => {
     const handleUserChange = () => {
         const u = JSON.parse(localStorage.getItem('user'));
-        console.log("Sync User Home:", u);
         setCurrentUser(u);
     };
     window.addEventListener('userLoggedIn', handleUserChange);
@@ -456,7 +505,11 @@ function ArticlesSection() {
   return (
     <div>
       <Header onCategoryClick={handleHeaderCategoryClick} isSidebarOpen={isSidebarOpen} />
-      {isAdmin && <div style={{background: '#ff5757', color: '#fff', textAlign: 'center', padding: '5px', fontSize: '12px', fontWeight: 'bold'}}>MODE ADMINISTRATEUR ACTIF</div>}
+      {isAdmin && (
+        <div style={{background: '#ff5757', color: '#fff', textAlign: 'center', padding: '5px', fontSize: '12px', fontWeight: 'bold'}}>
+          MODE ADMINISTRATEUR ACTIF
+        </div>
+      )}
       
       {notification.message && (
         <div style={{
