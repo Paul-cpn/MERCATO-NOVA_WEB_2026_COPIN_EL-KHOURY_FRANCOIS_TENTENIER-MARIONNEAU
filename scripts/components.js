@@ -1,6 +1,8 @@
 const { useState, useEffect } = React;
 
-// Composant de gestion de l'authentification (Modal)
+// ==========================================
+// 1. MODALE D'AUTHENTIFICATION (CONNEXION / INSCRIPTION)
+// ==========================================
 function AuthModal({ isOpen, onClose, onLoginSuccess }) {
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
@@ -17,9 +19,7 @@ function AuthModal({ isOpen, onClose, onLoginSuccess }) {
     setSuccess('');
     
     const endpoint = isLogin ? '../scripts/login.php' : '../scripts/register.php';
-    const body = isLogin 
-      ? { pseudo: formData.pseudo, mdp: formData.mdp }
-      : formData;
+    const body = isLogin ? { pseudo: formData.pseudo, mdp: formData.mdp } : formData;
 
     fetch(endpoint, {
       method: 'POST',
@@ -35,6 +35,8 @@ function AuthModal({ isOpen, onClose, onLoginSuccess }) {
           onLoginSuccess(data.user);
           window.dispatchEvent(new CustomEvent('userLoggedIn', { detail: data.user }));
           onClose();
+          // Redirection directe vers la page complète du compte après connexion réussie
+          window.location.href = "compte.html";
         } else {
           setSuccess("Compte créé avec succès ! Connectez-vous.");
           setTimeout(() => setIsLogin(true), 2000);
@@ -69,7 +71,7 @@ function AuthModal({ isOpen, onClose, onLoginSuccess }) {
           
           <p className="auth-switch">
             {isLogin ? "Pas encore de compte ? " : "Déjà un compte ? "}
-            <span onClick={() => setIsLogin(!isLogin)}>
+            <span onClick={() => setIsLogin(!isLogin)} style={{color: '#e4ca3e', fontWeight: 'bold', cursor: 'pointer'}}>
               {isLogin ? "S'inscrire" : "Se connecter"}
             </span>
           </p>
@@ -79,45 +81,9 @@ function AuthModal({ isOpen, onClose, onLoginSuccess }) {
   );
 }
 
-// Composant Profil
-function ProfileModal({ isOpen, user, onClose, onLogout }) {
-  if (!isOpen || !user) return null;
-
-  const canSell = user.role_user === 'vendeur' || user.role_user === 'admin';
-
-  return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content profile-view" onClick={e => e.stopPropagation()}>
-        <span className="close-sidebar" style={{top: '10px', right: '10px'}} onClick={onClose}>&times;</span>
-        <div className="profile-header">{user.prenom_user} {user.nom_user}</div>
-        <p>@{user.pseudo_user} <span style={{fontSize: '10px', background: 'var(--jaune)', color: '#fff', padding: '2px 6px', borderRadius: '10px'}}>{user.role_user}</span></p>
-        <p style={{color: '#666', fontSize: '14px'}}>{user.email_user}</p>
-        <p style={{color: '#888', fontSize: '12px', marginTop: '10px'}}>{user.adresse_user}</p>
-        
-        {canSell && (
-            <>
-                <button 
-                    onClick={() => window.location.href = "vendre.html"}
-                    style={{marginTop: '25px', width: '100%', background: 'var(--jaune)', color: '#fff', border: 'none', padding: '12px', borderRadius: '10px', fontWeight: '800', cursor: 'pointer'}}
-                >
-                    Mettre un article en vente
-                </button>
-                <button 
-                    onClick={() => window.location.href = "mes_articles.html"}
-                    style={{marginTop: '10px', width: '100%', background: '#fff', color: 'var(--jaune)', border: '2px solid var(--jaune)', padding: '10px', borderRadius: '10px', fontWeight: '800', cursor: 'pointer'}}
-                >
-                    Mes annonces
-                </button>
-            </>
-        )}
-
-        <button className="btn-logout" onClick={onLogout}>Se déconnecter</button>
-      </div>
-    </div>
-  );
-}
-
-// Composant Notifications
+// ==========================================
+// 2. MODALE DES NOTIFICATIONS
+// ==========================================
 function NotificationsModal({ isOpen, user, onClose }) {
     const [notifs, setNotifs] = useState([]);
     
@@ -138,7 +104,6 @@ function NotificationsModal({ isOpen, user, onClose }) {
                     setNotifs([]);
                 });
             
-            // Marquer comme lu après un délai
             const timer = setTimeout(() => {
                 fetch('../scripts/mark_notifications_read.php', {
                     method: 'POST',
@@ -146,7 +111,6 @@ function NotificationsModal({ isOpen, user, onClose }) {
                     body: JSON.stringify({id_user: user.id_user})
                 }).then(() => {
                     window.dispatchEvent(new CustomEvent('notificationsRead'));
-                    // On met aussi à jour localement les notifs pour enlever le fond jaune immédiatement
                     setNotifs(prev => prev.map(n => ({...n, lu_notification: 1})));
                 }).catch(() => {});
             }, 1000);
@@ -208,11 +172,12 @@ function NotificationsModal({ isOpen, user, onClose }) {
     );
 }
 
-// Composant Header commun
+// ==========================================
+// 3. COMPOSANT HEADER COMMUN (GLOBAL)
+// ==========================================
 window.Header = function({ onCategoryClick, isSidebarOpen }) {
   const [user, setUser] = useState(null);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
-  const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [notifCount, setNotifCount] = useState(0);
   const [notifHover, setNotifHover] = useState(false);
@@ -228,7 +193,6 @@ window.Header = function({ onCategoryClick, isSidebarOpen }) {
         });
   };
 
-  // NOUVELLE FONCTION : Récupère la taille réelle du panier en base de données
   const fetchCartCount = (u) => {
     if (!u) {
       localStorage.removeItem('cart_count');
@@ -243,7 +207,6 @@ window.Header = function({ onCategoryClick, isSidebarOpen }) {
         setCartCount(count);
       })
       .catch(() => {
-        // En cas d'erreur de requête, on récupère au moins ce qu'il y a en LocalStorage
         const savedCount = localStorage.getItem('cart_count');
         setCartCount(savedCount ? parseInt(savedCount, 10) : 0);
       });
@@ -274,7 +237,6 @@ window.Header = function({ onCategoryClick, isSidebarOpen }) {
 
     const handleOpenAuth = () => setIsAuthOpen(true);
     const handleRefreshNotifs = () => {
-        // Force le rechargement du compteur en repassant l'utilisateur actuel
         const savedUser = localStorage.getItem('user');
         if (savedUser) fetchNotifCount(JSON.parse(savedUser));
     };
@@ -287,7 +249,7 @@ window.Header = function({ onCategoryClick, isSidebarOpen }) {
     window.addEventListener('userLoggedIn', (e) => {
         setUser(e.detail);
         fetchNotifCount(e.detail);
-        fetchCartCount(e.detail); // <--- Récupération immédiate dès que l'utilisateur s'identifie !
+        fetchCartCount(e.detail);
     });
 
     return () => {
@@ -298,10 +260,14 @@ window.Header = function({ onCategoryClick, isSidebarOpen }) {
     };
   }, []);
 
+  // Redirection propre vers la page complète ici
   const handleUserClick = (e) => {
     e.preventDefault();
-    if (user) setIsProfileOpen(true);
-    else setIsAuthOpen(true);
+    if (user) {
+      window.location.href = "compte.html";
+    } else {
+      setIsAuthOpen(true);
+    }
   };
 
   const handleNotifClick = (e) => {
@@ -313,14 +279,6 @@ window.Header = function({ onCategoryClick, isSidebarOpen }) {
   const handleLogin = (userData) => {
     setUser(userData);
     localStorage.setItem('user', JSON.stringify(userData));
-  };
-
-  const handleLogout = () => {
-    setUser(null);
-    localStorage.removeItem('user');
-    localStorage.removeItem('cart_count'); // Nettoyage du panier à la déconnexion
-    setIsProfileOpen(false);
-    window.location.reload();
   };
 
   return (
@@ -339,11 +297,7 @@ window.Header = function({ onCategoryClick, isSidebarOpen }) {
             <span className="action-icon" style={{ 
                 position: 'relative',
                 backgroundImage: `url(../images/notification_${notifHover ? 'survole' : 'classique'}.png)`,
-                width: '24px', 
-                height: '24px', 
-                backgroundSize: 'contain',
-                backgroundRepeat: 'no-repeat',
-                backgroundPosition: 'center'
+                width: '24px', height: '24px', backgroundSize: 'contain', backgroundRepeat: 'no-repeat', backgroundPosition: 'center'
             }}>
                 {notifCount > 0 && <span style={{position: 'absolute', top: '-5px', right: '-5px', background: '#ff5757', color: '#fff', fontSize: '9px', width: '15px', height: '15px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '800'}}>{notifCount}</span>}
             </span>
@@ -354,23 +308,9 @@ window.Header = function({ onCategoryClick, isSidebarOpen }) {
             <span className="action-icon cart-icon" style={{ position: 'relative' }}>
               {cartCount > 0 && (
                 <span style={{
-                  position: 'absolute',
-                  top: '-5px',
-                  right: '-7px',
-                  background: 'var(--jaune)',
-                  color: '#111',
-                  fontSize: '9px',
-                  width: '16px',
-                  height: '16px',
-                  borderRadius: '50%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontWeight: '900',
-                  border: '1.5px solid #ffffff',
-                  boxShadow: '0 2px 4px rgba(0,0,0,0.15)',
-                  lineHeight: 1,
-                  zIndex: 10
+                  position: 'absolute', top: '-5px', right: '-7px', background: 'var(--jaune)', color: '#111', fontSize: '9px',
+                  width: '16px', height: '16px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontWeight: '900', border: '1.5px solid #ffffff', boxShadow: '0 2px 4px rgba(0,0,0,0.15)', lineHeight: 1, zIndex: 10
                 }}>
                   {cartCount}
                 </span>
@@ -404,13 +344,6 @@ window.Header = function({ onCategoryClick, isSidebarOpen }) {
         isOpen={isAuthOpen} 
         onClose={() => setIsAuthOpen(false)} 
         onLoginSuccess={handleLogin} 
-      />
-      
-      <ProfileModal 
-        isOpen={isProfileOpen} 
-        user={user} 
-        onClose={() => setIsProfileOpen(false)} 
-        onLogout={handleLogout} 
       />
 
       <NotificationsModal

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mon Compte - Mercato Nova</title>
+    
+    <link rel="stylesheet" href="../css/style.css"> 
+    
+    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body>
+
+    <div id="root"></div>
+
+    <script type="text/babel" src="componante.jsx"></script>
+
+    <script type="text/babel" src="compte.jsx"></script>
+
+    <script type="text/babel">
+        // On attend une micro-seconde que Babel ait bien enregistré les fonctions dans window
+        setTimeout(() => {
+            const rootContainer = document.getElementById('root');
+            if (rootContainer && window.Header && window.ComptePage && window.Footer) {
+                const root = ReactDOM.createRoot(rootContainer);
+                root.render(
+                    <React.Fragment>
+                        <window.Header />
+                        <window.ComptePage />
+                        <window.Footer />
+                    </React.Fragment>
+                );
+            } else {
+                console.error("Erreur de chargement des composants. Vérifiez les noms de fichiers.");
+            }
+        }, 50);
+    </script>
+
+</body>
+</html>
