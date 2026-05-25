@@ -68,6 +68,7 @@ function ArticleCard({ article, onAdminDelete, isAdmin }) {
 function MesArticlesPage() {
   const [articles, setArticles] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [status, setStatus] = useState({ message: '', type: '' });
   const user = JSON.parse(localStorage.getItem('user'));
 
   useEffect(() => {
@@ -100,9 +101,10 @@ function MesArticlesPage() {
     .then(data => {
         if (data.success) {
             setArticles(articles.filter(a => a.id_annonce !== id_annonce));
-            alert("Annonce supprimée.");
+            setStatus({ message: "Annonce supprimée.", type: 'success' });
+            setTimeout(() => setStatus({ message: '', type: '' }), 3000);
         } else {
-            alert("Erreur: " + data.error);
+            setStatus({ message: "Erreur: " + data.error, type: 'error' });
         }
     });
   };
@@ -114,6 +116,22 @@ function MesArticlesPage() {
       <Header />
       <main className="main">
         <h2 className="section-title" style={{textAlign: 'center', marginBottom: '40px'}}>Mes Annonces</h2>
+        
+        {status.message && (
+            <div style={{
+                padding: '12px',
+                margin: '0 auto 20px',
+                maxWidth: '600px',
+                borderRadius: '10px',
+                textAlign: 'center',
+                background: status.type === 'success' ? '#d4edda' : '#f8d7da',
+                color: status.type === 'success' ? '#155724' : '#721c24',
+                border: `1px solid ${status.type === 'success' ? '#c3e6cb' : '#f5c6cb'}`,
+                fontWeight: '600'
+            }}>
+                {status.message}
+            </div>
+        )}
         
         {loading && <p style={{ textAlign: 'center' }}>Chargement...</p>}
         

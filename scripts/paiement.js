@@ -6,6 +6,7 @@ function PaiementPage() {
   const [isSuccess, setIsSuccess] = useState(false);
   const [transactionIds, setTransactionIds] = useState({});
   const [ratingsSubmitted, setRatingsSubmitted] = useState({});
+  const [status, setStatus] = useState({ message: '', type: '' });
   const user = JSON.parse(localStorage.getItem('user'));
 
   useEffect(() => {
@@ -33,7 +34,7 @@ function PaiementPage() {
             setLoading(false);
           })
           .catch(err => {
-              alert("Erreur: " + err.message);
+              setStatus({ message: "Erreur: " + err.message, type: 'error' });
               setLoading(false);
           });
     } else {
@@ -51,7 +52,7 @@ function PaiementPage() {
             setLoading(false);
           })
           .catch(err => {
-              alert("Erreur panier: " + err.message);
+              setStatus({ message: "Erreur panier: " + err.message, type: 'error' });
               setLoading(false);
           });
     }
@@ -60,6 +61,7 @@ function PaiementPage() {
   const handleConfirmPayment = (e) => {
     e.preventDefault();
     setLoading(true);
+    setStatus({ message: '', type: '' });
 
     fetch('../scripts/process_payment.php', {
         method: 'POST',
@@ -76,12 +78,12 @@ function PaiementPage() {
             setIsSuccess(true);
             setLoading(false);
         } else {
-            alert("Erreur: " + data.error);
+            setStatus({ message: "Erreur: " + data.error, type: 'error' });
             setLoading(false);
         }
     })
     .catch(() => {
-        alert("Erreur réseau");
+        setStatus({ message: "Erreur réseau", type: 'error' });
         setLoading(false);
     });
   };
@@ -89,7 +91,7 @@ function PaiementPage() {
   const submitRating = (idVendeur, idAnnonce, note) => {
     const idTransaction = transactionIds[idAnnonce];
     if (!idTransaction) {
-        alert("Erreur: ID de transaction manquant pour cet article.");
+        setStatus({ message: "Erreur: ID de transaction manquant pour cet article.", type: 'error' });
         return;
     }
 
@@ -111,7 +113,7 @@ function PaiementPage() {
         if (data.success) {
             setRatingsSubmitted(prev => ({...prev, [idAnnonce]: true}));
         } else {
-            alert("Erreur lors de la notation : " + data.error);
+            setStatus({ message: "Erreur lors de la notation : " + data.error, type: 'error' });
         }
     })
     .catch(err => {
@@ -178,8 +180,26 @@ function PaiementPage() {
     <div>
       <Header />
       <main className="main">
+        {status.message && (
+            <div style={{
+                padding: '12px',
+                margin: '10px auto',
+                maxWidth: '600px',
+                borderRadius: '10px',
+                textAlign: 'center',
+                background: status.type === 'success' ? '#d4edda' : '#f8d7da',
+                color: status.type === 'success' ? '#155724' : '#721c24',
+                border: `1px solid ${status.type === 'success' ? '#c3e6cb' : '#f5c6cb'}`,
+                fontWeight: '600'
+            }}>
+                {status.message}
+            </div>
+        )}
         <div className="payment-container">
             <div className="payment-form-card">
+                <div style={{textAlign: 'center', marginBottom: '20px'}}>
+                    <img src="../images/LOGO-NOVA.png" alt="Logo" style={{height: '60px', width: 'auto'}} />
+                </div>
                 <h2>Paiement Sécurisé</h2>
                 <form onSubmit={handleConfirmPayment}>
                     <div className="form-group">

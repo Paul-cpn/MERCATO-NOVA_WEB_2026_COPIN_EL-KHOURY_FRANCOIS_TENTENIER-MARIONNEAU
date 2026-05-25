@@ -2,16 +2,18 @@ const { useState } = React;
 
 function App() {
   const user = JSON.parse(localStorage.getItem('user'));
+  const [status, setStatus] = useState({ message: '', type: '' });
 
   const handleBecomeSeller = (e) => {
     e.preventDefault();
+    setStatus({ message: '', type: '' });
     if (!user) {
         window.dispatchEvent(new CustomEvent('openAuthModal'));
         return;
     }
 
     if (user.role_user === 'vendeur' || user.role_user === 'admin') {
-        alert("Vous êtes déjà autorisé à vendre !");
+        setStatus({ message: "Vous êtes déjà autorisé à vendre !", type: 'success' });
         return;
     }
 
@@ -23,11 +25,11 @@ function App() {
     .then(res => res.json())
     .then(data => {
         if (data.success) {
-            alert("Félicitations ! Vous êtes maintenant vendeur.");
+            setStatus({ message: "Félicitations ! Vous êtes maintenant vendeur. Rechargement...", type: 'success' });
             localStorage.setItem('user', JSON.stringify(data.user));
-            window.location.reload();
+            setTimeout(() => window.location.reload(), 2000);
         } else {
-            alert("Erreur : " + data.error);
+            setStatus({ message: "Erreur : " + data.error, type: 'error' });
         }
     });
   };
@@ -38,6 +40,21 @@ function App() {
       <NavBar />
 
       <main>
+        {status.message && (
+            <div style={{
+                padding: '15px',
+                margin: '20px auto',
+                maxWidth: '600px',
+                borderRadius: '12px',
+                textAlign: 'center',
+                background: status.type === 'success' ? '#d4edda' : '#f8d7da',
+                color: status.type === 'success' ? '#155724' : '#721c24',
+                border: `1px solid ${status.type === 'success' ? '#c3e6cb' : '#f5c6cb'}`,
+                fontWeight: '600'
+            }}>
+                {status.message}
+            </div>
+        )}
         {/* ─── HERO SECTION ─── */}
         <section className="about-hero">
           <h1>Tu ne le portes plus ? Vends-le !</h1>

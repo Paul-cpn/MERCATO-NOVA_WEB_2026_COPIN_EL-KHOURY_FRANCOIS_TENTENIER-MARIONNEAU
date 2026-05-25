@@ -6,6 +6,7 @@ function MessagesPage() {
   const [messages, setMessages] = useState([]);
   const [replyText, setReplyText] = useState("");
   const [replyOffer, setReplyOffer] = useState("");
+  const [status, setStatus] = useState({ message: '', type: '' });
   const chatEndRef = useRef(null);
   
   const user = JSON.parse(localStorage.getItem('user'));
@@ -73,13 +74,14 @@ function MessagesPage() {
     .then(res => res.json())
     .then(data => {
         if (data.success) {
-            alert(`Offre ${statut === 'acceptee' ? 'acceptée' : 'refusée'} !`);
+            setStatus({ message: `Offre ${statut === 'acceptee' ? 'acceptée' : 'refusée'} !`, type: 'success' });
+            setTimeout(() => setStatus({ message: '', type: '' }), 3000);
             fetchMessages();
             fetchNegotiations();
             // Mettre à jour l'objet de nego local pour cacher les boutons
             setActiveNeg({...activeNeg, statut_negociation: statut});
         } else {
-            alert("Erreur: " + data.error);
+            setStatus({ message: "Erreur: " + data.error, type: 'error' });
         }
     });
   };
@@ -105,6 +107,23 @@ function MessagesPage() {
     <div>
       <Header />
       <main className="main">
+        {status.message && (
+            <div style={{
+                padding: '12px',
+                margin: '10px auto',
+                maxWidth: '600px',
+                borderRadius: '10px',
+                textAlign: 'center',
+                background: status.type === 'success' ? '#d4edda' : '#f8d7da',
+                color: status.type === 'success' ? '#155724' : '#721c24',
+                border: `1px solid ${status.type === 'success' ? '#c3e6cb' : '#f5c6cb'}`,
+                fontWeight: '600',
+                position: 'relative',
+                zIndex: 100
+            }}>
+                {status.message}
+            </div>
+        )}
         <div className="messages-container">
           <div className="negociations-list">
             <div style={{padding: '20px', borderBottom: '1px solid #f0f0f0', fontWeight: '800'}}>Discussions</div>

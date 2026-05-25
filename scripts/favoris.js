@@ -74,6 +74,7 @@ function FavorisPage() {
   const [articles, setArticles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [notification, setNotification] = useState({ message: '', type: '' });
   
   const user = JSON.parse(localStorage.getItem('user'));
   const isAdmin = user && user.role_user === 'admin';
@@ -123,9 +124,10 @@ function FavorisPage() {
     .then(data => {
         if (data.success) {
             setArticles(articles.filter(a => a.id_annonce !== id_annonce));
-            alert("Annonce supprimée.");
+            setNotification({ message: "Annonce supprimée avec succès.", type: 'success' });
+            setTimeout(() => setNotification({ message: '', type: '' }), 3000);
         } else {
-            alert("Erreur: " + data.error);
+            setNotification({ message: "Erreur: " + data.error, type: 'error' });
         }
     });
   };
@@ -145,6 +147,23 @@ function FavorisPage() {
   return (
     <div>
       <Header />
+      {notification.message && (
+        <div style={{
+            position: 'fixed',
+            top: '20px',
+            right: '20px',
+            padding: '15px 25px',
+            borderRadius: '12px',
+            zIndex: 1000,
+            background: notification.type === 'success' ? '#d4edda' : '#f8d7da',
+            color: notification.type === 'success' ? '#155724' : '#721c24',
+            border: `1px solid ${notification.type === 'success' ? '#c3e6cb' : '#f5c6cb'}`,
+            boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+            fontWeight: '600'
+        }}>
+            {notification.message}
+        </div>
+      )}
       <main className="main">
         <h2 className="section-title" style={{textAlign: 'center', marginBottom: '40px'}}>Mes Favoris</h2>
         

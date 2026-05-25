@@ -164,6 +164,7 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isInCart, setIsInCart] = useState(false);
+  const [feedback, setFeedback] = useState({ message: '', type: '' });
 
   const user = JSON.parse(localStorage.getItem('user'));
 
@@ -214,7 +215,10 @@ function App() {
     .then(resData => {
         if (resData.success) {
             setIsInCart(resData.action === 'added');
-            if (resData.action === 'added') alert("Article ajouté au panier !");
+            if (resData.action === 'added') {
+                setFeedback({ message: "Article ajouté au panier !", type: 'success' });
+                setTimeout(() => setFeedback({ message: '', type: '' }), 3000);
+            }
         }
     });
   };
@@ -241,10 +245,10 @@ function App() {
     .then(res => res.json())
     .then(data => {
         if (data.success) {
-            alert("Votre offre a été envoyée ! Retrouvez la discussion dans vos messages.");
-            window.location.href = "messages.html";
+            setFeedback({ message: "Votre offre a été envoyée ! Redirection...", type: 'success' });
+            setTimeout(() => window.location.href = "messages.html", 2000);
         } else {
-            alert("Erreur : " + data.error);
+            setFeedback({ message: "Erreur : " + data.error, type: 'error' });
         }
     });
   };
@@ -275,10 +279,11 @@ function App() {
     .then(res => res.json())
     .then(resData => {
         if (resData.success) {
-            alert("Enchère placée avec succès !");
+            setFeedback({ message: "Enchère placée avec succès !", type: 'success' });
             fetchData(); // Recharger les infos
+            setTimeout(() => setFeedback({ message: '', type: '' }), 3000);
         } else {
-            alert("Erreur: " + resData.error);
+            setFeedback({ message: "Erreur: " + resData.error, type: 'error' });
         }
     });
   };
@@ -300,10 +305,10 @@ function App() {
         .then(res => res.json())
         .then(data => {
             if (data.success) {
-                alert("Annonce supprimée.");
-                window.location.href = "index.html";
+                setFeedback({ message: "Annonce supprimée. Redirection...", type: 'success' });
+                setTimeout(() => window.location.href = "index.html", 2000);
             } else {
-                alert("Erreur: " + data.error);
+                setFeedback({ message: "Erreur: " + data.error, type: 'error' });
             }
         });
     }
@@ -317,6 +322,21 @@ function App() {
       <div className="product-page">
         <Galerie images={images} />
         <div className="product-info">
+          {feedback.message && (
+            <div style={{
+                padding: '12px', 
+                borderRadius: '10px', 
+                marginBottom: '15px', 
+                textAlign: 'center',
+                background: feedback.type === 'success' ? '#d4edda' : '#f8d7da',
+                color: feedback.type === 'success' ? '#155724' : '#721c24',
+                border: `1px solid ${feedback.type === 'success' ? '#c3e6cb' : '#f5c6cb'}`,
+                fontSize: '14px',
+                fontWeight: '600'
+            }}>
+                {feedback.message}
+            </div>
+          )}
           {isAdmin && (
             <button 
                 onClick={handleAdminDelete}

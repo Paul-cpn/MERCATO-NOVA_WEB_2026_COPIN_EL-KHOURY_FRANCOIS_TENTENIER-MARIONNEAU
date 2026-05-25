@@ -344,6 +344,7 @@ function ArticlesSection() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [initialCategory, setInitialCategory] = useState(null);
   const [currentUser, setCurrentUser] = useState(JSON.parse(localStorage.getItem('user')));
+  const [notification, setNotification] = useState({ message: '', type: '' });
 
   useEffect(() => {
     const handleUserChange = () => {
@@ -429,9 +430,10 @@ function ArticlesSection() {
     .then(data => {
         if (data.success) {
             setArticles(articles.filter(a => a.id_annonce !== id_annonce));
-            alert("Annonce supprimée.");
+            setNotification({ message: "Annonce supprimée avec succès.", type: 'success' });
+            setTimeout(() => setNotification({ message: '', type: '' }), 3000);
         } else {
-            alert("Erreur: " + data.error);
+            setNotification({ message: "Erreur: " + data.error, type: 'error' });
         }
     });
   };
@@ -451,6 +453,25 @@ function ArticlesSection() {
     <div>
       <Header onCategoryClick={handleHeaderCategoryClick} isSidebarOpen={isSidebarOpen} />
       {isAdmin && <div style={{background: '#ff5757', color: '#fff', textAlign: 'center', padding: '5px', fontSize: '12px', fontWeight: 'bold'}}>MODE ADMINISTRATEUR ACTIF</div>}
+      
+      {notification.message && (
+        <div style={{
+            position: 'fixed',
+            top: '20px',
+            right: '20px',
+            padding: '15px 25px',
+            borderRadius: '12px',
+            zIndex: 1000,
+            background: notification.type === 'success' ? '#d4edda' : '#f8d7da',
+            color: notification.type === 'success' ? '#155724' : '#721c24',
+            border: `1px solid ${notification.type === 'success' ? '#c3e6cb' : '#f5c6cb'}`,
+            boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+            fontWeight: '600'
+        }}>
+            {notification.message}
+        </div>
+      )}
+
       <div className={`catalog-container ${isSidebarOpen ? 'sidebar-open' : ''}`}>
         <Sidebar isOpen={isSidebarOpen} initialCategory={initialCategory} onClose={closeSidebar} onFilterChange={setFilters} />
         <main className="main">

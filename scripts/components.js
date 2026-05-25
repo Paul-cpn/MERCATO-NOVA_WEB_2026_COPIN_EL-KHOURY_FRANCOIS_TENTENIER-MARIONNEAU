@@ -7,12 +7,14 @@ function AuthModal({ isOpen, onClose, onLoginSuccess }) {
     nom: '', prenom: '', mail: '', mdp: '', pseudo: '', adresse: ''
   });
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
   if (!isOpen) return null;
 
   const handleSubmit = (e) => {
     e.preventDefault();
     setError('');
+    setSuccess('');
     
     const endpoint = isLogin ? '../scripts/login.php' : '../scripts/register.php';
     const body = isLogin 
@@ -34,8 +36,8 @@ function AuthModal({ isOpen, onClose, onLoginSuccess }) {
           window.dispatchEvent(new CustomEvent('userLoggedIn', { detail: data.user }));
           onClose();
         } else {
-          alert("Compte créé avec succès ! Connectez-vous.");
-          setIsLogin(true);
+          setSuccess("Compte créé avec succès ! Connectez-vous.");
+          setTimeout(() => setIsLogin(true), 2000);
         }
       }
     })
@@ -48,7 +50,8 @@ function AuthModal({ isOpen, onClose, onLoginSuccess }) {
         <span className="close-sidebar" style={{top: '10px', right: '10px'}} onClick={onClose}>&times;</span>
         <form className="auth-form" onSubmit={handleSubmit}>
           <h2>{isLogin ? 'Connexion' : 'Inscription'}</h2>
-          {error && <p style={{color: 'red', fontSize: '13px', textAlign: 'center'}}>{error}</p>}
+          {error && <p style={{color: 'red', fontSize: '13px', textAlign: 'center', marginBottom: '10px'}}>{error}</p>}
+          {success && <p style={{color: 'green', fontSize: '13px', textAlign: 'center', marginBottom: '10px'}}>{success}</p>}
           
           {!isLogin && (
             <>
@@ -225,8 +228,8 @@ window.Header = function({ onCategoryClick, isSidebarOpen }) {
   return (
     <header className="header">
       <div className="header-top">
-        <a href="index.html" className="header-logo">
-          <div className="logo-icon"></div>
+        <a href="index.html" className="header-logo" style={{display: 'flex', alignItems: 'center', gap: '10px'}}>
+          <img src="../images/LOGO-NOVA.png" alt="Logo" style={{height: '40px', width: 'auto'}} />
           <span className="logo-name">Mercato Nova</span>
         </a>
         <div className="header-search">

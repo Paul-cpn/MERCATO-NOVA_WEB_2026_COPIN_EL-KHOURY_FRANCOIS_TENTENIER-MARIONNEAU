@@ -17,6 +17,7 @@ function VendrePage() {
     taille: '', couleur: '', marque: '', id_categorie: '', image_url: '', matiere: '',
     date_fin_enchere: ''
   });
+  const [status, setStatus] = useState({ message: '', type: '' });
 
   useEffect(() => {
     if (!user || (user.role_user !== 'vendeur' && user.role_user !== 'admin')) {
@@ -53,13 +54,10 @@ function VendrePage() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    setStatus({ message: '', type: '' });
+
     if (!formData.id_categorie) {
-        alert("Veuillez sélectionner une catégorie finale.");
-        return;
-    }
-    
-    if (formData.type_vente === 'enchere' && !formData.date_fin_enchere) {
-        alert("Veuillez renseigner une date de fin pour l'enchère.");
+        setStatus({ message: "Veuillez sélectionner une catégorie finale.", type: 'error' });
         return;
     }
     
@@ -71,12 +69,13 @@ function VendrePage() {
     .then(res => res.json())
     .then(data => {
         if (data.success) {
-            alert("Article publié avec succès !");
-            window.location.href = "index.html";
+            setStatus({ message: "Article publié avec succès ! Redirection...", type: 'success' });
+            setTimeout(() => window.location.href = "index.html", 2000);
         } else {
-            alert("Erreur: " + data.error);
+            setStatus({ message: "Erreur: " + data.error, type: 'error' });
         }
-    });
+    })
+    .catch(() => setStatus({ message: "Erreur réseau", type: 'error' }));
   };
 
   return (
@@ -86,6 +85,21 @@ function VendrePage() {
         <div className="sell-container">
             <div className="sell-card">
                 <h1>Vendre un article</h1>
+                
+                {status.message && (
+                    <div style={{
+                        padding: '15px', 
+                        borderRadius: '12px', 
+                        marginBottom: '20px', 
+                        textAlign: 'center',
+                        background: status.type === 'success' ? '#d4edda' : '#f8d7da',
+                        color: status.type === 'success' ? '#155724' : '#721c24',
+                        border: `1px solid ${status.type === 'success' ? '#c3e6cb' : '#f5c6cb'}`
+                    }}>
+                        {status.message}
+                    </div>
+                )}
+
                 <form onSubmit={handleSubmit}>
                     <div className="form-section">
                         <label>Titre de l'annonce</label>
