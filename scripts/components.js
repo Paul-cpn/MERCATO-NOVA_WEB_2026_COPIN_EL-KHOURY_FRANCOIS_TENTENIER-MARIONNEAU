@@ -167,6 +167,7 @@ window.Header = function({ onCategoryClick, isSidebarOpen }) {
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [notifCount, setNotifCount] = useState(0);
   const [notifHover, setNotifHover] = useState(false);
+  const [cartCount, setCartCount] = useState(0);
 
   const fetchNotifCount = (u) => {
     if (!u) return;
@@ -178,27 +179,63 @@ window.Header = function({ onCategoryClick, isSidebarOpen }) {
         });
   };
 
+  // NOUVELLE FONCTION : Récupère la taille réelle du panier en base de données
+  const fetchCartCount = (u) => {
+    if (!u) {
+      localStorage.removeItem('cart_count');
+      setCartCount(0);
+      return;
+    }
+    fetch(`../scripts/get_cart.php?id_user=${u.id_user}`)
+      .then(res => res.json())
+      .then(data => {
+        const count = Array.isArray(data) ? data.length : 0;
+        localStorage.setItem('cart_count', count);
+        setCartCount(count);
+      })
+      .catch(() => {
+        // En cas d'erreur de requête, on récupère au moins ce qu'il y a en LocalStorage
+        const savedCount = localStorage.getItem('cart_count');
+        setCartCount(savedCount ? parseInt(savedCount, 10) : 0);
+      });
+  };
+
   useEffect(() => {
     const savedUser = localStorage.getItem('user');
     const u = savedUser ? JSON.parse(savedUser) : null;
     if (u) {
         setUser(u);
         fetchNotifCount(u);
+        fetchCartCount(u); // <--- Récupération automatique au chargement initial
+    } else {
+        localStorage.setItem('cart_count', '0');
+        setCartCount(0);
     }
+
+    const syncCartCount = () => {
+      const count = localStorage.getItem('cart_count');
+      setCartCount(count ? parseInt(count, 10) : 0);
+    };
 
     const handleOpenAuth = () => setIsAuthOpen(true);
     const handleRefreshNotifs = () => fetchNotifCount(u);
 
     window.addEventListener('openAuthModal', handleOpenAuth);
     window.addEventListener('notificationsRead', handleRefreshNotifs);
+    window.addEventListener('cartUpdated', syncCartCount);
+    window.addEventListener('storage', syncCartCount);
+    
     window.addEventListener('userLoggedIn', (e) => {
         setUser(e.detail);
         fetchNotifCount(e.detail);
+        fetchCartCount(e.detail); // <--- Récupération immédiate dès que l'utilisateur s'identifie !
     });
 
     return () => {
         window.removeEventListener('openAuthModal', handleOpenAuth);
         window.removeEventListener('notificationsRead', handleRefreshNotifs);
+        window.removeEventListener('cartUpdated', syncCartCount);
+        window.removeEventListener('storage', syncCartCount);
     };
   }, []);
 
@@ -222,6 +259,7 @@ window.Header = function({ onCategoryClick, isSidebarOpen }) {
   const handleLogout = () => {
     setUser(null);
     localStorage.removeItem('user');
+    localStorage.removeItem('cart_count'); // Nettoyage du panier à la déconnexion
     setIsProfileOpen(false);
     window.location.reload();
   };
@@ -252,10 +290,36 @@ window.Header = function({ onCategoryClick, isSidebarOpen }) {
             </span>
             <span>Notifications</span>
           </a>
+          
           <a href="panier.html" className="action-item">
-            <span className="action-icon cart-icon"></span>
+            <span className="action-icon cart-icon" style={{ position: 'relative' }}>
+              {cartCount > 0 && (
+                <span style={{
+                  position: 'absolute',
+                  top: '-5px',
+                  right: '-7px',
+                  background: 'var(--jaune)',
+                  color: '#111',
+                  fontSize: '9px',
+                  width: '16px',
+                  height: '16px',
+                  borderRadius: '50%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontWeight: '900',
+                  border: '1.5px solid #ffffff',
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.15)',
+                  lineHeight: 1,
+                  zIndex: 10
+                }}>
+                  {cartCount}
+                </span>
+              )}
+            </span>
             <span>Panier</span>
           </a>
+
           <a href="favoris.html" className="action-item">
             <span className="action-icon heart-icon"></span>
             <span>Favoris</span>

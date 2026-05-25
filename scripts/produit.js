@@ -187,6 +187,10 @@ function App() {
                 .then(cartItems => {
                     const found = cartItems.some(item => item.id_annonce == id);
                     setIsInCart(found);
+                    
+                    // SYNC INITIAL DU COMPTEUR : On enregistre la taille réelle du panier en base
+                    localStorage.setItem('cart_count', cartItems.length);
+                    window.dispatchEvent(new CustomEvent('cartUpdated'));
                 });
         }
       })
@@ -214,9 +218,22 @@ function App() {
     .then(res => res.json())
     .then(resData => {
         if (resData.success) {
-            setIsInCart(resData.action === 'added');
-            if (resData.action === 'added') {
+            const added = resData.action === 'added';
+            setIsInCart(added);
+            
+            // CALCUL EN TEMPS RÉEL DU COMPTEUR GLOBAL
+            const currentCount = parseInt(localStorage.getItem('cart_count') || '0', 10);
+            const newCount = added ? currentCount + 1 : Math.max(0, currentCount - 1);
+            
+            // Sauvegarde dans la mémoire et déclenchement instantané pour le Header
+            localStorage.setItem('cart_count', newCount);
+            window.dispatchEvent(new CustomEvent('cartUpdated'));
+
+            if (added) {
                 setFeedback({ message: "Article ajouté au panier !", type: 'success' });
+                setTimeout(() => setFeedback({ message: '', type: '' }), 3000);
+            } else {
+                setFeedback({ message: "Article retiré du panier !", type: 'success' });
                 setTimeout(() => setFeedback({ message: '', type: '' }), 3000);
             }
         }
