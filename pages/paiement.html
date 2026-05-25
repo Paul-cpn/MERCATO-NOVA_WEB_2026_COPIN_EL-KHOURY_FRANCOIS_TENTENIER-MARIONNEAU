@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Paiement Sécurisé - Mercato Nova</title>
+    <link rel="stylesheet" href="../style.css" />
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        .payment-container {
+            max-width: 800px;
+            margin: 3rem auto;
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 2rem;
+            padding: 0 1rem;
+        }
+        .payment-form-card {
+            background: #fff;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        }
+        .payment-form-card h2 { margin-bottom: 1.5rem; font-weight: 800; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
+        .form-group { display: flex; flex-direction: column; gap: 8px; margin-bottom: 15px; }
+        .form-group label { font-size: 13px; font-weight: 700; color: #666; }
+        .form-group input { 
+            padding: 12px 15px; 
+            border: 2px solid #f0f0f0; 
+            border-radius: 10px; 
+            outline: none; 
+            font-size: 14px;
+        }
+        .form-group input:focus { border-color: var(--jaune); }
+        
+        .order-summary {
+            background: #fff;
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            height: fit-content;
+        }
+        .order-summary h3 { margin-bottom: 1.5rem; }
+        .summary-item { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px; }
+        .summary-total { 
+            display: flex; 
+            justify-content: space-between; 
+            margin-top: 20px; 
+            padding-top: 20px; 
+            border-top: 2px dashed #f0f0f0; 
+            font-weight: 900; 
+            font-size: 20px; 
+        }
+        .btn-confirm {
+            width: 100%;
+            background: var(--jaune);
+            color: #fff;
+            border: none;
+            padding: 15px;
+            border-radius: 12px;
+            font-weight: 800;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: transform 0.2s;
+        }
+        .btn-confirm:active { transform: scale(0.98); }
+        
+        .success-view {
+            text-align: center;
+            padding: 60px 20px;
+        }
+        .success-icon {
+            font-size: 60px;
+            color: var(--vert);
+            margin-bottom: 20px;
+        }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <script type="text/babel" src="../scripts/components.js"></script>
+    <script type="text/babel" src="../scripts/paiement.js"></script>
+  </body>
+</html>

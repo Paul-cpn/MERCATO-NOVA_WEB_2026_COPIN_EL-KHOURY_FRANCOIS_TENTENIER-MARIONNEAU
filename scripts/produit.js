@@ -1,43 +1,14 @@
 const { useState, useEffect } = React;
 
-const images = [
-  "https://images.unsplash.com/photo-1551232864-3f0890e580d9?w=600",
-  "https://images.unsplash.com/photo-1509631179647-0177331693ae?w=600",
-  "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=600",
-  "https://images.unsplash.com/photo-1496747611176-843222e1e57c?w=600",
-];
-
-const article = {
-  titre:      "Veste Oversize Premium",
-  marque:     "Zara",
-  taille:     "M",
-  couleur:    "Noir",
-  etat:       "Très bon état",
-  prix:       89.99,
-  ancienPrix: 129.99,
-  vendeur: {
-    initiales: "SM",
-    nom:       "Sophie M.",
-    note:      4.8,
-    ventes:    47,
-    ville:     "Paris"
-  },
-  description: "Veste oversize tendance, coupe moderne et confortable. Parfaite pour toutes les saisons.",
-  details: [
-    "Matière : 70% coton, 30% polyester",
-    "Coupe oversize",
-    "Fermeture par boutons",
-    "Poches latérales",
-    "Lavable en machine à 30°"
-  ],
-  avis: [
-    { nom: "Sophie M.", note: "★★★★★", texte: "Super qualité, je recommande vivement !", date: "il y a 2 jours" },
-    { nom: "Lucas D.",  note: "★★★★☆", texte: "Très bonne veste, taille un peu grand.",  date: "il y a 1 semaine" },
-  ]
-};
+// Récupération des composants globaux
+const Header = window.Header;
+const NavBar = window.NavBar;
+const Footer = window.Footer;
 
 function Galerie({ images }) {
   const [mainImg, setMainImg] = useState(0);
+  if (!images || images.length === 0) return <div className="gallery"><div className="main-image-container"><div style={{height: '440px', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#eee'}}>Pas d'image</div></div></div>;
+
   return (
     <div className="gallery">
       <div className="main-image-container">
@@ -47,7 +18,7 @@ function Galerie({ images }) {
         {images.map((img, i) => (
           <img
             key={i}
-            src={img.replace("w=600", "w=200")}
+            src={img}
             alt={"vue " + (i+1)}
             className={"thumb" + (mainImg === i ? " active" : "")}
             onClick={() => setMainImg(i)}
@@ -58,84 +29,96 @@ function Galerie({ images }) {
   );
 }
 
-function ModeAchat({ prix }) {
+function ModeAchat({ prix, originalPrix, isNegotiated, onAddToCart, isInCart, onMakeOffer, onDirectBuy }) {
   return (
     <div className="card">
-      <button className="btn-buy">⚡ ACHAT IMMÉDIAT — {prix.toFixed(2)}€</button>
-      <button className="btn-cart">🛒 AJOUTER AU PANIER</button>
-      <button className="btn-negociate">💬 FAIRE UNE OFFRE</button>
+      <div style={{marginBottom: '15px'}}>
+        {isNegotiated && <small style={{color: '#7ed957', fontWeight: '800'}}>✓ PRIX NÉGOCIÉ ACCEPTÉ</small>}
+        <div style={{display: 'flex', alignItems: 'center', gap: '10px'}}>
+            <span style={{fontSize: '2.2rem', fontWeight: '900', color: 'var(--jaune)'}}>{prix}€</span>
+            {originalPrix && <span style={{textDecoration: 'line-through', color: '#bbb'}}>{originalPrix}€</span>}
+        </div>
+      </div>
+      <button className="btn-buy" onClick={onDirectBuy}>⚡ ACHAT IMMÉDIAT</button>
+      <button 
+        className={`btn-cart ${isInCart ? 'active' : ''}`} 
+        onClick={onAddToCart}
+        style={isInCart ? {backgroundColor: 'var(--jaune)', color: '#fff'} : {}}
+      >
+        {isInCart ? '🛒 ARTICLE AU PANIER' : '🛒 AJOUTER AU PANIER'}
+      </button>
+      <button className="btn-negociate" onClick={onMakeOffer}>💬 FAIRE UNE OFFRE</button>
     </div>
   );
 }
 
-function ModeEnchere() {
-  const [bestBid,  setBestBid]  = useState(75);
-  const [bidCount, setBidCount] = useState(8);
+function ModeEnchere({ data, onPlaceBid }) {
+  if (!data) return <div className="card"><p>Chargement des infos d'enchère...</p></div>;
+  
   const [bidInput, setBidInput] = useState("");
-  const [seconds,  setSeconds]  = useState(5025);
+  const [timeLeft, setTimeLeft] = useState("");
+
+  const bestBid = parseFloat(data.meilleure_offre_enchere || data.prix_depart_enchere);
 
   useEffect(() => {
-    let interval = setInterval(() => {
-      setSeconds(s => s > 0 ? s - 1 : 0);
+    const timer = setInterval(() => {
+      const now = new Date().getTime();
+      const end = new Date(data.date_fin_enchere).getTime();
+      const diff = end - now;
+
+      if (diff <= 0) {
+        setTimeLeft("Terminée");
+        clearInterval(timer);
+      } else {
+        const h = Math.floor(diff / 3600000);
+        const m = Math.floor((diff % 3600000) / 60000);
+        const s = Math.floor((diff % 60000) / 1000);
+        setTimeLeft(`${h}h ${m}m ${s}s`);
+      }
     }, 1000);
-    return () => clearInterval(interval);
-  }, []);
-
-  function formatTimer(s) {
-    let h   = Math.floor(s / 3600);
-    let m   = Math.floor((s % 3600) / 60);
-    let sec = s % 60;
-    return String(h).padStart(2,"0") + ":" + String(m).padStart(2,"0") + ":" + String(sec).padStart(2,"0");
-  }
-
-  function placerOffre() {
-    let amount = parseFloat(bidInput);
-    if (isNaN(amount) || amount <= bestBid) {
-      alert("Votre offre doit être supérieure à " + bestBid + "€");
-      return;
-    }
-    setBestBid(amount);
-    setBidCount(c => c + 1);
-    setBidInput("");
-    alert("Offre de " + amount.toFixed(2) + "€ placée !");
-  }
+    return () => clearInterval(timer);
+  }, [data.date_fin_enchere]);
 
   return (
     <div className="card">
       <div className="enchere-header">
         <h3>🔨 Enchère en cours</h3>
-        <span className="timer">⏱ {formatTimer(seconds)}</span>
+        <span className="timer">⏱ {timeLeft}</span>
       </div>
       <div className="enchere-stats">
         <div className="stat-box">
           <p>Prix départ</p>
-          <strong>50.00€</strong>
+          <strong>{data.prix_depart_enchere}€</strong>
         </div>
         <div className="stat-box">
           <p>Meilleure offre</p>
           <strong className="meilleure">{bestBid.toFixed(2)}€</strong>
         </div>
         <div className="stat-box">
-          <p>Enchères</p>
-          <strong>{bidCount}</strong>
+          <p>Offres</p>
+          <strong>{data.nombre_offres || 0}</strong>
         </div>
       </div>
-      <div className="bid-input-group">
-        <input
-          type="number"
-          placeholder="Votre offre en €"
-          value={bidInput}
-          onChange={e => setBidInput(e.target.value)}
-        />
-        <button onClick={placerOffre}>Enchérir</button>
-      </div>
-      <span className="historique">Voir l'historique des offres</span>
+      
+      {data.statut_enchere === 'en_cours' && (
+        <div className="bid-input-group">
+            <input
+            type="number"
+            placeholder={`Min ${ (bestBid + 1).toFixed(2) } €`}
+            value={bidInput}
+            onChange={e => setBidInput(e.target.value)}
+            />
+            <button onClick={() => { onPlaceBid(bidInput); setBidInput(""); }}>Enchérir</button>
+        </div>
+      )}
+      <span className="historique">Fin le {new Date(data.date_fin_enchere).toLocaleString()}</span>
     </div>
   );
 }
 
-function Tabs({ description, details, avis }) {
+function Tabs({ description, avis }) {
   const [activeTab, setActiveTab] = useState("description");
+
   return (
     <div className="tabs">
       <div className="tab-buttons">
@@ -146,28 +129,29 @@ function Tabs({ description, details, avis }) {
         <button
           className={"tab-btn" + (activeTab === "avis" ? " active" : "")}
           onClick={() => setActiveTab("avis")}
-        >Avis ({avis.length})</button>
+        >Avis ({avis ? avis.length : 0})</button>
       </div>
       <div className="tab-content">
         {activeTab === "description" && (
           <div>
-            <p>{description}</p>
-            <ul>
-              {details.map((d, i) => <li key={i}>{d}</li>)}
-            </ul>
+            <p>{description || "Aucune description disponible."}</p>
           </div>
         )}
         {activeTab === "avis" && (
           <div>
-            {avis.map((a, i) => (
-              <div className="review" key={i}>
-                <div className="review-header">
-                  <strong>{a.nom}</strong>
-                  <span>{a.date}</span>
-                </div>
-                <p>{a.note} {a.texte}</p>
-              </div>
-            ))}
+            {avis && avis.length > 0 ? (
+                avis.map((a, i) => (
+                    <div className="review" key={i}>
+                        <div className="review-header">
+                        <strong>{a.auteur_nom || "Anonyme"}</strong>
+                        <span>{new Date(a.date_avis).toLocaleDateString()}</span>
+                        </div>
+                        <p>{"★".repeat(a.note_avis)}{"☆".repeat(5-a.note_avis)} {a.commentaire_avis}</p>
+                    </div>
+                ))
+            ) : (
+                <p>Aucun avis pour ce vendeur.</p>
+            )}
           </div>
         )}
       </div>
@@ -176,65 +160,221 @@ function Tabs({ description, details, avis }) {
 }
 
 function App() {
-  const [mode, setMode] = useState("achat");
-  const reduction = Math.round((1 - article.prix / article.ancienPrix) * 100);
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [isInCart, setIsInCart] = useState(false);
+
+  const user = JSON.parse(localStorage.getItem('user'));
+
+  const fetchData = () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const id = urlParams.get('id');
+    if (!id) return;
+
+    const userIdParam = user ? `&id_user=${user.id_user}` : '';
+    fetch(`../scripts/get_article_details.php?id=${id}${userIdParam}`)
+      .then(res => res.json())
+      .then(json => {
+        if (json.error) throw new Error(json.error);
+        setData(json);
+        setLoading(false);
+        
+        if (user) {
+            fetch(`../scripts/get_cart.php?id_user=${user.id_user}`)
+                .then(r => r.json())
+                .then(cartItems => {
+                    const found = cartItems.some(item => item.id_annonce == id);
+                    setIsInCart(found);
+                });
+        }
+      })
+      .catch(err => {
+        setError(err.message);
+        setLoading(false);
+      });
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const handleAddToCart = () => {
+    if (!user) {
+        window.dispatchEvent(new CustomEvent('openAuthModal'));
+        return;
+    }
+
+    fetch('../scripts/toggle_cart.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id_annonce: data.annonce.id_annonce, id_user: user.id_user })
+    })
+    .then(res => res.json())
+    .then(resData => {
+        if (resData.success) {
+            setIsInCart(resData.action === 'added');
+            if (resData.action === 'added') alert("Article ajouté au panier !");
+        }
+    });
+  };
+
+  const handleMakeOffer = () => {
+    if (!user) {
+        window.dispatchEvent(new CustomEvent('openAuthModal'));
+        return;
+    }
+
+    const montant = prompt("Quel montant souhaitez-vous proposer ?", data.annonce.prix_annonce);
+    if (!montant || isNaN(montant)) return;
+
+    fetch('../scripts/start_negotiation.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            id_annonce: data.annonce.id_annonce,
+            id_user_acheteur: user.id_user,
+            montant: parseFloat(montant),
+            message: `Je vous propose ${montant} € pour cet article.`
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            alert("Votre offre a été envoyée ! Retrouvez la discussion dans vos messages.");
+            window.location.href = "messages.html";
+        } else {
+            alert("Erreur : " + data.error);
+        }
+    });
+  };
+
+  const handleDirectBuy = () => {
+    if (!user) {
+        window.dispatchEvent(new CustomEvent('openAuthModal'));
+        return;
+    }
+    window.location.href = `paiement.html?type=direct&id=${data.annonce.id_annonce}`;
+  };
+
+  const handlePlaceBid = (amount) => {
+    if (!user) {
+        window.dispatchEvent(new CustomEvent('openAuthModal'));
+        return;
+    }
+
+    fetch('../scripts/place_bid.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            id_enchere: data.enchere.id_enchere,
+            id_user: user.id_user,
+            montant: parseFloat(amount)
+        })
+    })
+    .then(res => res.json())
+    .then(resData => {
+        if (resData.success) {
+            alert("Enchère placée avec succès !");
+            fetchData(); // Recharger les infos
+        } else {
+            alert("Erreur: " + resData.error);
+        }
+    });
+  };
+
+  if (loading) return <div style={{padding: '50px', textAlign: 'center'}}>{Header && <Header/>}{NavBar && <NavBar/>}<main>Chargement...</main>{Footer && <Footer/>}</div>;
+  if (error) return <div style={{padding: '50px', textAlign: 'center', color: 'red'}}>{Header && <Header/>}{NavBar && <NavBar/>}<main>Erreur : {error}</main>{Footer && <Footer/>}</div>;
+
+  const { annonce, images, avis } = data;
+  const isEnchere = annonce.type_vente_annonce === 'enchere';
+  const isAdmin = user && user.role_user === 'admin';
+
+  const handleAdminDelete = () => {
+    if (confirm("Voulez-vous vraiment supprimer cette annonce définitivement (Admin) ?")) {
+        fetch('../scripts/admin_delete_annonce.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id_annonce: annonce.id_annonce, id_user: user.id_user })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                alert("Annonce supprimée.");
+                window.location.href = "index.html";
+            } else {
+                alert("Erreur: " + data.error);
+            }
+        });
+    }
+  };
 
   return (
     <div>
       <Header />
       <NavBar />
       
-      {/* SWITCH */}
-      <div className="switch-bar">
-        <button
-          className={"switch-btn" + (mode === "achat" ? " active-achat" : "")}
-          onClick={() => setMode("achat")}
-        >🛒 Achat / Négociation</button>
-        <button
-          className={"switch-btn" + (mode === "enchere" ? " active-enchere" : "")}
-          onClick={() => setMode("enchere")}
-        >🔨 Enchère</button>
-      </div>
-
-      {/* PAGE */}
       <div className="product-page">
         <Galerie images={images} />
         <div className="product-info">
-          {/* GROS BLOC INFOS */}
+          {isAdmin && (
+            <button 
+                onClick={handleAdminDelete}
+                style={{width: '100%', background: '#ff5757', color: '#fff', border: 'none', padding: '10px', borderRadius: '10px', fontWeight: '800', cursor: 'pointer', marginBottom: '10px'}}
+            >
+                🗑️ SUPPRIMER L'ANNONCE (ADMIN)
+            </button>
+          )}
           <div className="card" style={{display:"flex", flexDirection:"column", gap:"1.25rem"}}>
             <div>
-              <p className="brand">Mercato Nova</p>
-              <h2 className="product-title">{article.titre}</h2>
+              <p className="brand">{annonce.marque_annonce || "Mercato Nova"}</p>
+              <h2 className="product-title">{annonce.titre_annonce}</h2>
               <div className="rating">
-                <span style={{color:"#e4ca3e"}}>★★★★</span>
-                <span style={{color:"#ddd"}}>★</span>
-                <p>4.0 · 128 avis</p>
+                <span style={{color:"#e4ca3e"}}>{"★".repeat(Math.round(annonce.vendeur_note || 0))}</span>
+                <span style={{color:"#ddd"}}>{"★".repeat(5 - Math.round(annonce.vendeur_note || 0))}</span>
+                <p>{parseFloat(annonce.vendeur_note || 0).toFixed(1)} · {annonce.vendeur_ventes || 0} ventes</p>
               </div>
             </div>
             <hr className="divider" />
-            <div className="price-card">
-              <span className="price">{article.prix.toFixed(2)}€</span>
-              <span className="old-price">{article.ancienPrix.toFixed(2)}€</span>
-              <span className="discount">-{reduction}%</span>
-            </div>
+            
+            {isEnchere && (
+                <div className="price-card">
+                    <span className="price">{annonce.prix_annonce}€</span>
+                </div>
+            )}
+
             <hr className="divider" />
             <div className="tags-card">
-              <div className="tag">Taille <span>{article.taille}</span></div>
-              <div className="tag">Couleur <span>{article.couleur}</span></div>
-              <div className="tag">État <span>{article.etat}</span></div>
-              <div className="tag">Marque <span>{article.marque}</span></div>
+              {annonce.taille_annonce && <div className="tag">Taille <span>{annonce.taille_annonce}</span></div>}
+              {annonce.couleur_annonce && <div className="tag">Couleur <span>{annonce.couleur_annonce}</span></div>}
+              <div className="tag">État <span>{(annonce.etat_objet_annonce || "").replace('_', ' ')}</span></div>
+              {annonce.marque_annonce && <div className="tag">Marque <span>{annonce.marque_annonce}</span></div>}
             </div>
             <hr className="divider" />
             <div className="seller-card">
-              <div className="seller-avatar">{article.vendeur.initiales}</div>
+              <div className="seller-avatar">{(annonce.vendeur_prenom || "U")[0]}</div>
               <div className="seller-info">
-                <p>{article.vendeur.nom}</p>
-                <small>⭐ {article.vendeur.note} · {article.vendeur.ventes} ventes · {article.vendeur.ville}</small>
+                <p>{annonce.vendeur_prenom} {annonce.vendeur_nom}</p>
+                <small>⭐ {parseFloat(annonce.vendeur_note || 0).toFixed(1)} · France</small>
               </div>
               <span className="seller-arrow">›</span>
             </div>
           </div>
-          {mode === "achat" ? <ModeAchat prix={article.prix} /> : <ModeEnchere />}
+
+          {isEnchere ? (
+            <ModeEnchere data={data.enchere} onPlaceBid={handlePlaceBid} />
+          ) : (
+            <ModeAchat 
+                prix={annonce.prix_annonce} 
+                originalPrix={annonce.prix_original} 
+                isNegotiated={annonce.is_negotiated}
+                onAddToCart={handleAddToCart} 
+                isInCart={isInCart} 
+                onMakeOffer={handleMakeOffer}
+                onDirectBuy={handleDirectBuy}
+            />
+          )}
+          
           <div className="card badges-card">
             <span className="badge badge-livraison">🚚 Livraison gratuite</span>
             <span className="badge badge-retour">↩️ Retour 30j</span>
@@ -244,9 +384,8 @@ function App() {
       </div>
 
       <Tabs
-        description={article.description}
-        details={article.details}
-        avis={article.avis}
+        description={annonce.description_annonce}
+        avis={avis}
       />
       <Footer />
     </div>

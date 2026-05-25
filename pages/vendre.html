@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mettre en vente - Mercato Nova</title>
+    <link rel="stylesheet" href="../style.css" />
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        .sell-container { max-width: 700px; margin: 3rem auto; padding: 0 1rem; }
+        .sell-card { background: #fff; padding: 40px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        .sell-card h1 { margin-bottom: 2rem; font-weight: 900; text-align: center; }
+        .form-section { margin-bottom: 25px; }
+        .form-section label { display: block; font-weight: 700; margin-bottom: 10px; font-size: 14px; color: #444; }
+        .form-section input, .form-section textarea, .form-section select {
+            width: 100%; padding: 12px 15px; border: 2px solid #f0f0f0; border-radius: 12px; outline: none; font-size: 14px;
+        }
+        .form-section input:focus, .form-section textarea:focus { border-color: var(--jaune); }
+        .btn-publish { width: 100%; background: var(--jaune); color: #fff; border: none; padding: 16px; border-radius: 14px; font-weight: 800; font-size: 16px; cursor: pointer; margin-top: 20px; }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <script type="text/babel" src="../scripts/components.js"></script>
+    <script type="text/babel" src="../scripts/vendre.js"></script>
+  </body>
+</html>

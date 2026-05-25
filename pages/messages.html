@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mes Négociations - Mercato Nova</title>
+    <link rel="stylesheet" href="../style.css" />
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        .messages-container {
+            display: flex;
+            max-width: 1200px;
+            margin: 2rem auto;
+            background: #fff;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            height: 70vh;
+        }
+        .negociations-list {
+            width: 350px;
+            border-right: 1px solid #f0f0f0;
+            overflow-y: auto;
+        }
+        .negociation-item {
+            padding: 20px;
+            border-bottom: 1px solid #f8f8f8;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .negociation-item:hover {
+            background: #fdfaf0;
+        }
+        .negociation-item.active {
+            background: #fdf8e1;
+            border-left: 4px solid var(--jaune);
+        }
+        .neg-title { font-weight: 800; font-size: 14px; margin-bottom: 5px; }
+        .neg-last-msg { font-size: 12px; color: #888; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        
+        .chat-view {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .chat-header {
+            padding: 20px;
+            border-bottom: 1px solid #f0f0f0;
+            font-weight: 800;
+        }
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            background: #fafafa;
+        }
+        .message-bubble {
+            max-width: 70%;
+            padding: 12px 18px;
+            border-radius: 18px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .message-bubble.mine {
+            align-self: flex-end;
+            background: var(--jaune);
+            color: #fff;
+            border-bottom-right-radius: 4px;
+        }
+        .message-bubble.other {
+            align-self: flex-start;
+            background: #fff;
+            color: #333;
+            border-bottom-left-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .offer-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: 800;
+            margin-bottom: 5px;
+        }
+        .message-bubble.other .offer-badge { background: #f0f0f0; color: var(--jaune); }
+
+        .chat-input-area {
+            padding: 20px;
+            border-top: 1px solid #f0f0f0;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        .chat-input-area input {
+            flex: 1;
+            padding: 12px 20px;
+            border: 2px solid #f0f0f0;
+            border-radius: 25px;
+            outline: none;
+        }
+        .chat-input-offer { width: 100px; }
+        .chat-send-btn {
+            background: var(--jaune);
+            color: #fff;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <script type="text/babel" src="../scripts/components.js"></script>
+    <script type="text/babel" src="../scripts/messages.js"></script>
+  </body>
+</html>

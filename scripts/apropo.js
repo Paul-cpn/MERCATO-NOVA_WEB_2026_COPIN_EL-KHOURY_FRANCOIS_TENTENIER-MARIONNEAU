@@ -1,6 +1,37 @@
 const { useState } = React;
 
 function App() {
+  const user = JSON.parse(localStorage.getItem('user'));
+
+  const handleBecomeSeller = (e) => {
+    e.preventDefault();
+    if (!user) {
+        window.dispatchEvent(new CustomEvent('openAuthModal'));
+        return;
+    }
+
+    if (user.role_user === 'vendeur' || user.role_user === 'admin') {
+        alert("Vous êtes déjà autorisé à vendre !");
+        return;
+    }
+
+    fetch('../scripts/upgrade_to_seller.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id_user: user.id_user })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            alert("Félicitations ! Vous êtes maintenant vendeur.");
+            localStorage.setItem('user', JSON.stringify(data.user));
+            window.location.reload();
+        } else {
+            alert("Erreur : " + data.error);
+        }
+    });
+  };
+
   return (
     <div>
       <Header />
@@ -67,7 +98,7 @@ function App() {
           <div className="cta-box">
             <h2>Prêt à faire de la place dans vos placards ?</h2>
             <p>Rejoignez notre communauté dès aujourd'hui et commencez à vendre ou à chiner de façon plus responsable.</p>
-            <a href="#" className="cta-btn">Commencer à vendre</a>
+            <a href="#" className="cta-btn" onClick={handleBecomeSeller}>Commencer à vendre</a>
           </div>
 
         </div>

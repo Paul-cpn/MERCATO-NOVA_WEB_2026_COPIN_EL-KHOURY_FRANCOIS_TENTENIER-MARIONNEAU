@@ -14,15 +14,52 @@ body {
 
 .header {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 40px;
+  flex-direction: column; /* On passe en colonne pour avoir le logo/search en haut et les catégories en bas */
+  padding: 0;
   background-color: #fff;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   position: sticky;
   top: 0;
   z-index: 100;
 }
+
+.header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 40px;
+  width: 100%;
+}
+
+.header-categories {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  padding: 10px 0;
+  border-top: 1px solid #f0f0f0;
+  width: 100%;
+}
+
+.header-cat-link {
+  font-size: 14px;
+  font-weight: 700;
+  color: #333;
+  text-decoration: none;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color 0.2s;
+  padding: 5px 10px;
+}
+
+.header-cat-link:hover {
+  color: var(--jaune);
+}
+
+.header-categories.hidden {
+  display: none; /* Cache les catégories quand le volet est ouvert */
+}
+
+/* ─── CATALOG LAYOUT (Sidebar + Grid) ────────────────── */
 
 .header-logo {
   display: flex;
@@ -159,43 +196,233 @@ body {
 /* ─── NAVBAR ─────────────────────────────────────────── */
 
 .navbar {
+  display: none; /* La barre de navigation disparait au profit du volet latéral */
+}
+
+/* ─── CATALOG LAYOUT (Sidebar + Grid) ────────────────── */
+
+.catalog-container {
   display: flex;
-  justify-content: center;
+  max-width: 100%; /* Prend toute la largeur pour que le volet touche le bord */
+  margin: 0;
+  padding: 0;
+  gap: 0;
+  transition: all 0.4s ease;
+}
+
+.sidebar {
+  width: 0;
+  opacity: 0;
+  visibility: hidden;
   background-color: #fff;
-  border-top: 1px solid #f0f0f0;
-  border-bottom: 1px solid #e0e0e0;
+  border-right: 1px solid #f0f0f0;
+  min-height: calc(100vh - 150px);
+  height: auto;
+  position: relative;
+  transition: all 0.4s ease;
+  padding: 0;
+  align-self: stretch; /* Touche le footer */
 }
 
-.nav-link {
-  padding: 14px 48px;
-  text-decoration: none;
-  color: #333;
-  font-size: 14px;
-  font-weight: 600;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  border-bottom: 3px solid transparent;
-  transition: color 0.2s, border-color 0.2s;
+.sidebar.open {
+  width: 320px;
+  opacity: 1;
+  visibility: visible;
+  padding: 30px 24px;
 }
 
-.nav-link:hover {
-  color: #e4ca3e;
-  border-bottom-color: #e4ca3e;
+.close-sidebar {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  font-size: 28px;
+  cursor: pointer; /* Indique qu'on peut cliquer */
+  color: #bbb;
+  user-select: none; /* Empêche la sélection du texte */
+  transition: all 0.2s ease;
+  line-height: 1;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  z-index: 10;
 }
 
-/* ─── MAIN ───────────────────────────────────────────── */
+.close-sidebar:hover {
+  color: var(--jaune);
+  background-color: #fdf8e1;
+  transform: rotate(90deg); /* Effet pro de rotation */
+}
+
+/* On retire définitivement le bouton de tri manuel */
+.filter-trigger-btn {
+  display: none !important;
+}
 
 .main {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 32px 40px;
+  flex: 1;
+  padding: 30px 40px; /* Espacement autour de la grille */
+  transition: all 0.4s ease;
+}
+
+.filter-group {
+  margin-bottom: 35px; /* Plus d'espace entre les groupes de filtres */
+  border-bottom: 1px solid #f8f8f8;
+  padding-bottom: 25px;
+}
+
+.filter-title {
+  font-size: 15px;
+  font-weight: 800;
+  margin-bottom: 20px;
+  color: #111;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.filter-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 20px; /* Espace vertical entre les lignes */
+}
+
+.category-node {
+  margin-bottom: 10px;
+}
+
+.category-parent {
+  font-weight: 700;
+  color: #111;
+  padding: 8px 0;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 16px;
+}
+
+.category-subs {
+  padding-left: 20px;
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.filter-item {
+  display: flex;
+  align-items: center;
+  gap: 20px; /* ESPACE LARGE entre le check et le nom (État, etc.) */
+  font-size: 15px;
+  color: #444;
+  cursor: pointer;
+  transition: all 0.2s;
+  padding: 5px 0;
+}
+
+.filter-item:hover {
+  color: var(--jaune);
+}
+
+.filter-item input {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: var(--jaune);
+  margin-right: 5px;
+}
+
+.price-inputs {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-top: 10px;
+}
+
+.range-slider {
+  position: relative;
+  width: 100%;
+  height: 5px;
+  background: #e0e0e0;
+  border-radius: 5px;
+  margin: 15px 0 25px;
+}
+
+.range-slider .progress {
+  position: absolute;
+  height: 100%;
+  background: var(--jaune);
+  border-radius: 5px;
+}
+
+.range-slider input {
+  position: absolute;
+  width: 100%;
+  height: 0; /* On réduit la hauteur de l'input pour un centrage parfait */
+  top: 50%;
+  left: 0;
+  background: none;
+  pointer-events: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  transform: translateY(-50%);
+  outline: none;
+}
+
+.range-slider input::-webkit-slider-thumb {
+  height: 18px;
+  width: 18px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid var(--jaune);
+  pointer-events: auto;
+  -webkit-appearance: none;
+  cursor: pointer;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  margin-top: 0; /* Le centrage est géré par le parent input */
+}
+
+.range-slider input::-moz-range-thumb {
+  height: 18px;
+  width: 18px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid var(--jaune);
+  pointer-events: auto;
+  cursor: pointer;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  border-radius: 50%;
+}
+
+.price-values {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  font-weight: 700;
+  color: #333;
+}
+
+.price-values span {
+  background: #fdf8e1;
+  padding: 4px 10px;
+  border-radius: 8px;
+  color: var(--jaune);
+}
+
+/* Quand le volet est ouvert, on passe à 3 articles par ligne */
+.catalog-container.sidebar-open .articles-grid {
+  grid-template-columns: repeat(3, 1fr);
+  gap: 35px;
 }
 
 .section-title {
-  font-size: 18px;
-  font-weight: 700;
-  margin-bottom: 20px;
-  color: #222;
+  font-size: 20px;
+  font-weight: 800;
+  margin-bottom: 30px;
+  color: #111;
 }
 
 /* ─── GRILLE D'ARTICLES ──────────────────────────────── */
@@ -203,7 +430,7 @@ body {
 .articles-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
+  gap: 30px; /* Espace d'au moins 20px entre les cartes */
 }
 
 /* ─── CARTE ARTICLE ──────────────────────────────────── */
@@ -223,6 +450,40 @@ body {
 .article-card:hover {
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
   transform: translateY(-2px);
+}
+
+.article-card-container {
+  position: relative;
+}
+
+.btn-fav-card {
+  position: absolute;
+  top: 10px;
+  right: 130px; /* Positionné juste à gauche de l'image (qui fait 120px + marge) */
+  width: 28px;
+  height: 28px;
+  background-color: #fff;
+  background-image: url('images/coeur_classique.png');
+  background-size: 70%;
+  background-repeat: no-repeat;
+  background-position: center;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  z-index: 5;
+  transition: all 0.2s;
+}
+
+.btn-fav-card:hover {
+  transform: scale(1.1);
+  background-image: url('images/coeur_survole.png');
+}
+
+.btn-fav-card.active {
+  background-image: url('images/coeur_survole.png');
 }
 
 .article-info {
@@ -280,17 +541,11 @@ body {
 }
 
 /* ─── FOOTER ─────────────────────────────────────────── */
-/* ─────────────────────────────────────────────────────── */
-/* ─────────────────────────────────────────────────────── */
-/* ─────────────────────────────────────────────────────── */
-
-
-
 
 .footer {
   background-color: #222;
   padding: 32px 40px;
-  margin-top: 60px;
+  margin-top: 0; /* Plus d'espace entre le catalogue et le footer */
 }
 
 .footer-links {
@@ -311,11 +566,6 @@ body {
 }
 
 /* ─── PRODUIT ─────────────────────────────────────────── */
-/* ─────────────────────────────────────────────────────── */
-/* ─────────────────────────────────────────────────────── */
-/* ─────────────────────────────────────────────────────── */
-
-
 
 :root {
         --jaune: #e4ca3e;
@@ -765,19 +1015,6 @@ body {
 
       .review-header strong { color: #111; }
       .review-header span   { color: #bbb; font-size: 0.8rem; }
-    
-      /* ─── APROPOS ─────────────────────────────────────────── */
-      /* ─────────────────────────────────────────────────────── */
-      /* ─────────────────────────────────────────────────────── */
-      /* ─────────────────────────────────────────────────────── */
-      /* ─────────────────────────────────────────────────────── */
-/* ─── VARIABLES (Rappel de tes couleurs si besoin) ───── */
-:root {
-  --jaune: #e4ca3e;
-  --bleu: #68c3e2;
-  --rose: #e6678f;
-  --vert: #7ed957;
-}
 
 /* ─── PAGE À PROPOS (STYLE VINTED) ───────────────────── */
 
@@ -926,11 +1163,92 @@ body {
   background-color: #c9b030;
 }
 
-/* Responsive simple */
-@media (max-width: 768px) {
-  .about-grid { grid-template-columns: 1fr; }
-  .about-section-inline { flex-direction: column !important; gap: 1.5rem; }
+/* ─── AUTH & MODALS ──────────────────────────────────── */
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
 }
 
-      
-      
+.modal-content {
+  background: #fff;
+  padding: 30px;
+  border-radius: 20px;
+  width: 100%;
+  max-width: 400px;
+  position: relative;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.auth-form h2 {
+  text-align: center;
+  margin-bottom: 10px;
+  color: #111;
+}
+
+.auth-form input {
+  padding: 12px 15px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  font-size: 14px;
+}
+
+.auth-form button {
+  padding: 12px;
+  background: var(--jaune);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.auth-form button:hover {
+  opacity: 0.9;
+}
+
+.auth-switch {
+  text-align: center;
+  font-size: 13px;
+  color: #666;
+  margin-top: 10px;
+}
+
+.auth-switch span {
+  color: var(--jaune);
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.profile-view {
+  text-align: center;
+}
+
+.profile-header {
+  font-size: 24px;
+  font-weight: 800;
+  margin-bottom: 20px;
+  color: #111;
+}
+
+.btn-logout {
+  background: #ff5757 !important;
+  margin-top: 20px;
+}
+
