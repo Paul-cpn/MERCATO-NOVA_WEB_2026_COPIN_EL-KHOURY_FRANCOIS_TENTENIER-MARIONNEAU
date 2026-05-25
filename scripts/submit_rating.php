@@ -34,7 +34,7 @@ try {
     ]);
 
     // Notifier le vendeur qu'il a reçu une note
-    createNotification($pdo, $cible, 'avis', "Vous avez reçu une nouvelle note de $note/5 !");
+    createNotification($pdo, $cible, 'avis', "Vous avez reçu une nouvelle note de $note/5 !", $id_trans);
 
     echo json_encode(['success' => true]);
 } catch (Exception $e) {

@@ -29,7 +29,26 @@ function MessagesPage() {
 
   useEffect(() => {
     fetchNegotiations();
+    
+    // Gérer id_negociation depuis l'URL (via les notifications)
+    const urlParams = new URLSearchParams(window.location.search);
+    const idNeg = urlParams.get('id_negociation');
+    if (idNeg) {
+      localStorage.setItem('pending_neg_selection', idNeg);
+    }
   }, []);
+
+  // Une fois les négociations chargées, on sélectionne celle demandée
+  useEffect(() => {
+    const pendingId = localStorage.getItem('pending_neg_selection');
+    if (pendingId && negotiations.length > 0) {
+      const target = negotiations.find(n => n.id_negociation == pendingId);
+      if (target) {
+        setActiveNeg(target);
+        localStorage.removeItem('pending_neg_selection');
+      }
+    }
+  }, [negotiations]);
 
   const fetchMessages = () => {
     if (activeNeg) {

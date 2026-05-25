@@ -194,6 +194,11 @@ function VendrePage() {
                     </div>
 
                     <div className="form-section">
+                        <label>Matière</label>
+                        <input type="text" value={formData.matiere} onChange={e => setFormData({...formData, matiere: e.target.value})} placeholder="Coton, Cuir, Soie..." />
+                    </div>
+
+                    <div className="form-section">
                         <label>Lien de l'image (URL)</label>
                         <input type="text" required value={formData.image_url} onChange={e => setFormData({...formData, image_url: e.target.value})} placeholder="https://..." />
                     </div>

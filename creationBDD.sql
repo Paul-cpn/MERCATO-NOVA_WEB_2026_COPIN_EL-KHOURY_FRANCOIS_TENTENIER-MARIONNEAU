@@ -104,6 +104,7 @@ CREATE TABLE notification (
     lu_notification     BOOLEAN         DEFAULT FALSE,
     date_notification   DATETIME        DEFAULT CURRENT_TIMESTAMP,
     id_user             INTEGER         NOT NULL,
+    id_cible            INTEGER         DEFAULT NULL,
     FOREIGN KEY (id_user) REFERENCES user(id_user)
 );
 

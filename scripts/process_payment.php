@@ -43,7 +43,7 @@ try {
         $stmt->execute(['u' => $id_user, 'a' => $id_annonce]);
 
         // Notification
-        createNotification($pdo, $id_vendeur, 'vente', "Félicitations ! Votre article '" . $annonce['titre_annonce'] . "' a été vendu pour $prix €.");
+        createNotification($pdo, $id_vendeur, 'vente', "Félicitations ! Votre article '" . $annonce['titre_annonce'] . "' a été vendu pour $prix €.", $id_annonce);
     }
 
     $pdo->commit();

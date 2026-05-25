@@ -36,14 +36,14 @@ function runAuctionEngine($pdo) {
                     ->execute(['a' => $id_annonce]);
 
                 // 5. Notifications
-                createNotification($pdo, $id_gagnant, 'enchere', "Félicitations ! Vous avez gagné l'enchère pour '$titre' à $montant €. L'article est dans votre panier.");
-                createNotification($pdo, $id_vendeur, 'vente', "Votre enchère pour '$titre' est terminée. Vendue pour $montant €.");
+                createNotification($pdo, $id_gagnant, 'enchere', "Félicitations ! Vous avez gagné l'enchère pour '$titre' à $montant €. L'article est dans votre panier.", $id_annonce);
+                createNotification($pdo, $id_vendeur, 'vente', "Votre enchère pour '$titre' est terminée. Vendue pour $montant €.", $id_annonce);
 
             } else {
                 // PAS DE GAGNANT : SUPPRESSION AUTOMATIQUE
                 
                 // A. Notifier le vendeur avant suppression
-                createNotification($pdo, $id_vendeur, 'enchere', "Votre enchère pour '$titre' est terminée sans aucune offre. L'article a été supprimé du catalogue.");
+                createNotification($pdo, $id_vendeur, 'enchere', "Votre enchère pour '$titre' est terminée sans aucune offre. L'article a été supprimé du catalogue.", $id_annonce);
 
                 // B. Nettoyer les dépendances
                 $pdo->prepare("DELETE FROM image WHERE id_annonce = :a")->execute(['a' => $id_annonce]);

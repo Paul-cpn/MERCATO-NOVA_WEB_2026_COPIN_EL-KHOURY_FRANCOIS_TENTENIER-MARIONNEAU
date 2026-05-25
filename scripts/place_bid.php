@@ -53,11 +53,11 @@ try {
 
     // 4. Notifications
     // Au vendeur
-    createNotification($pdo, $enchere['id_vendeur'], 'enchere', "Nouvelle enchère de $montant € sur votre article : " . $enchere['titre_annonce']);
+    createNotification($pdo, $enchere['id_vendeur'], 'enchere', "Nouvelle enchère de $montant € sur votre article : " . $enchere['titre_annonce'], $enchere['id_annonce']);
     
     // À l'ancien gagnant (s'il y en avait un et que c'est pas le même)
     if ($old_gagnant && $old_gagnant != $id_user) {
-        createNotification($pdo, $old_gagnant, 'enchere', "Vous avez été surenchéri sur l'article : " . $enchere['titre_annonce'] . ". Nouvelle offre : $montant €.");
+        createNotification($pdo, $old_gagnant, 'enchere', "Vous avez été surenchéri sur l'article : " . $enchere['titre_annonce'] . ". Nouvelle offre : $montant €.", $enchere['id_annonce']);
     }
 
     $pdo->commit();

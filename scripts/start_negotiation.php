@@ -51,7 +51,7 @@ try {
     $stmt->execute(['m' => $montant, 'msg' => $message, 'n' => $id_negociation, 'u' => $id_acheteur]);
 
     // 4. Notification au vendeur
-    createNotification($pdo, $id_vendeur, 'negociation', "Nouvelle offre de $montant € sur votre article : " . $annonce['titre_annonce']);
+    createNotification($pdo, $id_vendeur, 'negociation', "Nouvelle offre de $montant € sur votre article : " . $annonce['titre_annonce'], $id_negociation);
 
     echo json_encode(['success' => true, 'id_negociation' => $id_negociation]);
 

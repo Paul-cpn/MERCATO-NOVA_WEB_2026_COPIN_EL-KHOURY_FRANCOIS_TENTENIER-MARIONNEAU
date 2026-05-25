@@ -35,7 +35,7 @@ try {
     $texte = "Nouveau message de $role sur l'article : " . $nego['titre_annonce'];
     if ($montant) $texte = "Nouvelle offre de $montant € sur l'article : " . $nego['titre_annonce'];
 
-    createNotification($pdo, $id_autre, 'message', $texte);
+    createNotification($pdo, $id_autre, 'message', $texte, $id_negociation);
 
     echo json_encode(['success' => true]);
 } catch (Exception $e) {

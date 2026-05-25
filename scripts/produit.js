@@ -264,6 +264,52 @@ function Tabs({ description, avis }) {
   );
 }
 
+// COMPOSANT MODAL POUR FAIRE UNE OFFRE
+function OfferModal({ isOpen, onClose, onSubmit, initialPrice }) {
+  const [montant, setMontant] = useState(initialPrice);
+  
+  if (!isOpen) return null;
+
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-content" onClick={e => e.stopPropagation()} style={{ maxWidth: '400px' }}>
+        <span className="close-sidebar" style={{ top: '10px', right: '10px' }} onClick={onClose}>&times;</span>
+        <h2 style={{ marginBottom: '20px' }}>Faire une offre</h2>
+        <div style={{ marginBottom: '20px' }}>
+          <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600' }}>Votre proposition (€)</label>
+          <input 
+            type="number" 
+            value={montant} 
+            onChange={e => setMontant(e.target.value)}
+            style={{ 
+              width: '100%', 
+              padding: '12px', 
+              borderRadius: '10px', 
+              border: '1px solid #ddd',
+              fontSize: '16px'
+            }}
+          />
+        </div>
+        <button 
+          onClick={() => onSubmit(montant)}
+          style={{ 
+            width: '100%', 
+            padding: '12px', 
+            background: 'var(--jaune)', 
+            color: '#fff', 
+            border: 'none', 
+            borderRadius: '10px', 
+            fontWeight: '800', 
+            cursor: 'pointer' 
+          }}
+        >
+          Envoyer l'offre
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function App() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -271,6 +317,7 @@ function App() {
   const [isInCart, setIsInCart] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
   const [feedback, setFeedback] = useState({ message: '', type: '' });
+  const [isOfferModalOpen, setIsOfferModalOpen] = useState(false);
 
   let user = null;
   try {
@@ -392,8 +439,15 @@ function App() {
         window.dispatchEvent(new CustomEvent('openAuthModal'));
         return;
     }
+    setIsOfferModalOpen(true);
+  };
 
-    const montant = prompt("Quel montant souhaitez-vous proposer ?", data.annonce.prix_annonce);
+  const submitOffer = (montant) => {
+    if (!user) {
+        window.dispatchEvent(new CustomEvent('openAuthModal'));
+        return;
+    }
+
     if (!montant || isNaN(montant)) return;
 
     fetch('../scripts/start_negotiation.php', {
@@ -407,12 +461,13 @@ function App() {
         })
     })
     .then(res => res.json())
-    .then(data => {
-        if (data.success) {
+    .then(resData => {
+        if (resData.success) {
+            setIsOfferModalOpen(false);
             setFeedback({ message: "Votre offre a été envoyée ! Redirection...", type: 'success' });
             setTimeout(() => window.location.href = "messages.html", 2000);
         } else {
-            setFeedback({ message: "Erreur : " + data.error, type: 'error' });
+            setFeedback({ message: "Erreur : " + resData.error, type: 'error' });
         }
     });
   };
@@ -624,6 +679,13 @@ function App() {
           </div>
         </div>
       </div>
+
+      <OfferModal 
+        isOpen={isOfferModalOpen}
+        onClose={() => setIsOfferModalOpen(false)}
+        onSubmit={submitOffer}
+        initialPrice={annonce.prix_annonce}
+      />
 
       {FooterComp && <FooterComp />}
     </div>

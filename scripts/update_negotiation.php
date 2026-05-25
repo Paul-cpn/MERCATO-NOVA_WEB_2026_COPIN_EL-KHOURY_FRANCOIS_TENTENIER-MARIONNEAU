@@ -40,7 +40,7 @@ try {
         $stmt->execute(['msg' => $message_auto, 'n' => $id_neg, 'u' => $nego['id_user_vendeur']]);
 
         // Notification à l'acheteur
-        createNotification($pdo, $nego['id_user_acheteur'], 'negociation', "Bonne nouvelle ! Votre offre de $dernier_montant € a été acceptée pour l'article : " . $nego['titre_annonce']);
+        createNotification($pdo, $nego['id_user_acheteur'], 'negociation', "Bonne nouvelle ! Votre offre de $dernier_montant € a été acceptée pour l'article : " . $nego['titre_annonce'], $id_neg);
 
     } else {
         $stmt = $pdo->prepare("UPDATE negociation SET statut_negociation = 'refusee' WHERE id_negociation = :n");
@@ -52,7 +52,7 @@ try {
         $stmt->execute(['msg' => $message_auto, 'n' => $id_neg, 'u' => $nego['id_user_vendeur']]);
 
         // Notification à l'acheteur
-        createNotification($pdo, $nego['id_user_acheteur'], 'negociation', "Votre offre pour l'article " . $nego['titre_annonce'] . " a été refusée.");
+        createNotification($pdo, $nego['id_user_acheteur'], 'negociation', "Votre offre pour l'article " . $nego['titre_annonce'] . " a été refusée.", $id_neg);
     }
 
     echo json_encode(['success' => true]);

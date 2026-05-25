@@ -125,18 +125,53 @@ function NotificationsModal({ isOpen, user, onClose }) {
         if (isOpen && user) {
             fetch(`../scripts/get_notifications.php?id_user=${user.id_user}`)
                 .then(res => res.json())
-                .then(data => setNotifs(data));
+                .then(data => {
+                    if (Array.isArray(data)) {
+                        setNotifs(data);
+                    } else {
+                        console.error("Erreur notifications:", data.error);
+                        setNotifs([]);
+                    }
+                })
+                .catch(err => {
+                    console.error("Erreur réseau notifications:", err);
+                    setNotifs([]);
+                });
             
             // Marquer comme lu après un délai
-            setTimeout(() => {
+            const timer = setTimeout(() => {
                 fetch('../scripts/mark_notifications_read.php', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({id_user: user.id_user})
-                }).then(() => window.dispatchEvent(new CustomEvent('notificationsRead')));
-            }, 2000);
+                }).then(() => {
+                    window.dispatchEvent(new CustomEvent('notificationsRead'));
+                    // On met aussi à jour localement les notifs pour enlever le fond jaune immédiatement
+                    setNotifs(prev => prev.map(n => ({...n, lu_notification: 1})));
+                }).catch(() => {});
+            }, 1000);
+            return () => clearTimeout(timer);
         }
     }, [isOpen, user]);
+
+    const handleNotifClick = (n) => {
+        if (!n.id_cible) return;
+
+        switch (n.type_notification) {
+            case 'enchere':
+            case 'vente':
+            case 'avis':
+                window.location.href = `produit.html?id=${n.id_cible}`;
+                break;
+            case 'negociation':
+            case 'message':
+                window.location.href = `messages.html?id_negociation=${n.id_cible}`;
+                break;
+            default:
+                break;
+        }
+        onClose();
+    };
 
     if (!isOpen) return null;
 
@@ -148,9 +183,23 @@ function NotificationsModal({ isOpen, user, onClose }) {
                 {notifs.length === 0 && <p style={{textAlign: 'center', color: '#999'}}>Aucune notification pour le moment.</p>}
                 <div style={{display: 'flex', flexDirection: 'column', gap: '10px'}}>
                     {notifs.map(n => (
-                        <div key={n.id_notification} style={{padding: '12px', borderRadius: '12px', background: n.lu_notification ? '#f9f9f9' : '#fdf8e1', border: '1px solid #eee'}}>
+                        <div 
+                            key={n.id_notification} 
+                            onClick={() => handleNotifClick(n)}
+                            style={{
+                                padding: '12px', 
+                                borderRadius: '12px', 
+                                background: n.lu_notification ? '#f9f9f9' : '#fdf8e1', 
+                                border: '1px solid #eee',
+                                cursor: n.id_cible ? 'pointer' : 'default',
+                                transition: 'transform 0.2s ease'
+                            }}
+                            onMouseEnter={e => n.id_cible && (e.currentTarget.style.transform = 'scale(1.02)')}
+                            onMouseLeave={e => n.id_cible && (e.currentTarget.style.transform = 'scale(1)')}
+                        >
                             <div style={{fontSize: '10px', color: '#bbb', marginBottom: '4px'}}>{new Date(n.date_notification).toLocaleString()}</div>
                             <div style={{fontSize: '13px', color: '#333'}}>{n.texte_notification}</div>
+                            {n.id_cible && <div style={{fontSize: '10px', color: 'var(--jaune)', marginTop: '5px', fontWeight: '700'}}>Voir les détails →</div>}
                         </div>
                     ))}
                 </div>
@@ -224,7 +273,11 @@ window.Header = function({ onCategoryClick, isSidebarOpen }) {
     };
 
     const handleOpenAuth = () => setIsAuthOpen(true);
-    const handleRefreshNotifs = () => fetchNotifCount(u);
+    const handleRefreshNotifs = () => {
+        // Force le rechargement du compteur en repassant l'utilisateur actuel
+        const savedUser = localStorage.getItem('user');
+        if (savedUser) fetchNotifCount(JSON.parse(savedUser));
+    };
 
     window.addEventListener('openAuthModal', handleOpenAuth);
     window.addEventListener('notificationsRead', handleRefreshNotifs);
