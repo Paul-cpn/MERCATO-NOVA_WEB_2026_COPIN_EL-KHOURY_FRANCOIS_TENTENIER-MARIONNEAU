@@ -1,5 +1,10 @@
 const { useState } = React;
 
+// Récupération des composants globaux
+const Header = window.Header;
+const NavBar = window.NavBar;
+const Footer = window.Footer;
+
 function App() {
   const user = JSON.parse(localStorage.getItem('user'));
   const [status, setStatus] = useState({ message: '', type: '' });

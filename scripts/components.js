@@ -166,6 +166,7 @@ window.Header = function({ onCategoryClick, isSidebarOpen }) {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [notifCount, setNotifCount] = useState(0);
+  const [notifHover, setNotifHover] = useState(false);
 
   const fetchNotifCount = (u) => {
     if (!u) return;
@@ -229,7 +230,7 @@ window.Header = function({ onCategoryClick, isSidebarOpen }) {
     <header className="header">
       <div className="header-top">
         <a href="index.html" className="header-logo" style={{display: 'flex', alignItems: 'center', gap: '10px'}}>
-          <img src="../images/LOGO-NOVA.png" alt="Logo" style={{height: '40px', width: 'auto'}} />
+          <img src="../images/LOGO-NOVA.png" alt="Logo" style={{height: '45px', width: 'auto'}} />
           <span className="logo-name">Mercato Nova</span>
         </a>
         <div className="header-search">
@@ -237,9 +238,16 @@ window.Header = function({ onCategoryClick, isSidebarOpen }) {
           <button className="search-btn">Rechercher</button>
         </div>
         <nav className="header-actions">
-          <a href="#" className="action-item" onClick={handleNotifClick}>
-            <span className="action-icon" style={{position: 'relative'}}>
-                🔔
+          <a href="#" className="action-item" onClick={handleNotifClick} onMouseEnter={() => setNotifHover(true)} onMouseLeave={() => setNotifHover(false)}>
+            <span className="action-icon" style={{ 
+                position: 'relative',
+                backgroundImage: `url(../images/notification_${notifHover ? 'survole' : 'classique'}.png)`,
+                width: '24px', 
+                height: '24px', 
+                backgroundSize: 'contain',
+                backgroundRepeat: 'no-repeat',
+                backgroundPosition: 'center'
+            }}>
                 {notifCount > 0 && <span style={{position: 'absolute', top: '-5px', right: '-5px', background: '#ff5757', color: '#fff', fontSize: '9px', width: '15px', height: '15px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '800'}}>{notifCount}</span>}
             </span>
             <span>Notifications</span>

@@ -1,5 +1,9 @@
 const { useState, useEffect } = React;
 
+// Récupération des composants globaux
+const Header = window.Header;
+const Footer = window.Footer;
+
 function Sidebar({ isOpen, initialCategory, onClose, onFilterChange }) {
   const [allCategories, setAllCategories] = useState([]);
   const [displayCategories, setDisplayCategories] = useState([]);

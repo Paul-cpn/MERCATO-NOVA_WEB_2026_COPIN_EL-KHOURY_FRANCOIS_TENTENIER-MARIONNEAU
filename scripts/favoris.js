@@ -1,5 +1,9 @@
 const { useState, useEffect } = React;
 
+// Récupération des composants globaux
+const Header = window.Header;
+const Footer = window.Footer;
+
 function ArticleCard({ article, isFav, onFavToggle, isAdmin, onAdminDelete }) {
   const prixFormate = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(article.prix_annonce);
   

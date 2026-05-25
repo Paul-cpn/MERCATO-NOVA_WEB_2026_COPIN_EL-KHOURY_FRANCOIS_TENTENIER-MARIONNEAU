@@ -1,5 +1,9 @@
 const { useState, useEffect } = React;
 
+// Récupération des composants globaux
+const Header = window.Header;
+const Footer = window.Footer;
+
 function VendrePage() {
   const user = JSON.parse(localStorage.getItem('user'));
   

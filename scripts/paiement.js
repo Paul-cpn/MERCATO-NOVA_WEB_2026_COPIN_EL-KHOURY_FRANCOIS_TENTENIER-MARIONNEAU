@@ -1,5 +1,9 @@
 const { useState, useEffect } = React;
 
+// Récupération des composants globaux
+const Header = window.Header;
+const Footer = window.Footer;
+
 function PaiementPage() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -143,7 +147,9 @@ function PaiementPage() {
         <div>
             <Header />
             <main className="main success-view">
-                <div className="success-icon">✅</div>
+                <div style={{textAlign: 'center', marginBottom: '30px'}}>
+                    <img src="../images/payment-confirmation.png" alt="Succès" style={{height: '100px', width: 'auto'}} />
+                </div>
                 <h1>Paiement Réussi !</h1>
                 <p>Merci pour votre achat sur Mercato Nova.</p>
                 

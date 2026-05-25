@@ -1,5 +1,9 @@
 const { useState, useEffect, useRef } = React;
 
+// Récupération des composants globaux
+const Header = window.Header;
+const Footer = window.Footer;
+
 function MessagesPage() {
   const [negotiations, setNegotiations] = useState([]);
   const [activeNeg, setActiveNeg] = useState(null);
