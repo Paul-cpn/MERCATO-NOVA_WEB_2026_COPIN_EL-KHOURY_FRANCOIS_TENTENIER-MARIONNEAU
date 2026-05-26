@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FAQ - Mercato Nova</title>
+    <link rel="stylesheet" href="../css/style.css"> 
+    
+    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body>
+
+    <div id="root"></div>
+
+    <script type="text/babel" src="componante.jsx"></script>
+    <script type="text/babel" src="faq.jsx"></script>
+
+    <script type="text/babel">
+        const checkAndRender = () => {
+            // On vérifie que TOUS les composants globaux sont bien injectés dans window
+            if (window.Header && window.FaqPage && window.Footer) {
+                const rootContainer = document.getElementById('root');
+                const root = ReactDOM.createRoot(rootContainer);
+                root.render(
+                    <React.Fragment>
+                        <window.Header />
+                        <window.FaqPage />
+                        <window.Footer />
+                    </React.Fragment>
+                );
+                console.log("FAQ chargée avec succès !");
+            } else {
+                // Si les scripts mettent quelques millisecondes à compiler, on patiente
+                setTimeout(checkAndRender, 50);
+            }
+        };
+        
+        // On attend que le DOM soit prêt pour lancer la vérification
+        window.addEventListener('DOMContentLoaded', checkAndRender);
+    </script>
+
+</body>
+</html>

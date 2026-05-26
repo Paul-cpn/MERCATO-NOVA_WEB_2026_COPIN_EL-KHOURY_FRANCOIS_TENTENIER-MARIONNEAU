@@ -1,6 +1,6 @@
 const { useState, useEffect } = React;
 
-// COMPOSANT GALERIE : Fixé pour occuper un grand espace même sans image chargée
+// COMPOSANT GALERIE
 function Galerie({ images, isFavorite, onToggleFavorite }) {
   const [mainImg, setMainImg] = useState(0);
   
@@ -16,7 +16,6 @@ function Galerie({ images, isFavorite, onToggleFavorite }) {
 
   return (
     <div className="gallery" style={{ position: 'relative', width: '100%' }}>
-      {/* Bouton Favoris */}
       <button 
         className="btn-fav"
         onClick={onToggleFavorite}
@@ -46,8 +45,6 @@ function Galerie({ images, isFavorite, onToggleFavorite }) {
         }
       </button>
 
-
-      {/* Conteneur Image principale : forcé à 500px de haut minimum */}
       <div className="main-image-container" style={{ 
         width: '100%', 
         height: '520px', 
@@ -69,7 +66,6 @@ function Galerie({ images, isFavorite, onToggleFavorite }) {
             objectFit: 'cover' 
           }} 
           onError={(e) => {
-            // Si l'image ne charge pas, on applique un fond visuel pour éviter le bug d'affichage vide
             e.target.style.display = 'none';
             e.target.parentNode.style.backgroundColor = '#e9ecef';
             e.target.parentNode.innerHTML = "<span style='color:#999;font-weight:600;'>⚠️ Image introuvable ou cassée</span>";
@@ -77,7 +73,6 @@ function Galerie({ images, isFavorite, onToggleFavorite }) {
         />
       </div>
 
-      {/* Miniatures */}
       <div className="thumbnails" style={{ display: 'flex', gap: '10px', marginTop: '12px' }}>
         {images.map((img, i) => (
           <img
@@ -114,10 +109,7 @@ function ModeAchat({ prix, originalPrix, isNegotiated, onAddToCart, isInCart, on
         </div>
       </div>
       
-      <button 
-        className="btn-buy" 
-        onClick={onDirectBuy}
-      >
+      <button className="btn-buy" onClick={onDirectBuy}>
         <img src="../images/achatimediat.png" style={{height: '18px', verticalAlign: 'middle', marginRight: '8px'}} alt="achat" /> ACHAT IMMÉDIAT
       </button>
       
@@ -148,29 +140,13 @@ function ModeAchat({ prix, originalPrix, isNegotiated, onAddToCart, isInCart, on
           />
           <button 
             onClick={handleConfirm}
-            style={{ 
-              background: 'var(--bleu)', 
-              color: '#fff', 
-              border: 'none', 
-              borderRadius: '12px', 
-              padding: '0 15px', 
-              fontWeight: '800', 
-              cursor: 'pointer' 
-            }}
+            style={{ background: 'var(--bleu)', color: '#fff', border: 'none', borderRadius: '12px', padding: '0 15px', fontWeight: '800', cursor: 'pointer' }}
           >
             OK
           </button>
           <button 
             onClick={() => setIsOfferMode(false)}
-            style={{ 
-              background: '#eee', 
-              color: '#666', 
-              border: 'none', 
-              borderRadius: '12px', 
-              padding: '0 10px', 
-              fontWeight: '800', 
-              cursor: 'pointer' 
-            }}
+            style={{ background: '#eee', color: '#666', border: 'none', borderRadius: '12px', padding: '0 10px', fontWeight: '800', cursor: 'pointer' }}
           >
             ✕
           </button>
@@ -230,13 +206,13 @@ function ModeEnchere({ data, onPlaceBid }) {
       
       {data.statut_enchere === 'en_cours' && (
         <div className="bid-input-group">
-            <input
+          <input
             type="number"
             placeholder={`Min ${ (bestBid + 1).toFixed(2) } €`}
             value={bidInput}
             onChange={e => setBidInput(e.target.value)}
-            />
-            <button onClick={() => { onPlaceBid(bidInput); setBidInput(""); }}>Enchérir</button>
+          />
+          <button onClick={() => { onPlaceBid(bidInput); setBidInput(""); }}>Enchérir</button>
         </div>
       )}
       <span className="historique">Fin le {new Date(data.date_fin_enchere).toLocaleString()}</span>
@@ -244,62 +220,48 @@ function ModeEnchere({ data, onPlaceBid }) {
   );
 }
 
-// COMPOSANT TABS (Description, Avis, Guide)
+// COMPOSANT TABS
 function Tabs({ description, avis }) {
   const [activeTab, setActiveTab] = useState("description");
 
   return (
     <div className="tabs" style={{ marginTop: '20px', background: '#fff', padding: '15px', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.05)', width: '100%' }}>
       <div className="tab-buttons" style={{ display: 'flex', gap: '10px', marginBottom: '15px', borderBottom: '1px solid #eee', paddingBottom: '10px' }}>
-        <button
-          className={"tab-btn" + (activeTab === "description" ? " active" : "")}
-          onClick={() => setActiveTab("description")}
-          style={{ padding: '8px 16px', borderRadius: '20px', border: 'none', cursor: 'pointer', fontWeight: '600', background: activeTab === "description" ? 'var(--jaune)' : '#f5f5f5', color: activeTab === "description" ? '#fff' : '#333' }}
-        >Description</button>
-        
-        <button
-          className={"tab-btn" + (activeTab === "avis" ? " active" : "")}
-          onClick={() => setActiveTab("avis")}
-          style={{ padding: '8px 16px', borderRadius: '20px', border: 'none', cursor: 'pointer', fontWeight: '600', background: activeTab === "avis" ? 'var(--jaune)' : '#f5f5f5', color: activeTab === "avis" ? '#fff' : '#333' }}
-        >Avis ({avis ? avis.length : 0})</button>
-
-        <button
-          className={"tab-btn" + (activeTab === "guide" ? " active" : "")}
-          onClick={() => setActiveTab("guide")}
-          style={{ padding: '8px 16px', borderRadius: '20px', border: 'none', cursor: 'pointer', fontWeight: '600', background: activeTab === "guide" ? 'var(--jaune)' : '#f5f5f5', color: activeTab === "guide" ? '#fff' : '#333' }}
-        >Guide</button>
+        {["description", "avis", "guide"].map(tab => (
+          <button
+            key={tab}
+            className={"tab-btn" + (activeTab === tab ? " active" : "")}
+            onClick={() => setActiveTab(tab)}
+            style={{ padding: '8px 16px', borderRadius: '20px', border: 'none', cursor: 'pointer', fontWeight: '600', background: activeTab === tab ? 'var(--jaune)' : '#f5f5f5', color: activeTab === tab ? '#fff' : '#333' }}
+          >
+            {tab === "description" ? "Description" : tab === "avis" ? `Avis (${avis ? avis.length : 0})` : "Guide"}
+          </button>
+        ))}
       </div>
       
       <div className="tab-content" style={{ fontSize: '14px', lineHeight: '1.6', color: '#555' }}>
         {activeTab === "description" && (
-          <div>
-            <p>{description || "Aucune description disponible."}</p>
-          </div>
+          <p>{description || "Aucune description disponible."}</p>
         )}
         {activeTab === "avis" && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {avis && avis.length > 0 ? (
-                avis.map((a, i) => (
-                    <div className="review" key={i} style={{ borderBottom: '1px solid #f5f5f5', paddingBottom: '10px' }}>
-                        <div className="review-header" style={{ display: 'flex', justifyContent: 'space-between', fontWeight: '700', fontSize: '13px', marginBottom: '4px' }}>
-                          <strong>{a.auteur_nom || "Anonyme"}</strong>
-                          <span style={{ color: '#aaa', fontWeight: '400' }}>{new Date(a.date_avis).toLocaleDateString()}</span>
-                        </div>
-                        <div className="review-rating" style={{ display: 'flex', gap: '2px', marginBottom: '4px' }}>
-                          {[...Array(5)].map((_, j) => (
-                            <img 
-                              key={j} 
-                              src="../images/star.png" 
-                              style={{ height: '12px', opacity: j < a.note_avis ? 1 : 0.2 }} 
-                              alt="star" 
-                            />
-                          ))}
-                        </div>
-                        <p style={{ margin: 0 }}>{a.commentaire_avis}</p>
-                    </div>
-                ))
+              avis.map((a, i) => (
+                <div className="review" key={i} style={{ borderBottom: '1px solid #f5f5f5', paddingBottom: '10px' }}>
+                  <div className="review-header" style={{ display: 'flex', justifyContent: 'space-between', fontWeight: '700', fontSize: '13px', marginBottom: '4px' }}>
+                    <strong>{a.auteur_nom || "Anonyme"}</strong>
+                    <span style={{ color: '#aaa', fontWeight: '400' }}>{new Date(a.date_avis).toLocaleDateString()}</span>
+                  </div>
+                  <div className="review-rating" style={{ display: 'flex', gap: '2px', marginBottom: '4px' }}>
+                    {[...Array(5)].map((_, j) => (
+                      <img key={j} src="../images/star.png" style={{ height: '12px', opacity: j < a.note_avis ? 1 : 0.2 }} alt="star" />
+                    ))}
+                  </div>
+                  <p style={{ margin: 0 }}>{a.commentaire_avis}</p>
+                </div>
+              ))
             ) : (
-                <p>Aucun avis pour ce vendeur.</p>
+              <p>Aucun avis pour ce vendeur.</p>
             )}
           </div>
         )}
@@ -331,6 +293,7 @@ function App() {
   } catch (e) {
     console.error("Erreur parsing user:", e);
   }
+
   const HeaderComp = window.Header;
   const NavBarComp = window.NavBar;
   const FooterComp = window.Footer;
@@ -374,123 +337,90 @@ function App() {
   }, []);
 
   const handleToggleFavorite = () => {
-    if (!user) {
-        window.dispatchEvent(new CustomEvent('openAuthModal'));
-        return;
-    }
-
+    if (!user) { window.dispatchEvent(new CustomEvent('openAuthModal')); return; }
     fetch('../scripts/toggle_favorite.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id_annonce: data.annonce.id_annonce, id_user: user.id_user })
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id_annonce: data.annonce.id_annonce, id_user: user.id_user })
     })
     .then(res => res.json())
     .then(resData => {
-        if (resData.success) {
-            const added = resData.action === 'added' || resData.is_favorite;
-            setIsFavorite(added);
-            setFeedback({ 
-              message: added ? "Ajouté aux favoris !" : "Retiré des favoris !", 
-              type: 'success' 
-            });
-            setTimeout(() => setFeedback({ message: '', type: '' }), 2500);
-        }
+      if (resData.success) {
+        const added = resData.action === 'added' || resData.is_favorite;
+        setIsFavorite(added);
+        setFeedback({ message: added ? "Ajouté aux favoris !" : "Retiré des favoris !", type: 'success' });
+        setTimeout(() => setFeedback({ message: '', type: '' }), 2500);
+      }
     });
   };
 
   const handleAddToCart = () => {
-    if (!user) {
-        window.dispatchEvent(new CustomEvent('openAuthModal'));
-        return;
-    }
-
+    if (!user) { window.dispatchEvent(new CustomEvent('openAuthModal')); return; }
     fetch('../scripts/toggle_cart.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id_annonce: data.annonce.id_annonce, id_user: user.id_user })
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id_annonce: data.annonce.id_annonce, id_user: user.id_user })
     })
     .then(res => res.json())
     .then(resData => {
-        if (resData.success) {
-            const added = resData.action === 'added';
-            setIsInCart(added);
-            
-            const currentCount = parseInt(localStorage.getItem('cart_count') || '0', 10);
-            const newCount = added ? currentCount + 1 : Math.max(0, currentCount - 1);
-            
-            localStorage.setItem('cart_count', newCount);
-            window.dispatchEvent(new CustomEvent('cartUpdated'));
-
-            setFeedback({ 
-              message: added ? "Article ajouté au panier !" : "Article retiré du panier !", 
-              type: 'success' 
-            });
-            setTimeout(() => setFeedback({ message: '', type: '' }), 3000);
-        }
+      if (resData.success) {
+        const added = resData.action === 'added';
+        setIsInCart(added);
+        const currentCount = parseInt(localStorage.getItem('cart_count') || '0', 10);
+        const newCount = added ? currentCount + 1 : Math.max(0, currentCount - 1);
+        localStorage.setItem('cart_count', newCount);
+        window.dispatchEvent(new CustomEvent('cartUpdated'));
+        setFeedback({ message: added ? "Article ajouté au panier !" : "Article retiré du panier !", type: 'success' });
+        setTimeout(() => setFeedback({ message: '', type: '' }), 3000);
+      }
     });
   };
 
   const submitOffer = (montant) => {
-    if (!user) {
-        window.dispatchEvent(new CustomEvent('openAuthModal'));
-        return;
-    }
-
+    if (!user) { window.dispatchEvent(new CustomEvent('openAuthModal')); return; }
     if (!montant || isNaN(montant)) return;
-
     fetch('../scripts/start_negotiation.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            id_annonce: data.annonce.id_annonce,
-            id_user_acheteur: user.id_user,
-            montant: parseFloat(montant),
-            message: `Je vous propose ${montant} € pour cet article.`
-        })
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        id_annonce: data.annonce.id_annonce,
+        id_user_acheteur: user.id_user,
+        montant: parseFloat(montant),
+        message: `Je vous propose ${montant} € pour cet article.`
+      })
     })
     .then(res => res.json())
     .then(resData => {
-        if (resData.success) {
-            setFeedback({ message: "Votre offre a été envoyée ! Redirection...", type: 'success' });
-            setTimeout(() => window.location.href = "messages.html", 2000);
-        } else {
-            setFeedback({ message: "Erreur : " + resData.error, type: 'error' });
-        }
+      if (resData.success) {
+        setFeedback({ message: "Votre offre a été envoyée ! Redirection...", type: 'success' });
+        setTimeout(() => window.location.href = "messages.html", 2000);
+      } else {
+        setFeedback({ message: "Erreur : " + resData.error, type: 'error' });
+      }
     });
   };
 
   const handleDirectBuy = () => {
-    if (!user) {
-        window.dispatchEvent(new CustomEvent('openAuthModal'));
-        return;
-    }
+    if (!user) { window.dispatchEvent(new CustomEvent('openAuthModal')); return; }
     window.location.href = `paiement.html?type=direct&id=${data.annonce.id_annonce}`;
   };
 
   const handlePlaceBid = (amount) => {
-    if (!user) {
-        window.dispatchEvent(new CustomEvent('openAuthModal'));
-        return;
-    }
-
+    if (!user) { window.dispatchEvent(new CustomEvent('openAuthModal')); return; }
     fetch('../scripts/place_bid.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            id_enchere: data.enchere.id_enchere,
-            id_user: user.id_user,
-            montant: parseFloat(amount)
-        })
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id_enchere: data.enchere.id_enchere, id_user: user.id_user, montant: parseFloat(amount) })
     })
     .then(res => res.json())
     .then(resData => {
-        if (resData.success) {
-            setFeedback({ message: "Enchère placée avec succès !", type: 'success' });
-            fetchData();
-            setTimeout(() => setFeedback({ message: '', type: '' }), 3000);
-        } else {
-            setFeedback({ message: "Erreur: " + resData.error, type: 'error' });
-        }
+      if (resData.success) {
+        setFeedback({ message: "Enchère placée avec succès !", type: 'success' });
+        fetchData();
+        setTimeout(() => setFeedback({ message: '', type: '' }), 3000);
+      } else {
+        setFeedback({ message: "Erreur: " + resData.error, type: 'error' });
+      }
     });
   };
 
@@ -518,20 +448,20 @@ function App() {
 
   const handleAdminDelete = () => {
     if (confirm("Voulez-vous vraiment supprimer cette annonce définitivement (Admin) ?")) {
-        fetch('../scripts/admin_delete_annonce.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id_annonce: annonce.id_annonce, id_user: user.id_user })
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                setFeedback({ message: "Annonce supprimée. Redirection...", type: 'success' });
-                setTimeout(() => window.location.href = "index.html", 2000);
-            } else {
-                setFeedback({ message: "Erreur: " + data.error, type: 'error' });
-            }
-        });
+      fetch('../scripts/admin_delete_annonce.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id_annonce: annonce.id_annonce, id_user: user.id_user })
+      })
+      .then(res => res.json())
+      .then(d => {
+        if (d.success) {
+          setFeedback({ message: "Annonce supprimée. Redirection...", type: 'success' });
+          setTimeout(() => window.location.href = "index.html", 2000);
+        } else {
+          setFeedback({ message: "Erreur: " + d.error, type: 'error' });
+        }
+      });
     }
   };
 
@@ -539,55 +469,77 @@ function App() {
     <div>
       {HeaderComp && <HeaderComp />}
       {NavBarComp && <NavBarComp />}
-      
-      {/* STRUCTURE GRILLE HARMONIEUSE */}
+
+      {/* ← BOUTON RETOUR */}
+      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '12px 20px 0' }}>
+        <button
+          onClick={() => window.history.back()}
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '8px',
+            background: 'none',
+            border: '2px solid #e0e0e0',
+            borderRadius: '12px',
+            padding: '8px 18px',
+            cursor: 'pointer',
+            fontWeight: '700',
+            fontSize: '14px',
+            color: '#444',
+            transition: 'all 0.2s ease',
+          }}
+          onMouseEnter={e => {
+            e.currentTarget.style.background = 'var(--jaune)';
+            e.currentTarget.style.color = '#fff';
+            e.currentTarget.style.borderColor = 'var(--jaune)';
+          }}
+          onMouseLeave={e => {
+            e.currentTarget.style.background = 'none';
+            e.currentTarget.style.color = '#444';
+            e.currentTarget.style.borderColor = '#e0e0e0';
+          }}
+        >
+          ← Retour
+        </button>
+      </div>
+
+      {/* GRILLE PRINCIPALE */}
       <div className="product-page" style={{ 
         display: 'grid', 
         gridTemplateColumns: '62% 35%', 
         gap: '3%', 
         maxWidth: '1200px', 
-        margin: '30px auto', 
+        margin: '20px auto', 
         padding: '0 20px',
         alignItems: 'start'
       }}>
         
-        {/* COLONNE GAUCHE (Grande photo + Onglets dessous) */}
+        {/* COLONNE GAUCHE */}
         <div className="product-left-column" style={{ width: '100%' }}>
-          <Galerie 
-            images={images} 
-            isFavorite={isFavorite} 
-            onToggleFavorite={handleToggleFavorite} 
-          />
-          
-          <Tabs
-            description={annonce.description_annonce}
-            avis={avis}
-          />
+          <Galerie images={images} isFavorite={isFavorite} onToggleFavorite={handleToggleFavorite} />
+          <Tabs description={annonce.description_annonce} avis={avis} />
         </div>
         
-        {/* COLONNE DROITE (Infos + Achat compact) */}
+        {/* COLONNE DROITE */}
         <div className="product-info" style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '20px' }}>
           {feedback.message && (
             <div style={{
-                padding: '12px', 
-                borderRadius: '10px', 
-                textAlign: 'center',
-                background: feedback.type === 'success' ? '#d4edda' : '#f8d7da',
-                color: feedback.type === 'success' ? '#155724' : '#721c24',
-                border: `1px solid ${feedback.type === 'success' ? '#c3e6cb' : '#f5c6cb'}`,
-                fontSize: '14px',
-                fontWeight: '600'
+              padding: '12px', borderRadius: '10px', textAlign: 'center',
+              background: feedback.type === 'success' ? '#d4edda' : '#f8d7da',
+              color: feedback.type === 'success' ? '#155724' : '#721c24',
+              border: `1px solid ${feedback.type === 'success' ? '#c3e6cb' : '#f5c6cb'}`,
+              fontSize: '14px', fontWeight: '600'
             }}>
-                {feedback.message}
+              {feedback.message}
             </div>
           )}
           
           {isAdmin && (
             <button 
-                onClick={handleAdminDelete}
-                style={{width: '100%', background: '#ff5757', color: '#fff', border: 'none', padding: '12px', borderRadius: '10px', fontWeight: '800', cursor: 'pointer'}}
+              onClick={handleAdminDelete}
+              style={{width: '100%', background: '#ff5757', color: '#fff', border: 'none', padding: '12px', borderRadius: '10px', fontWeight: '800', cursor: 'pointer'}}
             >
-                🗑️ SUPPRIMER L'ANNONCE (ADMIN)
+              🗑️ SUPPRIMER L'ANNONCE (ADMIN)
             </button>
           )}
 
@@ -610,9 +562,9 @@ function App() {
             </div>
 
             {isEnchere && (
-                <div className="price-card" style={{ marginTop: '5px' }}>
-                    <span className="price" style={{ fontSize: '1.4rem', fontWeight: '700' }}>Prix de départ : {annonce.prix_annonce}€</span>
-                </div>
+              <div className="price-card" style={{ marginTop: '5px' }}>
+                <span className="price" style={{ fontSize: '1.4rem', fontWeight: '700' }}>Prix de départ : {annonce.prix_annonce}€</span>
+              </div>
             )}
 
             <hr className="divider" style={{ margin: '5px 0' }} />
@@ -625,12 +577,7 @@ function App() {
                 <p style={{ margin: '0 0 4px 0', fontWeight: '700', fontSize: '14px' }}>{annonce.vendeur_prenom} {annonce.vendeur_nom}</p>
                 <div className="rating" style={{ display: 'flex', alignItems: 'center', gap: '2px', fontSize: '12px' }}>
                   {[...Array(5)].map((_, i) => (
-                    <img 
-                      key={i} 
-                      src="../images/star.png" 
-                      style={{ height: '12px', opacity: i < Math.round(annonce.vendeur_note || 0) ? 1 : 0.2 }} 
-                      alt="star" 
-                    />
+                    <img key={i} src="../images/star.png" style={{ height: '12px', opacity: i < Math.round(annonce.vendeur_note || 0) ? 1 : 0.2 }} alt="star" />
                   ))}
                   <span style={{ color: '#666', marginLeft: '5px' }}>({parseFloat(annonce.vendeur_note || 0).toFixed(1)} · {annonce.vendeur_ventes || 0} ventes)</span>
                 </div>
@@ -643,13 +590,13 @@ function App() {
             <ModeEnchere data={data.enchere} onPlaceBid={handlePlaceBid} />
           ) : (
             <ModeAchat 
-                prix={annonce.prix_annonce} 
-                originalPrix={annonce.prix_original} 
-                isNegotiated={annonce.is_negotiated}
-                onAddToCart={handleAddToCart} 
-                isInCart={isInCart} 
-                onSubmitOffer={submitOffer}
-                onDirectBuy={handleDirectBuy}
+              prix={annonce.prix_annonce} 
+              originalPrix={annonce.prix_original} 
+              isNegotiated={annonce.is_negotiated}
+              onAddToCart={handleAddToCart} 
+              isInCart={isInCart} 
+              onSubmitOffer={submitOffer}
+              onDirectBuy={handleDirectBuy}
             />
           )}
           
