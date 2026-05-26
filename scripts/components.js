@@ -628,10 +628,78 @@ window.NavBar = function() { return null; };
 window.Footer = function() {
   return (
     <footer className="footer">
-      <div className="footer-links">
-        <a href="apropo.html" className="footer-link">À propos</a>
-        <a href="#" className="footer-link">FAQ</a>
-        <a href="#" className="footer-link">Contactez-nous</a>
+      <div className="footer-container">
+        {/* Colonne 1: Aide & Contact */}
+        <div className="footer-column">
+          <h3>Aide et Contact</h3>
+          <ul className="footer-list">
+            <li><a href="#" className="footer-link">FAQ</a></li>
+            <li><a href="#" className="footer-link">Contactez-nous</a></li>
+            <li><a href="apropo.html" className="footer-link">À propos de Mercato Nova</a></li>
+            <li><a href="#" className="footer-link">Protection de l'acheteur</a></li>
+          </ul>
+        </div>
+
+        {/* Colonne 2: Modes de paiement */}
+        <div className="footer-column">
+          <h3>Modes de paiement</h3>
+          <p className="footer-link" style={{marginBottom: '10px'}}>Paiements 100% sécurisés</p>
+          <div className="footer-icons-group">
+            <div className="footer-icon-badge" title="Visa">
+              <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBwgHBgkIBwgKCgkLDRYPDQwMDRsUFRAWIB0iIiAdHx8kKDQsJCYxJx8fLT0tMTU3Ojo6Iys/RD84QzQ5OjcBCgoKDQwNGg8PGjclHyU3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3N//AABEIAIAA6QMBIgACEQEDEQH/xAAcAAEAAgMBAQEAAAAAAAAAAAAABgcDBQgEAQL/xABGEAABAwMBAwgECQsEAwEAAAABAAIDBAURBgcSIRMUMUFRYXGRFSKBoRcyQmKClKKx0SMkUlRVcpKywdLwM1PC4UNzdBb/xAAbAQACAwEBAQAAAAAAAAAAAAAEBQIDBgEAB//EADMRAAEDAgQEAwcEAwEAAAAAAAEAAgMEEQUSMVETIUGRMoGxFCJhcdHw8SNTweFCUqEV/9oADAMBAAIRAxEAPwCX6L2m095qYrfeIWUdZIQ2KRh/JSu7OPFpPUDnPbnAVhLlH/OC6P0Hd5L3pO31s7t6csMczj0uewlpPtxn2pzitAyC0kfIHohoJS7kVv0REmRKIiLy8sVTPFS00tTUPDIYWF73Hoa0DJPkqHqNpuqJaiWSnrmwwve50cXN4zuNJ4NyW8cDgrA2xXn0fpptBE7E9xfyfA8RG3i8/wArfpKj1osIo2OiMkjQb6X+CDqJCHWBUs+EnVn7Tb9Wi/tT4SdWftNv1aL+1RNE29jp/wBsdgh+I/dSw7StWAZN0bj/AOaL+1XVpN1zfp6ilvcxlrpY+Ul9QM3d7iG4A6hgeOVRGhLJ6f1RR0b2b1Ow8vUA9HJtxkHuJ3W/SXRyRYxwYy2ONoB1Ngi6fMbklee4VTKGgqayU4jp4nSuJ7Ggk/cqGbtJ1bujNzbnHH82j/tVq7Ua3mWiLjunD5w2BvfvOAP2d5c/K7B6aN8TnvaDz6j73Uah5BABUs+EnVn7Tb9Wi/tT4SdWftNv1aL+1RNE39jp/wBsdghuI/dTa1a+1bX3SiohcxmpqI4uFNFw3nAZ+L3q91z/ALKqLnut6IkZbTMkncPBu6PtOaugFnsYbGyVrGNA5dAjKcktJJREUa1prGh0rSDlBy9dKMw0rXYJ+c49Te/ySuON8rgxguSryQ0XK39ZV01DTvqa2eKCBgy6SVwa0e0qvr7tbtlK50VmpJa94/8AK88lH7MjePkPFVZqDUFz1FV84utSZMHMcTeEcf7rerx6e0rWLR02DRtF5jc7dEG+pJ8Kl9y2l6ornHk6yKjZ+jTQge92T5ELQVF+vVSSai8XGTPU6qfjyzha9E1ZTwx+FoHkqC9x1KzGrqnHLqmcntMrvxWSK5XCE5huFZGfmVDx9xXlRWZW7KN1vKPWWpaL/Qvlaf8A3P5X+fKkls2t3ymIFwpaStYOsAxPPtGR9lV+ioko6eTxMCmJHjQrorRusKPVkNQ6lp6iCSm3eVZKBj1s4wQePQexSNQDYtRc30pLVkcauqe4H5rcMx5td5qfrIVjGRzuZHoEwjJLQSuUlcuw+s5SxXCiLsugqt8Dsa9ox72uVNKxNiNZyOoq6jPxail3/axwx7nnyWoxSPPSu+HNAwG0gV0oiLHJiiItPq+8Cw6crrjkcpHHiIHrkdwb7yPYpMYXuDW6lcJsLqltqF59MatqWxuzT0X5tHg8CWn1z/FkeDQommSeLiXE8SSckntRbuGIRRhg6JW52YkoiL1Wq3zXW50tvpv9WplEbTjO7npPgBk+xTJAFyuaq3ti9l5pZJ7tM3Etc/djz1RMyB5u3vYArFWChpIaCigo6Zu5BBG2ONvY0DAWdYapmM8zpD1TRjcrQFV23Ot3aK1W8f8AkmfOfoN3R/OfJVGpxtirudaxNO12W0dOyMjsccvPuc3yUHWsw2Ph0rBvz7oCY3eURERyqVpbDKHNTdrg5vBrI4GO8cucPcxW2oRseohS6MimLcOq55JjnuO4Pcweam6xmIycSqefLtyTGEWYFqNVX6DTlknuNQA4sG7FHnHKSH4rfx7ACepc5XO4VV1r5q6vlMtTM7ee7q7gOwDoAU52z3h1Xf4bVG78jQxhzwP914zx8G7v8RVep9hNKIoRIdXenT6oWofmdbZERE1VCItzpfTNy1NWmnt0bQyPBmnk4MiB7e09gH/atK1bJLHTsBuVRVV0uPW9fkmewN4/aKCqa+CnNnnnsFYyJz+YVKIugm7ONJNZui0jHaaiUnz3l5anZbpaZhEVNU05Pyoql5I/iJCEGNUx6HsPqrPZnqh18JwCT1K1rpsdwC60Xc5xwjq4+k/vt6P4SolJoO+0d4oqO42+Q09RUxxOnhO/HulwBJI+Lwz0gIyKvppB7rv4Vbonjors0bQG2aVtVI5oa9lMwyAfpkZd7yVuURYx7i9xceqYgWFlykpHs6rOY62tMhdhskphd377S0DzIUcWSlqX0VVDVxjL6eRsrR3tII+5buVnEjczcEJW02IK6pRfmN7ZY2yMOWvAcD2gr9LBJqiqLbdeeUqaGyRO9WMc5n/eOWsHlvH2hW1NLHBC+aZ4ZHG0ue49AA4krmS/3R97vVbc5Mg1Mpe0Hpa3oaPY0AexOMGgzzGQ6N9Sh6l9m23XgREWpQKKy9ilk5e4Vd7mbllMOQgz/uOGXHxDcD6ZVaAEkBrS5x4BoGST2BdKaPswsGnKK3EDlWM3piOuR3F3vOPABKsXqOFBkGruXl1V9OzM6+y3KItdqKv9F2G414+NT00kje9wacDzwsq1pcQ0dUeTZc7aorfSWpLpWb282Wqk3D80HDfsgLWL8tG60DsGF+lvWtDWho6JSTc3RfHHdaT2DK+rZ6YovSWpLXR7u82WqjDx8wHLvsgrznBrS49F4C5suidO0HouwW6gPxqemjjd3uDRk+eVsURYJzi5xceqbAWXNGrql1Xqq8TPOSayVo8GuLR7gFqVsdSxOg1Jd4nggtrpuns3zj3LXLdxWEbbbBKnalERFYuK+9kkVPHoejfThu/LJK6YjpL98jj7A0eACmS560NrOq0pUvaYzUW+Z2ZoAcEHo3md+OrrwOjpV52K+22/0nObVVMmYPjt6HRnsc3pBWRxKklimdIebSb3TCGRrmgdVskREsVyIiLy8iIi8vLlJfF9RfQUpXR2gqzn+jbRPvbxFM2Nx7XM9Q+9pW/Vf7Fazl9KzUzjxpat7QPmuAd95crAWHrGcOoe34lM4zdgKg2168+jdLOoo34nuLuRAB48mOLz4Yw36SotTDarefS2rZoY35p6Ac3Zg8N4cXnxz6v0VD1qMMg4NOL6nn9+SBnfmeiIviYKpTDZZZPTGrIZZW5pqAc4kyOBcD6g/i4/RKv5QnZLZfRelo6qVuKi4Hl3HrDMeoPLj9IqbLH4pUcaoNtByTCBmViKEbYK0UujJYQ4h1XPHCMdx3z7mEe1TdVJtzrs1Fpt7XfFbJO9vjhrT7nqGHR8SqYPPtzXZjZhVWoiLZpcim+x6h51rJs7m5bR08koPY44YPc53koQrc2GUW7R3a4HpklZAO7dbvH+ceSBxKTh0rzvy7qyEXeFaKIixiZKjtsNlfQalFyY083uDAd7qEjQA4e0Bp7+PYoGumdS2Ok1FaJrdWghr/WZIPjRvHQ4f5xGR1rnjUFjrtPXJ9DcY9144sePiyt/Saez7lq8KrGyxCM+JvogJ4y12YaLWoiJsqEWehrKq31TKqgqJaeoZ8WSJ26fDvHd0LAi4QCLFeVp6X2subuU+pod4dHPKdnHxewfe3yVpUFdSXKlZVUFRFUQP+LJE4OB/wC+5ctLZ6f1Bc9O1nObVUGMn/Uidxjl/eb1+PSOopPV4PHJ70Punbp/SIjqCOTl00ijWi9Y0OqqU8mOQrohmalc7JHzmn5Te/zUlWakjfE4seLEI0EOFwiIigurlJERfQUpVmbDazcul0oS7/VgZM0fuOIP84Vmapu7bFp+uuTsb0MR5MH5TzwaPa4hUlssrOZ64oBnDagSQO9rSR9prVKdt15y6hskTuj85nA9rWD+Y48Fnayk4uINb0NifL8IuOTLDdVW5znuL5HF73Elzj0uJ6SURFokIi2ml7O6/X+itoB3JpPypHyYxxce7gCB3kLVq29iVk3KesvkzeMp5vTkj5IOXn2uwPoFCVtRwIHP69PmpxMzuAVoMY2NjWMaGtaMADoAX6RFiUzRc/7Va3nut60A5bTMjgafBu8ftOcr/cQ1pc44AGSSuXLnWG43Osrjn85nkm49Qc4n+qd4HHeVz9h6/hDVR90BeZERaZBIugdltDzHRFv3hh9RvTu795xLfs7q5+DHyOEcTS6R53WAdZPQF1LbqRlBb6WjiGI6eFkTcdjQAPuSPHJLRNZub9vyiaUe8SvQiIs0jUWtv9it2oKE0d0pxLH0scODo3drT1H/AA8FskUmucw5mmxXCL8iqE1bs7uthL6ika64W8ceVjb+UjHz2j7xw7cKGAgjIOQurlD9U7O7Nfy+eJnMK53Hl4GjDz89nQfHge9PqTGf8Zx5j+R9OyFkpurVQSLe6n0jd9Myfn8G/TE4ZVQ5dG7sBPyT3H2ZWiT6ORsjczDcIUgg2KIiKa4vTba+qtddDXUEpiqYXbzHj7j2g9BC6L0lf4NS2OC4wgMefUmiznk5B0t/qO4hc1qxdil1dT32qtb3fkquHlGjPRIzs8Wk/wAISrFqYSwmQat9FfTvyuturoREWTR65SREX0FKV67PV8wu9BWZIFPUxynHY1wJ9wWfU11de7/XXJxOJ5SYwepg4MH8IHtWtRQyNz5+trLtzayIiKa4slNTy1dTDTUzd+aaRscbe1zjgDzK6bsdtis9opLdT8Y6aIM3sfGPW495OT7VT+xuyc/1DJc5W5ht7PUz0GVwIHk3e8wruWZxqozSCIdNfn+PVG0zLDMiIiSIlaPXFd6N0jdqkP3Himcxjux7vVb73Bc2gYGArt21VvIaXgpGnjVVTQ4fNaC77w1UmtTgseWnLtygak3fZERE4Q63mhaL0hrG0U5Hq85Ep8GAv/4rpFUnsTouX1LV1hGW0tLu+DnuGPc1yuxZbGpM1QG7BHUwsy6Ii8dDdaC4S1EVFVwzS00jo5o2u9aNwOCCOkcQUoDSRcIhexERcXkREXl5Y54YqmF8FREyWKRpa+N7Q5rgekEHpVE7S9IR6ar4qigB9HVZIY0nPIvHEtz2Y4jwPZxvpVdtxuVPzG3WoOBqTPzlzR0tYGuaM+JccfulM8JlkbUBrdDqqJ2gsuVUaIi1yARSXZo4t13ZyP8AckHnE8KNKX7JqU1OuaN46KaOWZ3hu7n3vCHqyBTvvsfRTj8YV/IiLDJmuUQcjIX1e+/2/wBE3yvt+7htPUPYwfMz6v2cLwLftcHAOGhSkixsiIikvIvhIAJPQF9Ui2f2T07qqjppG71PCecT9hY0jh7Xbo8CVCSQRsL3aBdaLmwVzbO7IbFpWkglZu1M45xUA9Ie7qPgMN9ikqIsJLIZHl7tSmjRYWCIiKC6qZ231vK3230I6KemMh8Xux9zB5quFItoldz/AFpdZQ7LI5uRb3bgDSPMFR1beij4dOxvw9eaWSm7yURF8RSgrn2IUPJWGurnNw6pqdxp7WMaMfac5WOo7s8ofR+i7TFghz4BM4HpzIS//kpEsRWycSoe74pnGLMAWOomZTU8s8pxHEwvcewAZK5c59Uurn3Bk0kNVJI6XlInlrmuccnBHEdK6B2lVvMdEXV/ypYuQA7eUIYfcSueE6wOP9N7z1Nvvuhqp3MBTazbUdQ28NZVuhuEQ/327r8fvN/qCpfQbYLVKGivt1ZTvPSYi2Vo9uQfcqaRHS4bSycy23y5f0qmzPHVX7HtO0k8AuuMkZ7HUkv9GlJdpukmAltxkkI6m0kv9WgKgkQ3/iU257j6KftL1a192vAxuisFveHngJ6vGG94YDx9pHgqvraypr6uWrrZ3z1Ert6SR54uP+dXQFhRH09JDTj9MKp8jn6oiIiVBFb+xKzOhoay9Stxzl3IwZ/QafWI8XcPoKuNKaeqtTXiOhpg5sY9aonA4Qs7fE9AHWe4HHRtBRwW+igo6SMRwQMEcbR1ABJMYqg2Pgt1OvyRNPHc5ivPqC6RWWy1lynwW08RcG5xvO6Gt9pIHtVAf/udV/td/kFOttt7xHRWOF3F/wCc1AB6hkMHtO8fohVOu4TSMEGd7QS7fZeqJDmsDop3tlt3NNVsrGtwytp2uJ7Xs9U+7cUEV77UtMVmo7dRG1xMkq6aY8HPDfybm+txPeGKt/gy1X+ow/WWfirMPrYfZmh7gCOWqjLG7ObBRBFL/gy1X+ow/WWfinwZar/UYfrLPxRvtlN+4O4VfDfsogrr2M2XmVhlukzcTV7/AFMjiIm5A8zvHvGFB4Nl+p5J42TU0UUTnhr5OXYdxpPE4zxwOKvSjpoaOkhpaZgZDDG2ONo+S0DACU4tWsdEI43XvrZX08ZDrkLMiIs6jEWKqnZS00tRKcRxML3HsAGSsq02saWtrtMXGjtkYkqqiExNaXhow7g7ie4lTjaHPAJtdcJsFzbLNJUzSVExzLM8yPPznHJ95X5Uv+DLVf6jD9ZZ+KfBlqv9Rh+ss/FbT2ym/wBx3CW8N+yiCyUlM+tq4KSM4fUSthae9xDR96lfwZar/UYfrLPxW50ds8vtDqe3Vl0pImUlPIZHuEzXHIad3gPnbqjJXQNYXB4uBuuiJxNrK4oo2xRMijGGMaGtHYAv2iLFJkq02413J2i20AcQ6eodKQOtrG4+948lTq6W1Bpq0aiiYy7UbZjGDycgcWvZnscOPUOHQoDddjrCS60XZ7B1R1ce99puMeRWhw3EKeKERvNj/wAQk0T3OzBVOil1fs01VRn1KKKrb+lTTtPudun3LSVOnb5SuLZ7NcWY6+avI8wMJ0yohf4Xg+aGLHDULWIs76KrYcPpKhp+dE4f0SOhrJDiOjqXn5sLj/RWZhuo2WBFtqTS+oKxwbT2S4HPW+ncxvm7AUjteyrUVYWurObUEZ+NyknKPHsbkH+IKmSqgj8Tx3UhG46BQZSPSWjLrqeVrqdnIUOfXrJW+r3ho+UfDh2kK0bBsusVscyWvD7nO3j+XAEYPcwcD4OJU4a1rGhrGhrWjAAGAAlNVjTQMsA8z9EQymOrlq9OWCg05bm0VujIb8aSR3F8rv0nHt9w6ls5JGRRukkcGsYC5zj0ADrX6Ue17S3Wv01U0FkhElRVYieTIG7sZ+N09o9X6SQtvNKM51PMlFH3RyVC6lu777fq25vzuzyExg/JjHBg8gPbla1S/wCDLVf6jD9ZZ+KfBlqv9Rh+ss/FbFtVSsaGh4sPiEuLHk3IX//Z" alt="Visa" />
+            </div>
+            <div className="footer-icon-badge" title="Mastercard">
+              <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" alt="Mastercard" />
+            </div>
+            <div className="footer-icon-badge" title="PayPal">
+              <img src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg" alt="PayPal" />
+            </div>
+            <div className="footer-icon-badge" title="Paiement Sécurisé">
+              <img src="../images/paimentSecurisé.png" alt="Sécurisé" />
+            </div>
+          </div>
+        </div>
+
+        {/* Colonne 3: Livraison */}
+        <div className="footer-column">
+          <h3>Modes de livraison</h3>
+          <p className="footer-link" style={{marginBottom: '10px'}}>Expédition rapide & suivie</p>
+          <div className="footer-icons-group">
+            <div className="footer-icon-badge" title="Mondial Relay">
+              <img src="../images/MondialRelay.png" alt="Mondial Relay" />
+            </div>
+            <div className="footer-icon-badge" title="Colissimo">
+              <img src="../images/colissimo.png" alt="Colissimo" />
+            </div>
+            <div className="footer-icon-badge" title="Chronopost">
+              <img src="../images/Chronopost.png" alt="Chronopost" />
+            </div>
+            <div className="footer-icon-badge" title="Livraison standard">
+              <img src="../images/livraison.png" alt="Livraison" />
+            </div>
+          </div>
+        </div>
+
+        {/* Colonne 4: Newsletter / Social (Optionnel mais pro) */}
+        <div className="footer-column">
+          <h3>Suivez-nous</h3>
+          <div className="footer-icons-group">
+            <a href="#" className="footer-link">Instagram</a>
+            <a href="#" className="footer-link">Facebook</a>
+            <a href="#" className="footer-link">Twitter</a>
+          </div>
+        </div>
+      </div>
+
+      <div className="footer-bottom">
+        <div className="footer-copyright">
+          © 2026 Mercato Nova. Tous droits réservés.
+        </div>
+        <div style={{display: 'flex', gap: '20px'}}>
+          <a href="#" className="footer-link">Mentions légales</a>
+          <a href="#" className="footer-link">CGU</a>
+          <a href="#" className="footer-link">Confidentialité</a>
+        </div>
       </div>
     </footer>
   );

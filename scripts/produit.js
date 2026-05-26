@@ -361,15 +361,6 @@ function App() {
                     localStorage.setItem('cart_count', cartItems.length);
                     window.dispatchEvent(new CustomEvent('cartUpdated'));
                 });
-            
-            fetch(`../scripts/get_favorites.php?id_user=${user.id_user}`)
-                .then(r => r.json())
-                .then(favItems => {
-                    if (Array.isArray(favItems)) {
-                        const foundFav = favItems.some(item => item.id_annonce == id);
-                        setIsFavorite(foundFav);
-                    }
-                }).catch(() => {});
         }
       })
       .catch(err => {

@@ -32,20 +32,26 @@ try {
         exit;
     }
 
-    // --- LOGIQUE PRIX NÉGOCIÉ ---
+    // --- LOGIQUE PRIX NÉGOCIÉ + FAVORI ---
+    $annonce['is_favorite'] = false;
     if ($id_user_request > 0) {
-        $sqlNego = "SELECT prix_negocie FROM negociation 
+        $sqlNego = "SELECT prix_negocie FROM negociation
                     WHERE id_annonce = :a AND id_user_acheteur = :u AND statut_negociation = 'acceptee'
                     LIMIT 1";
         $stmtNego = $pdo->prepare($sqlNego);
         $stmtNego->execute(['a' => $id, 'u' => $id_user_request]);
         $prix_negocie = $stmtNego->fetchColumn();
-        
+
         if ($prix_negocie) {
             $annonce['prix_original'] = $annonce['prix_annonce'];
             $annonce['prix_annonce'] = $prix_negocie;
             $annonce['is_negotiated'] = true;
         }
+
+        // L'article est-il déjà dans les favoris de cet utilisateur ?
+        $stmtFav = $pdo->prepare("SELECT 1 FROM favoris WHERE id_annonce = :a AND id_user = :u LIMIT 1");
+        $stmtFav->execute(['a' => $id, 'u' => $id_user_request]);
+        $annonce['is_favorite'] = (bool) $stmtFav->fetchColumn();
     }
 
     // 2. Images de l'annonce
