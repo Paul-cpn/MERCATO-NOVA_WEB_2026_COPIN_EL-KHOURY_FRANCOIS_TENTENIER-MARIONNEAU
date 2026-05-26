@@ -66,6 +66,7 @@ function App() {
                 {status.message}
             </div>
         )}
+        
         {/* ─── HERO SECTION ─── */}
         <section className="about-hero">
           <h1>Tu ne le portes plus ? Vends-le !</h1>
@@ -77,22 +78,28 @@ function App() {
 
         <div className="about-container">
           
-          {/* ─── VALEURS GRID ─── */}
+          {/* ─── VALEURS GRID (SANS LES CHIPS DE COULEUR) ─── */}
           <div className="about-grid">
             <div className="about-card">
-              <div className="icon-box" style={{ backgroundColor: 'var(--jaune)' }}>🏷️</div>
+              <div className="icon-box">
+                <img src="../images/tag.png" alt="Tag" />
+              </div>
               <h3>Vendez simplement</h3>
               <p>Prenez vos articles en photo, ajoutez une description et fixez votre prix. C'est entièrement gratuit et cela ne prend que quelques minutes.</p>
             </div>
             
             <div className="about-card">
-              <div className="icon-box" style={{ backgroundColor: 'var(--bleu)' }}>📦</div>
+              <div className="icon-box">
+                <img src="../images/free-delivery.png" alt="Livraison" />
+              </div>
               <h3>Envoi sécurisé</h3>
               <p>Imprimez votre bordereau d'envoi prépayé. Grâce à nos partenaires de livraison, expédiez vos colis l'esprit tranquille et suivez-les en temps réel.</p>
             </div>
             
             <div className="about-card">
-              <div className="icon-box" style={{ backgroundColor: 'var(--rose)' }}>🛡️</div>
+              <div className="icon-box">
+                <img src="../images/verified.png" alt="Protection" />
+              </div>
               <h3>Achat protégé</h3>
               <p>Notre système de paiement bloque l'argent en toute sécurité. Le vendeur n'est payé que lorsque vous validez la bonne réception de votre commande.</p>
             </div>
@@ -106,7 +113,7 @@ function App() {
               <p>Faites de la place pour ce qui compte vraiment aujourd'hui, et laissez quelqu'un d'autre profiter de ce que vous avez adoré hier.</p>
             </div>
             <div className="about-inline-img">
-              [ Illustration Seconde Main ]
+              <img src="../images/photo1.png" alt="Illustration Seconde Main" style={{ maxWidth: '100%', height: 'auto', borderRadius: '12px' }} />
             </div>
           </div>
 
@@ -118,7 +125,7 @@ function App() {
               <p>Négociez directement avec les vendeurs et faites partie d'une communauté active et passionnée.</p>
             </div>
             <div className="about-inline-img">
-              [ Aperçu des Fonctionnalités ]
+              <img src="../images/photo2.png" alt="Aperçu des Fonctionnalités" style={{ maxWidth: '100%', height: 'auto', borderRadius: '12px' }} />
             </div>
           </div>
 
