@@ -143,6 +143,20 @@ function ArticlesSection() {
   const [notification, setNotification] = useState({ message: '', type: '' });
 
   useEffect(() => {
+    // Gestion des paramètres dans l'URL (ex: index.html?cat=Homme ou index.html?search=Nike)
+    const urlParams = new URLSearchParams(window.location.search);
+    const catParam = urlParams.get('cat');
+    const searchParam = urlParams.get('search');
+    
+    if (catParam || searchParam) {
+      if (catParam) handleHeaderCategoryClick(catParam);
+      if (searchParam) setFilters(prev => ({ ...prev, search: searchParam }));
+      
+      // Nettoyer l'URL sans recharger la page
+      const newUrl = window.location.pathname;
+      window.history.replaceState({}, '', newUrl);
+    }
+
     const handleUserChange = () => {
         let u = null;
         try {

@@ -17,6 +17,14 @@ try {
     
     $params = [];
 
+    // Recherche par mot-clé (titre ou marque)
+    if (!empty($_GET['search'])) {
+        $search = '%' . $_GET['search'] . '%';
+        $sql .= " AND (a.titre_annonce LIKE :search OR a.marque_annonce LIKE :search_2)";
+        $params['search'] = $search;
+        $params['search_2'] = $search;
+    }
+
     // Filtre par catégorie (et toute son arborescence)
     if (!empty($_GET['categorie_id'])) {
         $cat_id = intval($_GET['categorie_id']);

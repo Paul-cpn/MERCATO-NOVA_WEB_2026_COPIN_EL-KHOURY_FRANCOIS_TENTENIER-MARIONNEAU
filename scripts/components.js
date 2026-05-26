@@ -450,6 +450,16 @@ window.Header = function({ onCategoryClick, isSidebarOpen }) {
   const [notifCount, setNotifCount] = useState(0);
   const [notifHover, setNotifHover] = useState(false);
   const [cartCount, setCartCount] = useState(0);
+  const [searchText, setSearchText] = useState('');
+
+  const handleSearch = (e) => {
+    if (e) e.preventDefault();
+    if (!searchText.trim()) return;
+    
+    // Si on est sur l'index, on pourrait théoriquement filtrer en direct, 
+    // mais pour la cohérence on redirige ou on utilise un paramètre URL.
+    window.location.href = `index.html?search=${encodeURIComponent(searchText.trim())}`;
+  };
 
   const fetchNotifCount = (u) => {
     if (!u) return;
@@ -557,8 +567,14 @@ window.Header = function({ onCategoryClick, isSidebarOpen }) {
           <span className="logo-name">Mercato Nova</span>
         </a>
         <div className="header-search">
-          <input type="text" placeholder="Rechercher un article..." />
-          <button className="search-btn">Rechercher</button>
+          <input 
+            type="text" 
+            placeholder="Rechercher un article..." 
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+          />
+          <button className="search-btn" onClick={handleSearch}>Rechercher</button>
         </div>
         <nav className="header-actions">
           <a href="#" className="action-item" onClick={handleNotifClick} onMouseEnter={() => setNotifHover(true)} onMouseLeave={() => setNotifHover(false)}>
@@ -603,9 +619,24 @@ window.Header = function({ onCategoryClick, isSidebarOpen }) {
       </div>
 
       <div className={`header-categories ${isSidebarOpen ? 'hidden' : ''}`}>
-        <span className="header-cat-link" onClick={() => onCategoryClick && onCategoryClick('Homme')}>Homme</span>
-        <span className="header-cat-link" onClick={() => onCategoryClick && onCategoryClick('Femme')}>Femme</span>
-        <span className="header-cat-link" onClick={() => onCategoryClick && onCategoryClick('Enfant')}>Enfant</span>
+        <a href="index.html?cat=Homme" className="header-cat-link" onClick={(e) => {
+          if (onCategoryClick) {
+            e.preventDefault();
+            onCategoryClick('Homme');
+          }
+        }}>Homme</a>
+        <a href="index.html?cat=Femme" className="header-cat-link" onClick={(e) => {
+          if (onCategoryClick) {
+            e.preventDefault();
+            onCategoryClick('Femme');
+          }
+        }}>Femme</a>
+        <a href="index.html?cat=Enfant" className="header-cat-link" onClick={(e) => {
+          if (onCategoryClick) {
+            e.preventDefault();
+            onCategoryClick('Enfant');
+          }
+        }}>Enfant</a>
       </div>
 
       <AuthModal 
@@ -633,10 +664,10 @@ window.Footer = function() {
         <div className="footer-column">
           <h3>Aide et Contact</h3>
           <ul className="footer-list">
-            <li><a href="#" className="footer-link">FAQ</a></li>
-            <li><a href="#" className="footer-link">Contactez-nous</a></li>
+            <li><a href="faq.html" className="footer-link">FAQ</a></li>
+            <li><a href="contact.html" className="footer-link">Contactez-nous</a></li>
             <li><a href="apropo.html" className="footer-link">À propos de Mercato Nova</a></li>
-            <li><a href="#" className="footer-link">Protection de l'acheteur</a></li>
+            <li><a href="protection-acheteur.html" className="footer-link">Protection de l'acheteur</a></li>
           </ul>
         </div>
 
@@ -696,9 +727,9 @@ window.Footer = function() {
           © 2026 Mercato Nova. Tous droits réservés.
         </div>
         <div style={{display: 'flex', gap: '20px'}}>
-          <a href="#" className="footer-link">Mentions légales</a>
-          <a href="#" className="footer-link">CGU</a>
-          <a href="#" className="footer-link">Confidentialité</a>
+          <a href="mentions-legales.html" className="footer-link">Mentions légales</a>
+          <a href="cgu.html" className="footer-link">CGU</a>
+          <a href="confidentialite.html" className="footer-link">Confidentialité</a>
         </div>
       </div>
     </footer>
