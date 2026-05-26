@@ -13,26 +13,26 @@ if (!isset($data['id_annonce']) || !isset($data['id_user_acheteur']) || !isset($
 $id_annonce = intval($data['id_annonce']);
 $id_acheteur = intval($data['id_user_acheteur']);
 $montant = floatval($data['montant']);
-$message = $data['message'] ?? "Nouvelle offre à $montant €";
+$message = trim($data['message'] ?? "Nouvelle offre à $montant €");
 
 try {
-    // 1. Récupérer l'ID du vendeur
-    $stmt = $pdo->prepare("SELECT id_user FROM annonce WHERE id_annonce = :a");
+    // 1. Validation du montant
+    if ($montant <= 0) throw new Exception("Le montant doit être positif.");
+    if (strlen($message) > 500) throw new Exception("Le message est trop long.");
+
+    // 2. Récupérer l'ID du vendeur
+    $stmt = $pdo->prepare("SELECT id_user, titre_annonce FROM annonce WHERE id_annonce = :a");
     $stmt->execute(['a' => $id_annonce]);
     $annonce = $stmt->fetch();
     
-    if (!$annonce) {
-        echo json_encode(['error' => 'Annonce non trouvée']);
-        exit;
-    }
-    $id_vendeur = $annonce['id_user'];
+    if (!$annonce) throw new Exception("Annonce non trouvée.");
+    
+    $id_vendeur = intval($annonce['id_user']);
+    if ($id_acheteur === $id_vendeur) throw new Exception("Vous ne pouvez pas négocier votre propre article.");
 
-    if ($id_acheteur == $id_vendeur) {
-        echo json_encode(['error' => 'Vous ne pouvez pas négocier votre propre article']);
-        exit;
-    }
+    $pdo->beginTransaction();
 
-    // 2. Vérifier si une négociation existe déjà entre ces deux-là pour cette annonce
+    // 3. Vérifier si une négociation existe déjà en cours
     $stmt = $pdo->prepare("SELECT id_negociation FROM negociation WHERE id_annonce = :a AND id_user_acheteur = :u AND statut_negociation = 'en_cours'");
     $stmt->execute(['a' => $id_annonce, 'u' => $id_acheteur]);
     $negociation = $stmt->fetch();
@@ -46,16 +46,18 @@ try {
         $id_negociation = $negociation['id_negociation'];
     }
 
-    // 3. Ajouter l'échange (le message/offre)
+    // 4. Ajouter l'échange
     $stmt = $pdo->prepare("INSERT INTO echange (montant_echange, message_echange, id_negociation, id_user) VALUES (:m, :msg, :n, :u)");
     $stmt->execute(['m' => $montant, 'msg' => $message, 'n' => $id_negociation, 'u' => $id_acheteur]);
 
-    // 4. Notification au vendeur
+    // 5. Notification au vendeur
     createNotification($pdo, $id_vendeur, 'negociation', "Nouvelle offre de $montant € sur votre article : " . $annonce['titre_annonce'], $id_negociation);
 
+    $pdo->commit();
     echo json_encode(['success' => true, 'id_negociation' => $id_negociation]);
 
 } catch (Exception $e) {
+    if ($pdo->inTransaction()) $pdo->rollBack();
     echo json_encode(['error' => $e->getMessage()]);
 }
 ?>

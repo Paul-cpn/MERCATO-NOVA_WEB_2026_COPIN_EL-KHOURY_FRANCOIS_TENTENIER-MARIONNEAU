@@ -378,15 +378,22 @@ function App() {
 
   const submitOffer = (montant) => {
     if (!user) { window.dispatchEvent(new CustomEvent('openAuthModal')); return; }
-    if (!montant || isNaN(montant)) return;
+    
+    // 1. Validation Frontend
+    const val = parseFloat(montant);
+    if (isNaN(val) || val <= 0) {
+        setFeedback({ message: "Veuillez entrer un montant valide.", type: 'error' });
+        return;
+    }
+
     fetch('../scripts/start_negotiation.php', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         id_annonce: data.annonce.id_annonce,
         id_user_acheteur: user.id_user,
-        montant: parseFloat(montant),
-        message: `Je vous propose ${montant} € pour cet article.`
+        montant: val,
+        message: `Je vous propose ${val} € pour cet article.`
       })
     })
     .then(res => res.json())
@@ -407,10 +414,19 @@ function App() {
 
   const handlePlaceBid = (amount) => {
     if (!user) { window.dispatchEvent(new CustomEvent('openAuthModal')); return; }
+
+    // 1. Validation Frontend
+    const val = parseFloat(amount);
+    const currentBest = parseFloat(data.enchere.meilleure_offre_enchere || data.enchere.prix_depart_enchere);
+    if (isNaN(val) || val <= currentBest) {
+        setFeedback({ message: `Votre offre doit être supérieure à ${currentBest} €`, type: 'error' });
+        return;
+    }
+
     fetch('../scripts/place_bid.php', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id_enchere: data.enchere.id_enchere, id_user: user.id_user, montant: parseFloat(amount) })
+      body: JSON.stringify({ id_enchere: data.enchere.id_enchere, id_user: user.id_user, montant: val })
     })
     .then(res => res.json())
     .then(resData => {

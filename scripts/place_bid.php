@@ -15,8 +15,6 @@ $id_user = intval($data['id_user']);
 $montant = floatval($data['montant']);
 
 try {
-    $pdo->beginTransaction();
-
     // 1. Vérifier l'enchère (statut, date de fin, meilleure offre actuelle)
     $stmt = $pdo->prepare("SELECT e.*, a.titre_annonce, a.id_user as id_vendeur 
                            FROM enchere e 
@@ -25,22 +23,20 @@ try {
     $stmt->execute(['id' => $id_enchere]);
     $enchere = $stmt->fetch();
 
-    if (!$enchere || $enchere['statut_enchere'] !== 'en_cours') {
-        echo json_encode(['error' => 'Enchère terminée ou inexistante']);
-        exit;
-    }
+    if (!$enchere) throw new Exception("Enchère introuvable.");
+    if ($enchere['statut_enchere'] !== 'en_cours') throw new Exception("Cette enchère n'est plus active.");
+    
+    // Sécurité : pas d'enchère sur son propre article
+    if (intval($enchere['id_vendeur']) === $id_user) throw new Exception("Vous ne pouvez pas enchérir sur votre propre article.");
 
-    if (new DateTime() > new DateTime($enchere['date_fin_enchere'])) {
-        // Optionnel : fermer l'enchère ici si on s'en rend compte
-        echo json_encode(['error' => 'L\'enchère est terminée']);
-        exit;
-    }
+    // Vérification date
+    if (new DateTime() > new DateTime($enchere['date_fin_enchere'])) throw new Exception("L'enchère est terminée.");
 
+    // Vérification du seuil
     $seuil = $enchere['meilleure_offre_enchere'] ?? $enchere['prix_depart_enchere'];
-    if ($montant <= $seuil) {
-        echo json_encode(['error' => 'Votre offre doit être supérieure à ' . $seuil . ' €']);
-        exit;
-    }
+    if ($montant <= $seuil) throw new Exception("Votre offre doit être strictement supérieure à " . $seuil . " €.");
+
+    $pdo->beginTransaction();
 
     // 2. Enregistrer l'offre
     $stmt = $pdo->prepare("INSERT INTO offre (montant_offre, id_enchere, id_user) VALUES (:m, :e, :u)");
@@ -52,10 +48,8 @@ try {
     $stmt->execute(['m' => $montant, 'u' => $id_user, 'e' => $id_enchere]);
 
     // 4. Notifications
-    // Au vendeur
     createNotification($pdo, $enchere['id_vendeur'], 'enchere', "Nouvelle enchère de $montant € sur votre article : " . $enchere['titre_annonce'], $enchere['id_annonce']);
     
-    // À l'ancien gagnant (s'il y en avait un et que c'est pas le même)
     if ($old_gagnant && $old_gagnant != $id_user) {
         createNotification($pdo, $old_gagnant, 'enchere', "Vous avez été surenchéri sur l'article : " . $enchere['titre_annonce'] . ". Nouvelle offre : $montant €.", $enchere['id_annonce']);
     }
@@ -64,7 +58,7 @@ try {
     echo json_encode(['success' => true]);
 
 } catch (Exception $e) {
-    $pdo->rollBack();
+    if ($pdo->inTransaction()) $pdo->rollBack();
     echo json_encode(['error' => $e->getMessage()]);
 }
 ?>

@@ -46,14 +46,38 @@ function ProfilePage() {
             .then(data => setMyArticles(data));
     };
 
+    const role = user ? String(user.role_user).toLowerCase() : '';
+    const isVendeur = role === 'vendeur' || role === 'admin';
+
     useEffect(() => {
         if (activeTab === 'achats') fetchHistory('achats');
-        if (activeTab === 'ventes') fetchHistory('ventes');
-        if (activeTab === 'annonces') fetchMyArticles();
-    }, [activeTab, user]);
+        if (activeTab === 'ventes' && isVendeur) fetchHistory('ventes');
+        if (activeTab === 'annonces' && isVendeur) fetchMyArticles();
+
+        // Sécurité supplémentaire : les onglets vendeurs sont réservés aux vendeurs/admins
+        if (!isVendeur && (activeTab === 'ventes' || activeTab === 'annonces')) {
+            setActiveTab('infos');
+        }
+    }, [activeTab, user, isVendeur]);
 
     const handleUpdateProfile = (e) => {
         e.preventDefault();
+
+        // 1. Validation Frontend
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(formData.email)) {
+            setFeedback({ message: "Format d'email invalide.", type: 'error' });
+            return;
+        }
+        if (formData.nom.length < 2 || formData.prenom.length < 2) {
+            setFeedback({ message: "Le nom et le prénom doivent faire au moins 2 caractères.", type: 'error' });
+            return;
+        }
+        if (formData.pseudo.length < 3) {
+            setFeedback({ message: "Le pseudo est trop court.", type: 'error' });
+            return;
+        }
+
         fetch('../scripts/update_profile.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -64,6 +88,8 @@ function ProfilePage() {
             if (data.success) {
                 localStorage.setItem('user', JSON.stringify(data.user));
                 setUser(data.user);
+                // Sync avec le Header et les autres composants
+                window.dispatchEvent(new CustomEvent('userLoggedIn', { detail: data.user }));
                 setFeedback({ message: 'Profil mis à jour !', type: 'success' });
             } else {
                 setFeedback({ message: 'Erreur : ' + data.error, type: 'error' });
@@ -112,7 +138,7 @@ function ProfilePage() {
 
     if (loading) return null;
 
-    const isVendeur = user && (user.role_user === 'vendeur' || user.role_user === 'admin');
+    const constants = window.APP_CONSTANTS || { ETATS: [], MATIERES: [], COULEURS: [], TAILLES_VETEMENTS: [] };
 
     return (
         <div>
@@ -125,46 +151,53 @@ function ProfilePage() {
                             <form onSubmit={handleUpdateArticle}>
                                 <div className="form-group">
                                     <label>Titre de l'annonce</label>
-                                    <input type="text" value={editingArticle.titre_annonce} required
+                                    <input type="text" value={editingArticle.titre_annonce} required minLength="3" maxLength="50"
                                         onChange={e => setEditingArticle({...editingArticle, titre_annonce: e.target.value})} />
                                 </div>
                                 <div className="form-grid">
                                     <div className="form-group">
                                         <label>Prix (€)</label>
-                                        <input type="number" step="0.01" value={editingArticle.prix_annonce} required
+                                        <input type="number" step="0.01" min="1" value={editingArticle.prix_annonce} required
                                             onChange={e => setEditingArticle({...editingArticle, prix_annonce: e.target.value})} />
                                     </div>
                                     <div className="form-group">
                                         <label>État</label>
                                         <select value={editingArticle.etat_objet_annonce} required
                                             onChange={e => setEditingArticle({...editingArticle, etat_objet_annonce: e.target.value})}>
-                                            <option value="neuf">Neuf</option>
-                                            <option value="tres_bon">Très bon état</option>
-                                            <option value="bon">Bon état</option>
-                                            <option value="acceptable">Acceptable</option>
+                                            <option value="">Choisir...</option>
+                                            {constants.ETATS.map(et => <option key={et.id} value={et.id}>{et.label}</option>)}
                                         </select>
                                     </div>
                                 </div>
                                 <div className="form-grid">
                                     <div className="form-group">
                                         <label>Taille</label>
-                                        <input type="text" value={editingArticle.taille_annonce}
-                                            onChange={e => setEditingArticle({...editingArticle, taille_annonce: e.target.value})} />
+                                        <select value={editingArticle.taille_annonce} required
+                                            onChange={e => setEditingArticle({...editingArticle, taille_annonce: e.target.value})}>
+                                            <option value="">Choisir...</option>
+                                            {[...constants.TAILLES_VETEMENTS, ...constants.TAILLES_BAS].map(t => <option key={t} value={t}>{t}</option>)}
+                                        </select>
                                     </div>
                                     <div className="form-group">
                                         <label>Couleur</label>
-                                        <input type="text" value={editingArticle.couleur_annonce}
-                                            onChange={e => setEditingArticle({...editingArticle, couleur_annonce: e.target.value})} />
+                                        <select value={editingArticle.couleur_annonce} required
+                                            onChange={e => setEditingArticle({...editingArticle, couleur_annonce: e.target.value})}>
+                                            <option value="">Choisir...</option>
+                                            {constants.COULEURS.map(c => <option key={c} value={c}>{c}</option>)}
+                                        </select>
                                     </div>
                                 </div>
                                 <div className="form-group">
                                     <label>Matière</label>
-                                    <input type="text" value={editingArticle.matiere_annonce}
-                                        onChange={e => setEditingArticle({...editingArticle, matiere_annonce: e.target.value})} />
+                                    <select value={editingArticle.matiere_annonce} required
+                                        onChange={e => setEditingArticle({...editingArticle, matiere_annonce: e.target.value})}>
+                                        <option value="">Choisir...</option>
+                                        {constants.MATIERES.map(m => <option key={m} value={m}>{m}</option>)}
+                                    </select>
                                 </div>
                                 <div className="form-group">
                                     <label>Description</label>
-                                    <textarea rows="4" value={editingArticle.description_annonce} required
+                                    <textarea rows="4" value={editingArticle.description_annonce} required maxLength="300"
                                         onChange={e => setEditingArticle({...editingArticle, description_annonce: e.target.value})}
                                         style={{width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ddd'}}></textarea>
                                 </div>
@@ -231,9 +264,9 @@ function ProfilePage() {
                         </div>
                     )}
 
-                    {(activeTab === 'achats' || activeTab === 'ventes') && (
+                    {activeTab === 'ventes' && isVendeur && (
                         <div>
-                            <h2 className="profile-section-title">{activeTab === 'achats' ? "Historique d'achat" : "Historique de vente"}</h2>
+                            <h2 className="profile-section-title">Historique de vente</h2>
                             {history.length === 0 ? (
                                 <p style={{ color: '#999', textAlign: 'center', padding: '40px' }}>Aucune transaction trouvée.</p>
                             ) : (
@@ -251,7 +284,7 @@ function ProfilePage() {
                         </div>
                     )}
 
-                    {activeTab === 'annonces' && (
+                    {activeTab === 'annonces' && isVendeur && (
                         <div>
                             <h2 className="profile-section-title">Mes annonces en ligne</h2>
                             {myArticles.length === 0 ? (

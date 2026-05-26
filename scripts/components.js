@@ -1,6 +1,23 @@
 const { useState, useEffect } = React;
 
 // ==========================================
+// 0. CONSTANTES GLOBALES (ENUMS)
+// ==========================================
+window.APP_CONSTANTS = {
+  ETATS: [
+    { id: 'neuf', label: 'Neuf' },
+    { id: 'tres_bon', label: 'Très bon état' },
+    { id: 'bon', label: 'Bon état' },
+    { id: 'acceptable', label: 'Acceptable' }
+  ],
+  MATIERES: ['Coton', 'Laine', 'Cuir', 'Soie', 'Synthétique', 'Denim', 'Lin', 'Autre'],
+  COULEURS: ['Noir', 'Blanc', 'Gris', 'Bleu', 'Rouge', 'Vert', 'Jaune', 'Rose', 'Beige', 'Marron', 'Argenté', 'Doré', 'Multicolore'],
+  TAILLES_VETEMENTS: ['XXS', 'XS', 'S', 'M', 'L', 'XL', 'XXL', 'Unique'],
+  TAILLES_BAS: ['34', '36', '38', '40', '42', '44', '46', '48'],
+  TAILLES_CHAUSSURES: ['35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46']
+};
+
+// ==========================================
 // 1. MODALE D'AUTHENTIFICATION (CONNEXION / INSCRIPTION)
 // ==========================================
 function AuthModal({ isOpen, onClose, onLoginSuccess }) {
@@ -17,6 +34,23 @@ function AuthModal({ isOpen, onClose, onLoginSuccess }) {
     e.preventDefault();
     setError('');
     setSuccess('');
+
+    // 1. Validation Frontend (Inscriptions)
+    if (!isLogin) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(formData.mail)) {
+            setError("Format d'email invalide.");
+            return;
+        }
+        if (formData.mdp.length < 8) {
+            setError("Le mot de passe doit faire au moins 8 caractères.");
+            return;
+        }
+        if (formData.pseudo.length < 3) {
+            setError("Le pseudo est trop court.");
+            return;
+        }
+    }
     
     const endpoint = isLogin ? '../scripts/login.php' : '../scripts/register.php';
     const body = isLogin ? { pseudo: formData.pseudo, mdp: formData.mdp } : formData;
@@ -57,15 +91,15 @@ function AuthModal({ isOpen, onClose, onLoginSuccess }) {
           
           {!isLogin && (
             <>
-              <input type="text" placeholder="Prénom" required onChange={e => setFormData({...formData, prenom: e.target.value})} />
-              <input type="text" placeholder="Nom" required onChange={e => setFormData({...formData, nom: e.target.value})} />
+              <input type="text" placeholder="Prénom" required minLength="2" maxLength="50" onChange={e => setFormData({...formData, prenom: e.target.value})} />
+              <input type="text" placeholder="Nom" required minLength="2" maxLength="50" onChange={e => setFormData({...formData, nom: e.target.value})} />
               <input type="email" placeholder="Email" required onChange={e => setFormData({...formData, mail: e.target.value})} />
-              <input type="text" placeholder="Adresse" onChange={e => setFormData({...formData, adresse: e.target.value})} />
+              <input type="text" placeholder="Adresse" maxLength="200" onChange={e => setFormData({...formData, adresse: e.target.value})} />
             </>
           )}
           
-          <input type="text" placeholder="Pseudo" required onChange={e => setFormData({...formData, pseudo: e.target.value})} />
-          <input type="password" placeholder="Mot de passe" required onChange={e => setFormData({...formData, mdp: e.target.value})} />
+          <input type="text" placeholder="Pseudo" required minLength="3" maxLength="20" onChange={e => setFormData({...formData, pseudo: e.target.value})} />
+          <input type="password" placeholder="Mot de passe" required minLength="8" onChange={e => setFormData({...formData, mdp: e.target.value})} />
           
           <button type="submit">{isLogin ? 'Se connecter' : "S'inscrire"}</button>
           
@@ -187,7 +221,8 @@ window.Sidebar = function({ isOpen, initialCategory, onClose, onFilterChange }) 
     etats: [],
     couleurs: [],
     matieres: [],
-    tailles: []
+    tailles: [],
+    type_vente: null
   };
 
   const [filters, setFilters] = useState(defaultFilters);
@@ -324,8 +359,45 @@ window.Sidebar = function({ isOpen, initialCategory, onClose, onFilterChange }) 
       <div className={`sidebar-overlay ${isOpen ? 'active' : ''}`} onClick={onClose}></div>
       <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
         <span className="close-sidebar" onClick={onClose}>&times;</span>
-        
+
         <div className="filter-group" style={{marginTop: '40px'}}>
+          <h3 className="filter-title">Type de vente</h3>
+          <div style={{
+            display: 'flex',
+            background: '#f0f0f0',
+            borderRadius: '12px',
+            padding: '4px',
+            marginBottom: '20px'
+          }}>
+            {[
+              { id: 'all', label: 'Tous' },
+              { id: 'enchere', label: 'Enchère' },
+              { id: 'achat_direct', label: 'Direct' }
+            ].map(type => (
+              <button
+                key={type.id}
+                onClick={() => updateFilters({ type_vente: type.id === 'all' ? null : type.id })}
+                style={{
+                  flex: 1,
+                  padding: '8px',
+                  border: 'none',
+                  borderRadius: '10px',
+                  fontSize: '12px',
+                  fontWeight: '700',
+                  cursor: 'pointer',
+                  background: (filters.type_vente || 'all') === type.id ? '#fff' : 'transparent',
+                  color: (filters.type_vente || 'all') === type.id ? 'var(--jaune)' : '#666',
+                  boxShadow: (filters.type_vente || 'all') === type.id ? '0 2px 5px rgba(0,0,0,0.1)' : 'none',
+                  transition: 'all 0.2s'
+                }}
+              >
+                {type.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="filter-group">
           <h3 className="filter-title">Catégories</h3>
           <div className="filter-list">
             {displayCategories.map(cat => renderCategory(cat))}
@@ -372,14 +444,14 @@ window.Sidebar = function({ isOpen, initialCategory, onClose, onFilterChange }) 
         <div className="filter-group">
           <h3 className="filter-title">État</h3>
           <div className="filter-list">
-            {['neuf', 'tres_bon', 'bon', 'acceptable'].map(e => (
-              <label key={e} className="filter-item">
+            {window.APP_CONSTANTS.ETATS.map(e => (
+              <label key={e.id} className="filter-item">
                 <input 
                   type="checkbox" 
-                  checked={filters.etats.includes(e)}
-                  onChange={() => handleCheckbox('etats', e)}
+                  checked={filters.etats.includes(e.id)}
+                  onChange={() => handleCheckbox('etats', e.id)}
                 />
-                {e.replace('_', ' ')}
+                {e.label}
               </label>
             ))}
           </div>
@@ -388,7 +460,7 @@ window.Sidebar = function({ isOpen, initialCategory, onClose, onFilterChange }) 
         <div className="filter-group">
           <h3 className="filter-title">Couleur</h3>
           <div className="filter-list">
-            {['Noir', 'Blanc', 'Bleu', 'Rouge', 'Vert'].map(c => (
+            {window.APP_CONSTANTS.COULEURS.map(c => (
               <label key={c} className="filter-item">
                 <input 
                   type="checkbox" 
@@ -404,7 +476,7 @@ window.Sidebar = function({ isOpen, initialCategory, onClose, onFilterChange }) 
         <div className="filter-group">
           <h3 className="filter-title">Matière</h3>
           <div className="filter-list">
-            {['Coton', 'Laine', 'Cuir', 'Soie', 'Synthétique'].map(m => (
+            {window.APP_CONSTANTS.MATIERES.map(m => (
               <label key={m} className="filter-item">
                 <input 
                   type="checkbox" 
@@ -421,8 +493,8 @@ window.Sidebar = function({ isOpen, initialCategory, onClose, onFilterChange }) 
           <h3 className="filter-title">Taille</h3>
           <div className="filter-list">
             {(isBottomSelected 
-              ? ['36', '38', '40', '42', '44', '46'] 
-              : ['XS', 'S', 'M', 'L', 'XL', 'XXL']
+              ? window.APP_CONSTANTS.TAILLES_BAS 
+              : window.APP_CONSTANTS.TAILLES_VETEMENTS
             ).map(t => (
               <label key={t} className="filter-item">
                 <input 
@@ -519,6 +591,11 @@ window.Header = function({ onCategoryClick, isSidebarOpen }) {
         if (savedUser) fetchNotifCount(JSON.parse(savedUser));
     };
 
+    // Polling des notifications (toutes les 10 secondes)
+    const notifInterval = setInterval(() => {
+        if (u) fetchNotifCount(u);
+    }, 10000);
+
     window.addEventListener('openAuthModal', handleOpenAuth);
     window.addEventListener('notificationsRead', handleRefreshNotifs);
     window.addEventListener('cartUpdated', syncCartCount);
@@ -531,6 +608,7 @@ window.Header = function({ onCategoryClick, isSidebarOpen }) {
     });
 
     return () => {
+        clearInterval(notifInterval);
         window.removeEventListener('openAuthModal', handleOpenAuth);
         window.removeEventListener('notificationsRead', handleRefreshNotifs);
         window.removeEventListener('cartUpdated', syncCartCount);
@@ -611,6 +689,14 @@ window.Header = function({ onCategoryClick, isSidebarOpen }) {
             <span className="action-icon message-icon"></span>
             <span>Messages</span>
           </a>
+
+          {user && user.role_user === 'admin' && (
+            <a href="admin.html" className="action-item" style={{color: 'var(--jaune)'}}>
+              <span className="action-icon" style={{backgroundImage: 'url(../images/user_survole.png)', width: '24px', height: '24px', backgroundSize: 'contain', backgroundRepeat: 'no-repeat', backgroundPosition: 'center'}}></span>
+              <span style={{fontWeight: '800'}}>Admin</span>
+            </a>
+          )}
+
           <a href="#" className="action-item" onClick={handleUserClick}>
             <span className="action-icon user-icon"></span>
             <span>{user ? user.prenom_user : 'Mon compte'}</span>
@@ -618,26 +704,28 @@ window.Header = function({ onCategoryClick, isSidebarOpen }) {
         </nav>
       </div>
 
-      <div className={`header-categories ${isSidebarOpen ? 'hidden' : ''}`}>
-        <a href="index.html?cat=Homme" className="header-cat-link" onClick={(e) => {
-          if (onCategoryClick) {
-            e.preventDefault();
-            onCategoryClick('Homme');
-          }
-        }}>Homme</a>
-        <a href="index.html?cat=Femme" className="header-cat-link" onClick={(e) => {
-          if (onCategoryClick) {
-            e.preventDefault();
-            onCategoryClick('Femme');
-          }
-        }}>Femme</a>
-        <a href="index.html?cat=Enfant" className="header-cat-link" onClick={(e) => {
-          if (onCategoryClick) {
-            e.preventDefault();
-            onCategoryClick('Enfant');
-          }
-        }}>Enfant</a>
-      </div>
+      {window.location.pathname.endsWith('index.html') || window.location.pathname === '/' || window.location.pathname.endsWith('/') ? (
+        <div className={`header-categories ${isSidebarOpen ? 'hidden' : ''}`}>
+          <a href="index.html?cat=Homme" className="header-cat-link" onClick={(e) => {
+            if (onCategoryClick) {
+              e.preventDefault();
+              onCategoryClick('Homme');
+            }
+          }}>Homme</a>
+          <a href="index.html?cat=Femme" className="header-cat-link" onClick={(e) => {
+            if (onCategoryClick) {
+              e.preventDefault();
+              onCategoryClick('Femme');
+            }
+          }}>Femme</a>
+          <a href="index.html?cat=Enfant" className="header-cat-link" onClick={(e) => {
+            if (onCategoryClick) {
+              e.preventDefault();
+              onCategoryClick('Enfant');
+            }
+          }}>Enfant</a>
+        </div>
+      ) : null}
 
       <AuthModal 
         isOpen={isAuthOpen} 

@@ -10,7 +10,6 @@ function MessagesPage() {
   const [replyText, setReplyText] = useState("");
   const [replyOffer, setReplyOffer] = useState("");
   const [status, setStatus] = useState({ message: '', type: '' });
-  const chatEndRef = useRef(null);
   
   let user = null;
   try {
@@ -60,14 +59,50 @@ function MessagesPage() {
 
   useEffect(() => {
     fetchMessages();
+
+    // 1. Polling des messages (toutes les 3 secondes si une négo est active)
+    const msgInterval = setInterval(() => {
+      if (activeNeg) {
+        fetch(`../scripts/get_negotiation_echanges.php?id=${activeNeg.id_negociation}`)
+          .then(res => res.json())
+          .then(data => {
+            // On ne met à jour que si les données ont changé (plus de messages)
+            if (data.length !== messages.length) {
+                setMessages(data);
+            }
+          });
+      }
+    }, 3000);
+
+    // 2. Polling de la liste des négociations (toutes les 10 secondes)
+    const listInterval = setInterval(() => {
+      if (user) {
+        fetch(`../scripts/get_negotiations.php?id_user=${user.id_user}`)
+          .then(res => res.json())
+          .then(data => setNegotiations(data));
+      }
+    }, 10000);
+
+    return () => {
+      clearInterval(msgInterval);
+      clearInterval(listInterval);
+    };
   }, [activeNeg]);
 
-  useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
-
   const handleSend = () => {
-    if (!replyText.trim() && !replyOffer) return;
+    const trimmedMsg = replyText.trim();
+    if (!trimmedMsg && !replyOffer) return;
+    
+    // 1. Validation Frontend
+    if (trimmedMsg.length > 500) {
+        setStatus({ message: "Le message est trop long (max 500 car.).", type: 'error' });
+        return;
+    }
+    if (replyOffer && (isNaN(replyOffer) || parseFloat(replyOffer) <= 0)) {
+        setStatus({ message: "Le montant de l'offre doit être un nombre positif.", type: 'error' });
+        return;
+    }
+
     fetch('../scripts/send_reply.php', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -85,6 +120,9 @@ function MessagesPage() {
         setReplyOffer("");
         fetchMessages();
         fetchNegotiations();
+      } else {
+        setStatus({ message: data.error, type: 'error' });
+        setTimeout(() => setStatus({ message: '', type: '' }), 5000);
       }
     });
   };
@@ -126,8 +164,15 @@ function MessagesPage() {
   }
 
   const lastOfferMessage = [...messages].reverse().find(m => m.montant_echange !== null);
+  const offerCount = messages.filter(m => m.montant_echange !== null).length;
+  
   // canAccept : on peut accepter si on n'est PAS l'auteur de la dernière offre ET que la négo est en cours
   const canAccept = activeNeg && activeNeg.statut_negociation === 'en_cours' && lastOfferMessage && lastOfferMessage.id_user != user.id_user;
+  
+  // Discussion close si 5 offres et le statut est refusé
+  const isClosed = activeNeg && offerCount >= 5 && activeNeg.statut_negociation === 'refusee';
+  // Discussion bloquée en attente d'acceptation/refus de la 5ème offre
+  const isPendingFinal = activeNeg && offerCount >= 5 && activeNeg.statut_negociation === 'en_cours';
 
   return (
     <div>
@@ -219,7 +264,7 @@ function MessagesPage() {
               <>
                 {/* Header du chat avec image */}
                 <div className="chat-header">
-                  <div style={{display: 'flex', alignItems: 'center', gap: '14px'}}>
+                  <div style={{display: 'flex', alignItems: 'center', gap: '14px', width: '100%'}}>
                     
                     {/* Image article */}
                     <a href={`produit.html?id=${activeNeg.id_annonce}`} style={{textDecoration: 'none', flexShrink: 0}}>
@@ -240,12 +285,12 @@ function MessagesPage() {
                     </a>
 
                     {/* Titre + interlocuteur */}
-                    <div>
+                    <div style={{flex: 1}}>
                       <div style={{fontWeight: '800', fontSize: '15px', color: '#111'}}>
                         {activeNeg.titre_annonce}
                       </div>
                       <div style={{fontSize: '12px', color: '#999', marginTop: '2px'}}>
-                        {activeNeg.id_user_acheteur == user.id_user ? `Vendeur : ${activeNeg.vendeur_pseudo}` : `Acheteur : ${activeNeg.acheteur_pseudo}`}
+                        Offres : <strong style={{color: offerCount >= 5 ? 'red' : 'var(--jaune)'}}>{offerCount} / 5</strong>
                       </div>
                     </div>
 
@@ -271,45 +316,62 @@ function MessagesPage() {
 
                 {/* Messages */}
                 <div className="chat-messages">
-                  {messages.map(m => (
-                    <div key={m.id_echange} className={`message-bubble ${m.id_user == user.id_user ? 'mine' : 'other'}`}>
-                      {m.montant_echange && (
-                        <div className="offer-badge">Offre : {m.montant_echange} €</div>
-                      )}
-                      <div>{m.message_echange}</div>
-                      <div style={{fontSize: '10px', marginTop: '5px', opacity: 0.7}}>
-                        {new Date(m.date_echange).toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'})}
+                  {messages.map(m => {
+                    const isMine = m.id_user == user.id_user;
+                    return (
+                      <div key={m.id_echange} className={`message-bubble ${isMine ? 'mine' : 'other'}`}>
+                        {!isMine && (
+                          <div style={{fontSize: '11px', color: '#888', marginBottom: '4px', fontWeight: 'bold'}}>
+                            {m.pseudo_user || (activeNeg.id_user_acheteur == m.id_user ? activeNeg.acheteur_pseudo : activeNeg.vendeur_pseudo)}
+                          </div>
+                        )}
+                        {m.montant_echange && (
+                          <div className="offer-badge">Offre : {m.montant_echange} €</div>
+                        )}
+                        <div>{m.message_echange}</div>
+                        <div style={{fontSize: '10px', marginTop: '5px', opacity: 0.7}}>
+                          {new Date(m.date_echange).toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'})}
+                        </div>
                       </div>
-                    </div>
-                  ))}
-                  <div ref={chatEndRef} />
+                    );
+                  })}
                 </div>
 
                 {/* Zone de saisie */}
-                <div className="chat-input-area">
-                  <input
-                    type="text"
-                    placeholder="Votre message..."
-                    value={replyText}
-                    onChange={e => setReplyText(e.target.value)}
-                    onKeyPress={e => e.key === 'Enter' && handleSend()}
-                  />
-                  <input
-                    type="number"
-                    className="chat-input-offer"
-                    placeholder="Offre €"
-                    value={replyOffer}
-                    onChange={e => setReplyOffer(e.target.value)}
-                    disabled={activeNeg.statut_negociation === 'acceptee'}
-                  />
-                  <button
-                    className="chat-send-btn"
-                    onClick={handleSend}
-                    disabled={!replyText.trim() && !replyOffer}
-                  >
-                    Envoyer
-                  </button>
-                </div>
+                {isClosed ? (
+                  <div style={{padding: '20px', textAlign: 'center', background: '#f8d7da', color: '#721c24', fontWeight: '700', borderTop: '1px solid #eee'}}>
+                    Discussion clôturée : Le nombre maximum d'offres a été atteint et la dernière a été refusée.
+                  </div>
+                ) : isPendingFinal ? (
+                  <div style={{padding: '20px', textAlign: 'center', background: '#fff3cd', color: '#856404', fontWeight: '700', borderTop: '1px solid #eee'}}>
+                    La 5ème offre a été proposée. En attente d'acceptation ou de refus.
+                  </div>
+                ) : (
+                  <div className="chat-input-area">
+                    <input
+                      type="text"
+                      placeholder="Votre message..."
+                      value={replyText}
+                      onChange={e => setReplyText(e.target.value)}
+                      onKeyPress={e => e.key === 'Enter' && handleSend()}
+                    />
+                    <input
+                      type="number"
+                      className="chat-input-offer"
+                      placeholder="Offre €"
+                      value={replyOffer}
+                      onChange={e => setReplyOffer(e.target.value)}
+                      disabled={activeNeg.statut_negociation === 'acceptee'}
+                    />
+                    <button
+                      className="chat-send-btn"
+                      onClick={handleSend}
+                      disabled={!replyText.trim() && !replyOffer}
+                    >
+                      Envoyer
+                    </button>
+                  </div>
+                )}
               </>
             ) : (
               <div style={{flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#999'}}>

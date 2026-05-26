@@ -38,6 +38,12 @@ try {
         $params['cat_id_2'] = $cat_id;
     }
 
+    // Filtre par type de vente
+    if (!empty($_GET['type_vente'])) {
+        $sql .= " AND a.type_vente_annonce = :type_vente";
+        $params['type_vente'] = $_GET['type_vente'];
+    }
+
     // Filtre par prix
     if (!empty($_GET['prix_min'])) {
         $sql .= " AND a.prix_annonce >= :prix_min";
