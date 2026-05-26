@@ -195,6 +195,7 @@ function ArticlesSection() {
   useEffect(() => {
     setLoading(true);
     const params = new URLSearchParams();
+    if (filters.search) params.append('search', filters.search);
     if (filters.categorie_id) params.append('categorie_id', filters.categorie_id);
     if (filters.prix_min !== undefined && filters.prix_min !== null) params.append('prix_min', filters.prix_min);
     if (filters.prix_max !== undefined && filters.prix_max !== null) params.append('prix_max', filters.prix_max);

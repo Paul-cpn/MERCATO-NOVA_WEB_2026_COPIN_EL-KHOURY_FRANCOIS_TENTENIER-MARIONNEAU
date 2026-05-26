@@ -569,7 +569,7 @@ function App() {
 
             <hr className="divider" style={{ margin: '5px 0' }} />
             
-            <div className="seller-card" style={{ display: 'flex', alignItems: 'center', gap: '12px', background: '#f9f9f9', padding: '10px', borderRadius: '12px' }}>
+            <a href={`seller-profile.html?id=${annonce.id_user}`} className="seller-card" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '12px', background: '#f9f9f9', padding: '10px', borderRadius: '12px', color: 'inherit' }}>
               <div className="seller-avatar" style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'var(--jaune)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '700' }}>
                 {(annonce.vendeur_prenom || "U")[0]}
               </div>
@@ -583,7 +583,7 @@ function App() {
                 </div>
               </div>
               <span className="seller-arrow" style={{ fontSize: '20px', color: '#ccc' }}>›</span>
-            </div>
+            </a>
           </div>
 
           {isEnchere ? (

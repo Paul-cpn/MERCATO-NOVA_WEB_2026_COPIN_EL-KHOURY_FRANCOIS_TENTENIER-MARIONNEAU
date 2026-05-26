@@ -12,6 +12,7 @@ function ProfilePage() {
     const [myArticles, setMyArticles] = useState([]);
     const [loading, setLoading] = useState(true);
     const [feedback, setFeedback] = useState({ message: '', type: '' });
+    const [editingArticle, setEditingArticle] = useState(null);
 
     useEffect(() => {
         const savedUser = localStorage.getItem('user');
@@ -89,6 +90,26 @@ function ProfilePage() {
         window.location.href = "index.html";
     };
 
+    const handleUpdateArticle = (e) => {
+        e.preventDefault();
+        fetch('../scripts/update_article.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ...editingArticle, id_user: user.id_user })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                setEditingArticle(null);
+                fetchMyArticles();
+                setFeedback({ message: 'Annonce mise à jour avec succès !', type: 'success' });
+            } else {
+                setFeedback({ message: 'Erreur : ' + data.error, type: 'error' });
+            }
+            setTimeout(() => setFeedback({ message: '', type: '' }), 3000);
+        });
+    };
+
     if (loading) return null;
 
     const isVendeur = user && (user.role_user === 'vendeur' || user.role_user === 'admin');
@@ -97,6 +118,64 @@ function ProfilePage() {
         <div>
             <Header />
             <main className="profile-container">
+                {editingArticle && (
+                    <div className="modal-overlay" onClick={() => setEditingArticle(null)}>
+                        <div className="modal-content" onClick={e => e.stopPropagation()} style={{maxWidth: '600px'}}>
+                            <h2 style={{marginBottom: '20px'}}>Modifier mon annonce</h2>
+                            <form onSubmit={handleUpdateArticle}>
+                                <div className="form-group">
+                                    <label>Titre de l'annonce</label>
+                                    <input type="text" value={editingArticle.titre_annonce} required
+                                        onChange={e => setEditingArticle({...editingArticle, titre_annonce: e.target.value})} />
+                                </div>
+                                <div className="form-grid">
+                                    <div className="form-group">
+                                        <label>Prix (€)</label>
+                                        <input type="number" step="0.01" value={editingArticle.prix_annonce} required
+                                            onChange={e => setEditingArticle({...editingArticle, prix_annonce: e.target.value})} />
+                                    </div>
+                                    <div className="form-group">
+                                        <label>État</label>
+                                        <select value={editingArticle.etat_objet_annonce} required
+                                            onChange={e => setEditingArticle({...editingArticle, etat_objet_annonce: e.target.value})}>
+                                            <option value="neuf">Neuf</option>
+                                            <option value="tres_bon">Très bon état</option>
+                                            <option value="bon">Bon état</option>
+                                            <option value="acceptable">Acceptable</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div className="form-grid">
+                                    <div className="form-group">
+                                        <label>Taille</label>
+                                        <input type="text" value={editingArticle.taille_annonce}
+                                            onChange={e => setEditingArticle({...editingArticle, taille_annonce: e.target.value})} />
+                                    </div>
+                                    <div className="form-group">
+                                        <label>Couleur</label>
+                                        <input type="text" value={editingArticle.couleur_annonce}
+                                            onChange={e => setEditingArticle({...editingArticle, couleur_annonce: e.target.value})} />
+                                    </div>
+                                </div>
+                                <div className="form-group">
+                                    <label>Matière</label>
+                                    <input type="text" value={editingArticle.matiere_annonce}
+                                        onChange={e => setEditingArticle({...editingArticle, matiere_annonce: e.target.value})} />
+                                </div>
+                                <div className="form-group">
+                                    <label>Description</label>
+                                    <textarea rows="4" value={editingArticle.description_annonce} required
+                                        onChange={e => setEditingArticle({...editingArticle, description_annonce: e.target.value})}
+                                        style={{width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ddd'}}></textarea>
+                                </div>
+                                <div style={{display: 'flex', gap: '10px', marginTop: '20px'}}>
+                                    <button type="submit" className="save-btn" style={{margin: 0}}>Enregistrer</button>
+                                    <button type="button" className="btn-danger" onClick={() => setEditingArticle(null)} style={{background: '#999'}}>Annuler</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                )}
                 <div className="profile-nav">
                     <button className={`profile-nav-btn ${activeTab === 'infos' ? 'active' : ''}`} onClick={() => setActiveTab('infos')}>Mes informations</button>
                     <button className={`profile-nav-btn ${activeTab === 'achats' ? 'active' : ''}`} onClick={() => setActiveTab('achats')}>Historique d'achat</button>
@@ -187,6 +266,8 @@ function ProfilePage() {
                                         </div>
                                         <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
                                             <div className="history-price">{a.prix_annonce} €</div>
+                                            <button className="save-btn" style={{margin: 0, padding: '8px 15px', fontSize: '12px'}} 
+                                                onClick={() => setEditingArticle(a)}>Modifier</button>
                                             <button className="btn-danger" onClick={() => handleDeleteArticle(a.id_annonce)}>Supprimer</button>
                                         </div>
                                     </div>
