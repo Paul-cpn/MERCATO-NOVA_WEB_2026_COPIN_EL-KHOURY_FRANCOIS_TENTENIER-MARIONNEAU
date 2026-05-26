@@ -1579,5 +1579,20 @@ body {
   box-shadow: 0 2px 6px rgba(0,0,0,0.12);
   line-height: 0;
 }
+/* ─── CORRECTION DE LA GRILLE D'ICÔNES (À PROPOS) ─── */
 
 
+
+/* L'icône (image) à l'intérieur de la bulle */
+.about-grid .icon-box img {
+    width: 45px !important;  /* Ajuste cette taille (ex: 45px ou 50px) selon tes préférences */
+    height: 45px !important;
+    object-fit: contain !important;
+    display: block !important;
+}
+/* Optionnel : Nettoyage définitif des pointillés de test autour des grandes illustrations */
+.about-inline-img {
+    border: none !important;
+    outline: none !important;
+    background: transparent !important;
+}
