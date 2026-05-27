@@ -143,6 +143,7 @@ function FavorisPage() {
     .then(data => {
       if (data.success) {
         setArticles(articles.filter(a => a.id_annonce !== id_annonce));
+        window.dispatchEvent(new CustomEvent('favoritesUpdated'));
       }
     });
   };

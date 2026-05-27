@@ -3,6 +3,40 @@ const { useState, useEffect } = React;
 // COMPOSANT GALERIE
 function Galerie({ images, isFavorite, onToggleFavorite }) {
   const [mainImg, setMainImg] = useState(0);
+  const [imgStyle, setImgStyle] = useState({ opacity: 0 });
+
+  const handleImageLoad = (e) => {
+    const { naturalWidth, naturalHeight } = e.target;
+    
+    // Logique explicite demandée : on adapte à la dimension la plus grande
+    if (naturalWidth >= naturalHeight) {
+      // Paysage ou Carré : On prend toute la largeur
+      setImgStyle({
+        width: '100%',
+        height: 'auto',
+        maxWidth: '100%',
+        maxHeight: '520px',
+        objectFit: 'contain',
+        display: 'block',
+        opacity: 1
+      });
+    } else {
+      // Portrait : On prend toute la hauteur disponible (520px)
+      setImgStyle({
+        width: 'auto',
+        height: '520px',
+        maxWidth: '100%',
+        maxHeight: '520px',
+        objectFit: 'contain',
+        display: 'block',
+        opacity: 1
+      });
+    }
+  };
+
+  useEffect(() => {
+    setImgStyle({ opacity: 0 });
+  }, [mainImg]);
   
   if (!images || images.length === 0) {
     return (
@@ -48,23 +82,20 @@ function Galerie({ images, isFavorite, onToggleFavorite }) {
       <div className="main-image-container" style={{ 
         width: '100%', 
         height: '520px', 
-        backgroundColor: '#f8f9fa', 
+        backgroundColor: '#fff', 
         borderRadius: '15px', 
         overflow: 'hidden',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        border: '1px solid #eaeaea'
+        border: '1px solid #eaeaea',
+        boxShadow: '0 4px 20px rgba(0,0,0,0.08)'
       }}>
         <img 
           src={images[mainImg]} 
           alt="produit" 
-          style={{ 
-            width: '100%', 
-            height: '100%', 
-            display: 'block', 
-            objectFit: 'cover' 
-          }} 
+          onLoad={handleImageLoad}
+          style={imgStyle} 
           onError={(e) => {
             e.target.style.display = 'none';
             e.target.parentNode.style.backgroundColor = '#e9ecef';
@@ -73,7 +104,7 @@ function Galerie({ images, isFavorite, onToggleFavorite }) {
         />
       </div>
 
-      <div className="thumbnails" style={{ display: 'flex', gap: '10px', marginTop: '12px' }}>
+      <div className="thumbnails" style={{ display: 'flex', gap: '10px', marginTop: '12px', overflowX: 'auto', paddingBottom: '5px' }}>
         {images.map((img, i) => (
           <img
             key={i}
@@ -81,7 +112,7 @@ function Galerie({ images, isFavorite, onToggleFavorite }) {
             alt={"vue " + (i+1)}
             className={"thumb" + (mainImg === i ? " active" : "")}
             onClick={() => setMainImg(i)}
-            style={{ width: '75px', height: '75px', borderRadius: '8px', cursor: 'pointer', objectFit: 'cover', border: mainImg === i ? '2px solid var(--jaune)' : '2px solid transparent' }}
+            style={{ width: '75px', height: '75px', borderRadius: '8px', cursor: 'pointer', objectFit: 'contain', background: '#fff', border: mainImg === i ? '2px solid var(--jaune)' : '1px solid #eee', flexShrink: 0 }}
           />
         ))}
       </div>
@@ -348,6 +379,7 @@ function App() {
       if (resData.success) {
         const added = resData.action === 'added' || resData.is_favorite;
         setIsFavorite(added);
+        window.dispatchEvent(new CustomEvent('favoritesUpdated'));
         setFeedback({ message: added ? "Ajouté aux favoris !" : "Retiré des favoris !", type: 'success' });
         setTimeout(() => setFeedback({ message: '', type: '' }), 2500);
       }

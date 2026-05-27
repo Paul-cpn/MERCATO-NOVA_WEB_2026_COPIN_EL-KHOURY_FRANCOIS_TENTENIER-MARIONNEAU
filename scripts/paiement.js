@@ -16,6 +16,37 @@ function PaiementPage() {
   const [comments, setComments] = useState({});
   const [status, setStatus] = useState({ message: '', type: '' });
   
+  // Promo code states
+  const [promoCode, setPromoCode] = useState('');
+  const [discount, setDiscount] = useState(0);
+  const [promoFeedback, setPromoFeedback] = useState({ message: '', type: '' });
+
+  const PROMO_CODES = {
+    'NOVA10': { type: 'percent', value: 10 },
+    'WELCOME20': { type: 'percent', value: 20 },
+    'SPRING15': { type: 'percent', value: 15 },
+    'SAVE5': { type: 'flat', value: 5 }
+  };
+
+  const applyPromoCode = () => {
+    const code = promoCode.trim().toUpperCase();
+    if (PROMO_CODES[code]) {
+      const p = PROMO_CODES[code];
+      let d = 0;
+      const subtotal = items.reduce((sum, item) => sum + parseFloat(item.prix || 0), 0);
+      if (p.type === 'percent') {
+        d = subtotal * (p.value / 100);
+      } else {
+        d = p.value;
+      }
+      setDiscount(d);
+      setPromoFeedback({ message: `Code ${code} appliqué : -${d.toFixed(2)}€`, type: 'success' });
+    } else {
+      setDiscount(0);
+      setPromoFeedback({ message: "Code promotionnel invalide.", type: 'error' });
+    }
+  };
+  
   // Nouveaux états pour la confirmation des données
   const [step, setStep] = useState('confirmation'); // 'confirmation' ou 'payment'
   const [currentUser, setCurrentUser] = useState(null);
@@ -199,7 +230,8 @@ function PaiementPage() {
     });
   };
 
-  const total = items.reduce((sum, item) => sum + parseFloat(item.prix || 0), 0);
+  const subtotal = items.reduce((sum, item) => sum + parseFloat(item.prix || 0), 0);
+  const finalTotal = Math.max(0, subtotal - discount);
 
   if (loading && !items.length) {
     return (
@@ -234,9 +266,17 @@ function PaiementPage() {
                             <span>{parseFloat(item.prix || 0).toFixed(2)}€</span>
                         </div>
                     ))}
+                    
+                    {discount > 0 && (
+                        <div className="summary-item" style={{ color: '#ff5757', fontWeight: '700', marginTop: '10px', paddingTop: '10px', borderTop: '1px solid #f0f0f0' }}>
+                            <span>Réduction</span>
+                            <span>-{discount.toFixed(2)}€</span>
+                        </div>
+                    )}
+
                     <div className="summary-total">
                         <span>Total</span>
-                        <span style={{color: 'var(--jaune)'}}>{total.toFixed(2)}€</span>
+                        <span style={{color: 'var(--jaune)'}}>{finalTotal.toFixed(2)}€</span>
                     </div>
 
                     <h3 style={{margin: '25px 0 10px'}}>Adresse de livraison</h3>
@@ -421,38 +461,86 @@ function PaiementPage() {
 
                 {/* ETAPE 2 : PAIEMENT (Visible seulement si étape 1 validée) */}
                 {step === 'payment' && (
-                    <div className="payment-form-card">
-                        <div style={{ textAlign: 'center', marginBottom: '20px' }}>
-                            <img src="../images/LOGO-NOVA.png" alt="Logo" style={{ height: '60px', width: 'auto' }} />
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                        {/* CASE CODE PROMO */}
+                        <div className="payment-form-card" style={{ padding: '20px' }}>
+                            <h3 style={{ fontSize: '16px', marginBottom: '15px', fontWeight: '800' }}>Un code promo ?</h3>
+                            <div style={{ display: 'flex', gap: '10px' }}>
+                                <input 
+                                    type="text" 
+                                    value={promoCode} 
+                                    onChange={e => setPromoCode(e.target.value)}
+                                    placeholder="Entrez votre code (ex: NOVA10)"
+                                    style={{ 
+                                        flex: 1, 
+                                        padding: '10px 15px', 
+                                        border: '2px solid #f0f0f0', 
+                                        borderRadius: '10px',
+                                        fontSize: '14px',
+                                        outline: 'none'
+                                    }}
+                                />
+                                <button 
+                                    onClick={applyPromoCode}
+                                    style={{ 
+                                        background: 'var(--jaune)', 
+                                        color: '#fff', 
+                                        border: 'none', 
+                                        padding: '10px 20px', 
+                                        borderRadius: '10px', 
+                                        fontWeight: '700', 
+                                        cursor: 'pointer' 
+                                    }}
+                                >
+                                    Appliquer
+                                </button>
+                            </div>
+                            {promoFeedback.message && (
+                                <p style={{ 
+                                    marginTop: '10px', 
+                                    fontSize: '13px', 
+                                    fontWeight: '700', 
+                                    color: promoFeedback.type === 'success' ? '#27ae60' : '#ff5757',
+                                    margin: '10px 0 0'
+                                }}>
+                                    {promoFeedback.message}
+                                </p>
+                            )}
                         </div>
-                        <h2>2. Paiement Sécurisé</h2>
-                        <form onSubmit={handleConfirmPayment}>
-                            <div className="form-group">
-                                <label>Numéro de carte</label>
-                                <input type="text" placeholder="0000 0000 0000 0000" required 
-                                    value={cardData.number} onChange={e => setCardData({...cardData, number: e.target.value})} />
+
+                        <div className="payment-form-card">
+                            <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+                                <img src="../images/LOGO-NOVA.png" alt="Logo" style={{ height: '60px', width: 'auto' }} />
                             </div>
-                            <div className="form-row">
+                            <h2>2. Paiement Sécurisé</h2>
+                            <form onSubmit={handleConfirmPayment}>
                                 <div className="form-group">
-                                    <label>Date d'expiration</label>
-                                    <input type="text" placeholder="MM/YY" required 
-                                        value={cardData.expiry} onChange={e => setCardData({...cardData, expiry: e.target.value})} />
+                                    <label>Numéro de carte</label>
+                                    <input type="text" placeholder="0000 0000 0000 0000" required 
+                                        value={cardData.number} onChange={e => setCardData({...cardData, number: e.target.value})} />
+                                </div>
+                                <div className="form-row">
+                                    <div className="form-group">
+                                        <label>Date d'expiration</label>
+                                        <input type="text" placeholder="MM/YY" required 
+                                            value={cardData.expiry} onChange={e => setCardData({...cardData, expiry: e.target.value})} />
+                                    </div>
+                                    <div className="form-group">
+                                        <label>CVC</label>
+                                        <input type="text" placeholder="123" required 
+                                            value={cardData.cvc} onChange={e => setCardData({...cardData, cvc: e.target.value})} />
+                                    </div>
                                 </div>
                                 <div className="form-group">
-                                    <label>CVC</label>
-                                    <input type="text" placeholder="123" required 
-                                        value={cardData.cvc} onChange={e => setCardData({...cardData, cvc: e.target.value})} />
+                                    <label>Nom sur la carte</label>
+                                    <input type="text" placeholder="EX: MARIE DUPONT" required 
+                                        value={cardData.name} onChange={e => setCardData({...cardData, name: e.target.value})} />
                                 </div>
-                            </div>
-                            <div className="form-group">
-                                <label>Nom sur la carte</label>
-                                <input type="text" placeholder="EX: MARIE DUPONT" required 
-                                    value={cardData.name} onChange={e => setCardData({...cardData, name: e.target.value})} />
-                            </div>
-                            <button type="submit" className="btn-confirm" disabled={loading}>
-                                {loading ? 'Traitement...' : `Payer ${total.toFixed(2)}€`}
-                            </button>
-                        </form>
+                                <button type="submit" className="btn-confirm" disabled={loading}>
+                                    {loading ? 'Traitement...' : `Payer ${finalTotal.toFixed(2)}€`}
+                                </button>
+                            </form>
+                        </div>
                     </div>
                 )}
             </div>
@@ -466,14 +554,22 @@ function PaiementPage() {
                         <span>{parseFloat(item.prix || 0).toFixed(2)}€</span>
                     </div>
                 ))}
+
+                {discount > 0 && (
+                    <div className="summary-item" style={{ color: '#ff5757', fontWeight: '700', marginTop: '10px', paddingTop: '10px', borderTop: '1px solid #f0f0f0' }}>
+                        <span>Réduction</span>
+                        <span>-{discount.toFixed(2)}€</span>
+                    </div>
+                )}
+
                 <div className="summary-total">
                     <span>Total</span>
-                    <span style={{color: 'var(--jaune)'}}>{total.toFixed(2)}€</span>
+                    <span style={{color: 'var(--jaune)'}}>{finalTotal.toFixed(2)}€</span>
                 </div>
                 
                 <div style={{ marginTop: '20px', padding: '15px', borderRadius: '12px', background: '#f9f9f9', border: '1px solid #eee' }}>
                     <p style={{ margin: 0, fontSize: '13px', color: '#666' }}>
-                        🛡️ <strong>Protection Mercato Nova</strong> incluse. Votre argent est sécurisé jusqu'à la réception.
+                        <strong>Protection Mercato Nova</strong> incluse. Votre argent est sécurisé jusqu'à la réception.
                     </p>
                 </div>
             </div>

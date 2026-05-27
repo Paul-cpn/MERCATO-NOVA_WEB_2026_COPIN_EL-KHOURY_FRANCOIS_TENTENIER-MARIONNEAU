@@ -522,6 +522,7 @@ window.Header = function({ onCategoryClick, isSidebarOpen }) {
   const [notifCount, setNotifCount] = useState(0);
   const [notifHover, setNotifHover] = useState(false);
   const [cartCount, setCartCount] = useState(0);
+  const [favCount, setFavCount] = useState(0);
   const [searchText, setSearchText] = useState('');
  
   const handleSearch = (e) => {
@@ -561,6 +562,20 @@ window.Header = function({ onCategoryClick, isSidebarOpen }) {
         setCartCount(savedCount ? parseInt(savedCount, 10) : 0);
       });
   };
+
+  const fetchFavCount = (u) => {
+    if (!u) {
+      setFavCount(0);
+      return;
+    }
+    fetch(`../scripts/get_favoris.php?id_user=${u.id_user}`)
+      .then(res => res.json())
+      .then(data => {
+        const count = Array.isArray(data) ? data.length : 0;
+        setFavCount(count);
+      })
+      .catch(() => setFavCount(0));
+  };
  
   useEffect(() => {
     let u = null;
@@ -575,14 +590,21 @@ window.Header = function({ onCategoryClick, isSidebarOpen }) {
         setUser(u);
         fetchNotifCount(u);
         fetchCartCount(u);
+        fetchFavCount(u);
     } else {
         localStorage.setItem('cart_count', '0');
         setCartCount(0);
+        setFavCount(0);
     }
  
     const syncCartCount = () => {
       const count = localStorage.getItem('cart_count');
       setCartCount(count ? parseInt(count, 10) : 0);
+    };
+
+    const handleRefreshFavs = () => {
+        const savedUser = localStorage.getItem('user');
+        if (savedUser) fetchFavCount(JSON.parse(savedUser));
     };
  
     const handleOpenAuth = () => setIsAuthOpen(true);
@@ -599,12 +621,14 @@ window.Header = function({ onCategoryClick, isSidebarOpen }) {
     window.addEventListener('openAuthModal', handleOpenAuth);
     window.addEventListener('notificationsRead', handleRefreshNotifs);
     window.addEventListener('cartUpdated', syncCartCount);
+    window.addEventListener('favoritesUpdated', handleRefreshFavs);
     window.addEventListener('storage', syncCartCount);
    
     window.addEventListener('userLoggedIn', (e) => {
         setUser(e.detail);
         fetchNotifCount(e.detail);
         fetchCartCount(e.detail);
+        fetchFavCount(e.detail);
     });
  
     return () => {
@@ -612,6 +636,7 @@ window.Header = function({ onCategoryClick, isSidebarOpen }) {
         window.removeEventListener('openAuthModal', handleOpenAuth);
         window.removeEventListener('notificationsRead', handleRefreshNotifs);
         window.removeEventListener('cartUpdated', syncCartCount);
+        window.removeEventListener('favoritesUpdated', handleRefreshFavs);
         window.removeEventListener('storage', syncCartCount);
     };
   }, []);
@@ -682,7 +707,17 @@ window.Header = function({ onCategoryClick, isSidebarOpen }) {
           </a>
  
           <a href="favoris.html" className="action-item">
-            <span className="action-icon heart-icon"></span>
+            <span className="action-icon heart-icon" style={{ position: 'relative' }}>
+              {favCount > 0 && (
+                <span style={{
+                  position: 'absolute', top: '-5px', right: '-7px', background: '#ff5757', color: '#fff', fontSize: '9px',
+                  width: '16px', height: '16px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontWeight: '900', border: '1.5px solid #ffffff', boxShadow: '0 2px 4px rgba(0,0,0,0.15)', lineHeight: 1, zIndex: 10
+                }}>
+                  {favCount}
+                </span>
+              )}
+            </span>
             <span>Favoris</span>
           </a>
           <a href="messages.html" className="action-item">

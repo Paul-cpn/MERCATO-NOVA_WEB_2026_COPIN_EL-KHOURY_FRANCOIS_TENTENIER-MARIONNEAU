@@ -233,6 +233,7 @@ function ArticlesSection() {
       if (data.success) {
         if (data.action === 'added') setFavIds([...favIds, id_annonce]);
         else setFavIds(favIds.filter(id => id !== id_annonce));
+        window.dispatchEvent(new CustomEvent('favoritesUpdated'));
       }
     });
   };

@@ -43,6 +43,19 @@ function FaqItem({ question, answer }) {
 function App() {
   const faqData = [
     {
+      category: "Qui sommes-nous ?",
+      type: "about",
+      content: (
+        <div style={{ textAlign: 'center', background: '#fff', padding: '30px', borderRadius: '15px', boxShadow: '0 4px 15px rgba(0,0,0,0.05)', border: '1px solid #eee' }}>
+          <img src="../images/Nous.png" alt="Notre équipe" style={{ width: '100%', maxWidth: '600px', borderRadius: '10px', marginBottom: '20px' }} />
+          <p style={{ color: '#666', lineHeight: '1.6', fontSize: '16px' }}>
+            Mercato Nova est née de la passion de quatre étudiants pour la mode durable et l'économie circulaire. 
+            Notre mission est de donner une seconde vie à vos vêtements tout en créant une expérience d'achat et de vente unique grâce à notre système d'enchères innovant.
+          </p>
+        </div>
+      )
+    },
+    {
       category: "Acheter",
       questions: [
         {
@@ -106,9 +119,13 @@ function App() {
           {faqData.map((cat, idx) => (
             <div key={idx} style={{ marginBottom: '40px' }}>
               <h2 style={{ fontSize: '20px', marginBottom: '20px', borderLeft: '4px solid var(--jaune)', paddingLeft: '15px' }}>{cat.category}</h2>
-              {cat.questions.map((item, qIdx) => (
-                <FaqItem key={qIdx} question={item.question} answer={item.answer} />
-              ))}
+              {cat.type === 'about' ? (
+                cat.content
+              ) : (
+                cat.questions.map((item, qIdx) => (
+                  <FaqItem key={qIdx} question={item.question} answer={item.answer} />
+                ))
+              )}
             </div>
           ))}
 

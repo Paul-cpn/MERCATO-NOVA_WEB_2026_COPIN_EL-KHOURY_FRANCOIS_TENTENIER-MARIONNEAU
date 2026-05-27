@@ -16,6 +16,8 @@ try {
     $email = trim($data['email'] ?? '');
     $pseudo = trim($data['pseudo'] ?? '');
     $adresse = trim($data['adresse'] ?? '');
+    $oldPassword = $data['oldPassword'] ?? '';
+    $newPassword = $data['newPassword'] ?? '';
 
     // 1. Validation stricte
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) throw new Exception("Format d'email invalide.");
@@ -25,6 +27,12 @@ try {
     if (strlen($adresse) > 200) throw new Exception("L'adresse est trop longue.");
 
     // 2. Vérifier si le nouveau pseudo ou mail est déjà pris par un AUTRE utilisateur
+    $stmt = $pdo->prepare("SELECT id_user, mdp_user FROM user WHERE id_user = :id");
+    $stmt->execute(['id' => $id_user]);
+    $currentUser = $stmt->fetch();
+
+    if (!$currentUser) throw new Exception("Utilisateur non trouvé.");
+
     $stmt = $pdo->prepare("SELECT id_user FROM user WHERE (pseudo_user = :p OR email_user = :m) AND id_user != :id");
     $stmt->execute(['p' => $pseudo, 'm' => $email, 'id' => $id_user]);
     if ($stmt->fetch()) {
@@ -32,23 +40,42 @@ try {
         exit;
     }
 
-    // 3. Mise à jour
-    $sql = "UPDATE user SET 
-                nom_user = :n, 
-                prenom_user = :p, 
-                email_user = :e, 
-                pseudo_user = :ps, 
-                adresse_user = :a 
-            WHERE id_user = :id";
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute([
+    // 3. Gestion du mot de passe
+    $updatePasswordSql = "";
+    $params = [
         'n' => $nom,
         'p' => $prenom,
         'e' => $email,
         'ps' => $pseudo,
         'a' => $adresse,
         'id' => $id_user
-    ]);
+    ];
+
+    if (!empty($newPassword)) {
+        if (empty($oldPassword)) throw new Exception("Le mot de passe actuel est requis pour changer de mot de passe.");
+        
+        // Vérification de l'ancien mot de passe (en clair selon la convention du projet)
+        if ($oldPassword !== $currentUser['mdp_user']) {
+            throw new Exception("Le mot de passe actuel est incorrect.");
+        }
+        
+        if (strlen($newPassword) < 8) throw new Exception("Le nouveau mot de passe doit faire au moins 8 caractères.");
+        
+        $updatePasswordSql = ", mdp_user = :mdp";
+        $params['mdp'] = $newPassword;
+    }
+
+    // 4. Mise à jour
+    $sql = "UPDATE user SET 
+                nom_user = :n, 
+                prenom_user = :p, 
+                email_user = :e, 
+                pseudo_user = :ps, 
+                adresse_user = :a 
+                $updatePasswordSql
+            WHERE id_user = :id";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute($params);
 
     // 4. Retourner les données mises à jour pour synchroniser le localStorage
     $stmt = $pdo->prepare("SELECT * FROM user WHERE id_user = :id");
