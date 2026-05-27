@@ -1,5 +1,5 @@
 const { useState, useEffect } = React;
-
+ 
 // ==========================================
 // 0. CONSTANTES GLOBALES (ENUMS)
 // ==========================================
@@ -16,7 +16,7 @@ window.APP_CONSTANTS = {
   TAILLES_BAS: ['34', '36', '38', '40', '42', '44', '46', '48'],
   TAILLES_CHAUSSURES: ['35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46']
 };
-
+ 
 // ==========================================
 // 1. MODALE D'AUTHENTIFICATION (CONNEXION / INSCRIPTION)
 // ==========================================
@@ -27,14 +27,14 @@ function AuthModal({ isOpen, onClose, onLoginSuccess }) {
   });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-
+ 
   if (!isOpen) return null;
-
+ 
   const handleSubmit = (e) => {
     e.preventDefault();
     setError('');
     setSuccess('');
-
+ 
     // 1. Validation Frontend (Inscriptions)
     if (!isLogin) {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -51,10 +51,10 @@ function AuthModal({ isOpen, onClose, onLoginSuccess }) {
             return;
         }
     }
-    
+   
     const endpoint = isLogin ? '../scripts/login.php' : '../scripts/register.php';
     const body = isLogin ? { pseudo: formData.pseudo, mdp: formData.mdp } : formData;
-
+ 
     fetch(endpoint, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -79,7 +79,7 @@ function AuthModal({ isOpen, onClose, onLoginSuccess }) {
     })
     .catch(() => setError("Erreur de connexion au serveur"));
   };
-
+ 
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={e => e.stopPropagation()}>
@@ -88,7 +88,7 @@ function AuthModal({ isOpen, onClose, onLoginSuccess }) {
           <h2>{isLogin ? 'Connexion' : 'Inscription'}</h2>
           {error && <p style={{color: 'red', fontSize: '13px', textAlign: 'center', marginBottom: '10px'}}>{error}</p>}
           {success && <p style={{color: 'green', fontSize: '13px', textAlign: 'center', marginBottom: '10px'}}>{success}</p>}
-          
+         
           {!isLogin && (
             <>
               <input type="text" placeholder="Prénom" required minLength="2" maxLength="50" onChange={e => setFormData({...formData, prenom: e.target.value})} />
@@ -97,12 +97,12 @@ function AuthModal({ isOpen, onClose, onLoginSuccess }) {
               <input type="text" placeholder="Adresse" maxLength="200" onChange={e => setFormData({...formData, adresse: e.target.value})} />
             </>
           )}
-          
+         
           <input type="text" placeholder="Pseudo" required minLength="3" maxLength="20" onChange={e => setFormData({...formData, pseudo: e.target.value})} />
           <input type="password" placeholder="Mot de passe" required minLength="8" onChange={e => setFormData({...formData, mdp: e.target.value})} />
-          
+         
           <button type="submit">{isLogin ? 'Se connecter' : "S'inscrire"}</button>
-          
+         
           <p className="auth-switch">
             {isLogin ? "Pas encore de compte ? " : "Déjà un compte ? "}
             <span onClick={() => setIsLogin(!isLogin)} style={{color: '#e4ca3e', fontWeight: 'bold', cursor: 'pointer'}}>
@@ -114,13 +114,13 @@ function AuthModal({ isOpen, onClose, onLoginSuccess }) {
     </div>
   );
 }
-
+ 
 // ==========================================
 // 2. MODALE DES NOTIFICATIONS
 // ==========================================
 function NotificationsModal({ isOpen, user, onClose }) {
     const [notifs, setNotifs] = useState([]);
-    
+   
     useEffect(() => {
         if (isOpen && user) {
             fetch(`../scripts/get_notifications.php?id_user=${user.id_user}`)
@@ -137,7 +137,7 @@ function NotificationsModal({ isOpen, user, onClose }) {
                     console.error("Erreur réseau notifications:", err);
                     setNotifs([]);
                 });
-            
+           
             const timer = setTimeout(() => {
                 fetch('../scripts/mark_notifications_read.php', {
                     method: 'POST',
@@ -151,10 +151,10 @@ function NotificationsModal({ isOpen, user, onClose }) {
             return () => clearTimeout(timer);
         }
     }, [isOpen, user]);
-
+ 
     const handleNotifClick = (n) => {
         if (!n.id_cible) return;
-
+ 
         switch (n.type_notification) {
             case 'enchere':
             case 'vente':
@@ -170,9 +170,9 @@ function NotificationsModal({ isOpen, user, onClose }) {
         }
         onClose();
     };
-
+ 
     if (!isOpen) return null;
-
+ 
     return (
         <div className="modal-overlay" onClick={onClose}>
             <div className="modal-content" style={{maxHeight: '80vh', overflowY: 'auto'}} onClick={e => e.stopPropagation()}>
@@ -181,13 +181,13 @@ function NotificationsModal({ isOpen, user, onClose }) {
                 {notifs.length === 0 && <p style={{textAlign: 'center', color: '#999'}}>Aucune notification pour le moment.</p>}
                 <div style={{display: 'flex', flexDirection: 'column', gap: '10px'}}>
                     {notifs.map(n => (
-                        <div 
-                            key={n.id_notification} 
+                        <div
+                            key={n.id_notification}
                             onClick={() => handleNotifClick(n)}
                             style={{
-                                padding: '12px', 
-                                borderRadius: '12px', 
-                                background: n.lu_notification ? '#f9f9f9' : '#fdf8e1', 
+                                padding: '12px',
+                                borderRadius: '12px',
+                                background: n.lu_notification ? '#f9f9f9' : '#fdf8e1',
                                 border: '1px solid #eee',
                                 cursor: n.id_cible ? 'pointer' : 'default',
                                 transition: 'transform 0.2s ease'
@@ -205,7 +205,7 @@ function NotificationsModal({ isOpen, user, onClose }) {
         </div>
     );
 }
-
+ 
 // ==========================================
 // 3. COMPOSANT SIDEBAR (FILTRES)
 // ==========================================
@@ -213,7 +213,7 @@ window.Sidebar = function({ isOpen, initialCategory, onClose, onFilterChange }) 
   const [allCategories, setAllCategories] = useState([]);
   const [displayCategories, setDisplayCategories] = useState([]);
   const [openCats, setOpenCats] = useState({});
-  
+ 
   const defaultFilters = {
     categorie_id: null,
     prix_min: 0,
@@ -224,12 +224,12 @@ window.Sidebar = function({ isOpen, initialCategory, onClose, onFilterChange }) 
     tailles: [],
     type_vente: null
   };
-
+ 
   const [filters, setFilters] = useState(defaultFilters);
   const maxPossiblePrice = 1000;
-
+ 
   const [isBottomSelected, setIsBottomSelected] = useState(false);
-
+ 
   useEffect(() => {
     if (filters.categorie_id && allCategories.length > 0) {
         const findCatAndPath = (list, id, path = []) => {
@@ -249,26 +249,26 @@ window.Sidebar = function({ isOpen, initialCategory, onClose, onFilterChange }) 
         setIsBottomSelected(false);
     }
   }, [filters.categorie_id, allCategories]);
-
+ 
   useEffect(() => {
     if (!isOpen) {
       setFilters(defaultFilters);
       setOpenCats({});
     }
   }, [isOpen]);
-
+ 
   const updateFilters = (newFields) => {
     const updated = { ...filters, ...newFields };
     setFilters(updated);
     onFilterChange(updated);
   };
-
+ 
   const [localPrice, setLocalPrice] = useState({ min: 0, max: 500 });
-
+ 
   useEffect(() => {
     setLocalPrice({ min: filters.prix_min, max: filters.prix_max });
   }, [filters.prix_min, filters.prix_max]);
-
+ 
   const handlePriceDrag = (e, type) => {
     const val = parseInt(e.target.value);
     if (type === 'min') {
@@ -279,11 +279,11 @@ window.Sidebar = function({ isOpen, initialCategory, onClose, onFilterChange }) 
       setLocalPrice(prev => ({ ...prev, max: newMax }));
     }
   };
-
+ 
   const triggerPriceFilter = () => {
     updateFilters({ prix_min: localPrice.min, prix_max: localPrice.max });
   };
-
+ 
   useEffect(() => {
     fetch('../scripts/get_categories.php')
       .then(res => res.json())
@@ -291,13 +291,13 @@ window.Sidebar = function({ isOpen, initialCategory, onClose, onFilterChange }) 
         setAllCategories(data);
       });
   }, []);
-
+ 
   useEffect(() => {
     if (allCategories.length > 0) {
       if (initialCategory) {
         const selectedBranch = allCategories.filter(c => c.nom_categorie === initialCategory);
         setDisplayCategories(selectedBranch);
-        
+       
         if (selectedBranch.length > 0) {
           const catId = selectedBranch[0].id_categorie;
           setOpenCats({ [catId]: true });
@@ -310,16 +310,16 @@ window.Sidebar = function({ isOpen, initialCategory, onClose, onFilterChange }) 
       }
     }
   }, [initialCategory, allCategories]);
-
+ 
   const toggleCat = (id, e) => {
     e.stopPropagation();
     setOpenCats(prev => ({ ...prev, [id]: !prev[id] }));
   };
-
+ 
   const selectCat = (id) => {
     updateFilters({ categorie_id: id });
   };
-
+ 
   const handleCheckbox = (listName, value) => {
     const list = [...filters[listName]];
     const index = list.indexOf(value);
@@ -327,14 +327,14 @@ window.Sidebar = function({ isOpen, initialCategory, onClose, onFilterChange }) 
     else list.push(value);
     updateFilters({ [listName]: list });
   };
-
+ 
   const renderCategory = (cat) => {
     const hasSubs = cat.subs && cat.subs.length > 0;
     const isOpened = openCats[cat.id_categorie];
-
+ 
     return (
       <div key={cat.id_categorie} className="category-node">
-        <div 
+        <div
           className={`category-parent ${filters.categorie_id === cat.id_categorie ? 'active' : ''}`}
           onClick={() => selectCat(cat.id_categorie)}
         >
@@ -353,13 +353,13 @@ window.Sidebar = function({ isOpen, initialCategory, onClose, onFilterChange }) 
       </div>
     );
   };
-
+ 
   return (
     <>
       <div className={`sidebar-overlay ${isOpen ? 'active' : ''}`} onClick={onClose}></div>
       <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
         <span className="close-sidebar" onClick={onClose}>&times;</span>
-
+ 
         <div className="filter-group" style={{marginTop: '40px'}}>
           <h3 className="filter-title">Type de vente</h3>
           <div style={{
@@ -396,14 +396,14 @@ window.Sidebar = function({ isOpen, initialCategory, onClose, onFilterChange }) 
             ))}
           </div>
         </div>
-
+ 
         <div className="filter-group">
           <h3 className="filter-title">Catégories</h3>
           <div className="filter-list">
             {displayCategories.map(cat => renderCategory(cat))}
           </div>
         </div>
-
+ 
         <div className="filter-group">
           <h3 className="filter-title">Prix</h3>
           <div className="price-inputs">
@@ -412,27 +412,27 @@ window.Sidebar = function({ isOpen, initialCategory, onClose, onFilterChange }) 
               <span>{localPrice.max}€</span>
             </div>
             <div className="range-slider">
-              <div 
-                className="progress" 
-                style={{ 
-                  left: `${(localPrice.min / maxPossiblePrice) * 100}%`, 
-                  right: `${100 - (localPrice.max / maxPossiblePrice) * 100}%` 
+              <div
+                className="progress"
+                style={{
+                  left: `${(localPrice.min / maxPossiblePrice) * 100}%`,
+                  right: `${100 - (localPrice.max / maxPossiblePrice) * 100}%`
                 }}
               ></div>
-              <input 
-                type="range" 
-                min="0" 
-                max={maxPossiblePrice} 
-                value={localPrice.min} 
+              <input
+                type="range"
+                min="0"
+                max={maxPossiblePrice}
+                value={localPrice.min}
                 onChange={(e) => handlePriceDrag(e, 'min')}
                 onMouseUp={triggerPriceFilter}
                 onTouchEnd={triggerPriceFilter}
               />
-              <input 
-                type="range" 
-                min="0" 
-                max={maxPossiblePrice} 
-                value={localPrice.max} 
+              <input
+                type="range"
+                min="0"
+                max={maxPossiblePrice}
+                value={localPrice.max}
                 onChange={(e) => handlePriceDrag(e, 'max')}
                 onMouseUp={triggerPriceFilter}
                 onTouchEnd={triggerPriceFilter}
@@ -440,14 +440,14 @@ window.Sidebar = function({ isOpen, initialCategory, onClose, onFilterChange }) 
             </div>
           </div>
         </div>
-
+ 
         <div className="filter-group">
           <h3 className="filter-title">État</h3>
           <div className="filter-list">
             {window.APP_CONSTANTS.ETATS.map(e => (
               <label key={e.id} className="filter-item">
-                <input 
-                  type="checkbox" 
+                <input
+                  type="checkbox"
                   checked={filters.etats.includes(e.id)}
                   onChange={() => handleCheckbox('etats', e.id)}
                 />
@@ -456,14 +456,14 @@ window.Sidebar = function({ isOpen, initialCategory, onClose, onFilterChange }) 
             ))}
           </div>
         </div>
-
+ 
         <div className="filter-group">
           <h3 className="filter-title">Couleur</h3>
           <div className="filter-list">
             {window.APP_CONSTANTS.COULEURS.map(c => (
               <label key={c} className="filter-item">
-                <input 
-                  type="checkbox" 
+                <input
+                  type="checkbox"
                   checked={filters.couleurs.includes(c)}
                   onChange={() => handleCheckbox('couleurs', c)}
                 />
@@ -472,14 +472,14 @@ window.Sidebar = function({ isOpen, initialCategory, onClose, onFilterChange }) 
             ))}
           </div>
         </div>
-
+ 
         <div className="filter-group">
           <h3 className="filter-title">Matière</h3>
           <div className="filter-list">
             {window.APP_CONSTANTS.MATIERES.map(m => (
               <label key={m} className="filter-item">
-                <input 
-                  type="checkbox" 
+                <input
+                  type="checkbox"
                   checked={filters.matieres.includes(m)}
                   onChange={() => handleCheckbox('matieres', m)}
                 />
@@ -488,17 +488,17 @@ window.Sidebar = function({ isOpen, initialCategory, onClose, onFilterChange }) 
             ))}
           </div>
         </div>
-
+ 
         <div className="filter-group">
           <h3 className="filter-title">Taille</h3>
           <div className="filter-list">
-            {(isBottomSelected 
-              ? window.APP_CONSTANTS.TAILLES_BAS 
+            {(isBottomSelected
+              ? window.APP_CONSTANTS.TAILLES_BAS
               : window.APP_CONSTANTS.TAILLES_VETEMENTS
             ).map(t => (
               <label key={t} className="filter-item">
-                <input 
-                  type="checkbox" 
+                <input
+                  type="checkbox"
                   checked={filters.tailles.includes(t)}
                   onChange={() => handleCheckbox('tailles', t)}
                 />
@@ -511,7 +511,7 @@ window.Sidebar = function({ isOpen, initialCategory, onClose, onFilterChange }) 
     </>
   );
 };
-
+ 
 // ==========================================
 // 4. COMPOSANT HEADER COMMUN (GLOBAL)
 // ==========================================
@@ -523,16 +523,16 @@ window.Header = function({ onCategoryClick, isSidebarOpen }) {
   const [notifHover, setNotifHover] = useState(false);
   const [cartCount, setCartCount] = useState(0);
   const [searchText, setSearchText] = useState('');
-
+ 
   const handleSearch = (e) => {
     if (e) e.preventDefault();
     if (!searchText.trim()) return;
-    
-    // Si on est sur l'index, on pourrait théoriquement filtrer en direct, 
+   
+    // Si on est sur l'index, on pourrait théoriquement filtrer en direct,
     // mais pour la cohérence on redirige ou on utilise un paramètre URL.
     window.location.href = `index.html?search=${encodeURIComponent(searchText.trim())}`;
   };
-
+ 
   const fetchNotifCount = (u) => {
     if (!u) return;
     fetch(`../scripts/get_notifications.php?id_user=${u.id_user}`)
@@ -542,7 +542,7 @@ window.Header = function({ onCategoryClick, isSidebarOpen }) {
             setNotifCount(unread);
         });
   };
-
+ 
   const fetchCartCount = (u) => {
     if (!u) {
       localStorage.removeItem('cart_count');
@@ -561,7 +561,7 @@ window.Header = function({ onCategoryClick, isSidebarOpen }) {
         setCartCount(savedCount ? parseInt(savedCount, 10) : 0);
       });
   };
-
+ 
   useEffect(() => {
     let u = null;
     try {
@@ -570,43 +570,43 @@ window.Header = function({ onCategoryClick, isSidebarOpen }) {
     } catch (e) {
         console.error("Erreur parsing user:", e);
     }
-
+ 
     if (u) {
         setUser(u);
         fetchNotifCount(u);
-        fetchCartCount(u); 
+        fetchCartCount(u);
     } else {
         localStorage.setItem('cart_count', '0');
         setCartCount(0);
     }
-
+ 
     const syncCartCount = () => {
       const count = localStorage.getItem('cart_count');
       setCartCount(count ? parseInt(count, 10) : 0);
     };
-
+ 
     const handleOpenAuth = () => setIsAuthOpen(true);
     const handleRefreshNotifs = () => {
         const savedUser = localStorage.getItem('user');
         if (savedUser) fetchNotifCount(JSON.parse(savedUser));
     };
-
+ 
     // Polling des notifications (toutes les 10 secondes)
     const notifInterval = setInterval(() => {
         if (u) fetchNotifCount(u);
     }, 10000);
-
+ 
     window.addEventListener('openAuthModal', handleOpenAuth);
     window.addEventListener('notificationsRead', handleRefreshNotifs);
     window.addEventListener('cartUpdated', syncCartCount);
     window.addEventListener('storage', syncCartCount);
-    
+   
     window.addEventListener('userLoggedIn', (e) => {
         setUser(e.detail);
         fetchNotifCount(e.detail);
         fetchCartCount(e.detail);
     });
-
+ 
     return () => {
         clearInterval(notifInterval);
         window.removeEventListener('openAuthModal', handleOpenAuth);
@@ -615,7 +615,7 @@ window.Header = function({ onCategoryClick, isSidebarOpen }) {
         window.removeEventListener('storage', syncCartCount);
     };
   }, []);
-
+ 
   // Redirection propre vers la page complète ici
   const handleUserClick = (e) => {
     e.preventDefault();
@@ -625,18 +625,18 @@ window.Header = function({ onCategoryClick, isSidebarOpen }) {
       setIsAuthOpen(true);
     }
   };
-
+ 
   const handleNotifClick = (e) => {
     e.preventDefault();
     if (user) setIsNotifOpen(true);
     else setIsAuthOpen(true);
   };
-
+ 
   const handleLogin = (userData) => {
     setUser(userData);
     localStorage.setItem('user', JSON.stringify(userData));
   };
-
+ 
   return (
     <header className="header">
       <div className="header-top">
@@ -645,9 +645,9 @@ window.Header = function({ onCategoryClick, isSidebarOpen }) {
           <span className="logo-name">Mercato Nova</span>
         </a>
         <div className="header-search">
-          <input 
-            type="text" 
-            placeholder="Rechercher un article..." 
+          <input
+            type="text"
+            placeholder="Rechercher un article..."
             value={searchText}
             onChange={(e) => setSearchText(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
@@ -656,7 +656,7 @@ window.Header = function({ onCategoryClick, isSidebarOpen }) {
         </div>
         <nav className="header-actions">
           <a href="#" className="action-item" onClick={handleNotifClick} onMouseEnter={() => setNotifHover(true)} onMouseLeave={() => setNotifHover(false)}>
-            <span className="action-icon" style={{ 
+            <span className="action-icon" style={{
                 position: 'relative',
                 backgroundImage: `url(../images/notification_${notifHover ? 'survole' : 'classique'}.png)`,
                 width: '24px', height: '24px', backgroundSize: 'contain', backgroundRepeat: 'no-repeat', backgroundPosition: 'center'
@@ -665,7 +665,7 @@ window.Header = function({ onCategoryClick, isSidebarOpen }) {
             </span>
             <span>Notifications</span>
           </a>
-          
+         
           <a href="panier.html" className="action-item">
             <span className="action-icon cart-icon" style={{ position: 'relative' }}>
               {cartCount > 0 && (
@@ -680,7 +680,7 @@ window.Header = function({ onCategoryClick, isSidebarOpen }) {
             </span>
             <span>Panier</span>
           </a>
-
+ 
           <a href="favoris.html" className="action-item">
             <span className="action-icon heart-icon"></span>
             <span>Favoris</span>
@@ -689,21 +689,21 @@ window.Header = function({ onCategoryClick, isSidebarOpen }) {
             <span className="action-icon message-icon"></span>
             <span>Messages</span>
           </a>
-
+ 
           {user && user.role_user === 'admin' && (
             <a href="admin.html" className="action-item" style={{color: 'var(--jaune)'}}>
               <span className="action-icon" style={{backgroundImage: 'url(../images/user_survole.png)', width: '24px', height: '24px', backgroundSize: 'contain', backgroundRepeat: 'no-repeat', backgroundPosition: 'center'}}></span>
               <span style={{fontWeight: '800'}}>Admin</span>
             </a>
           )}
-
+ 
           <a href="#" className="action-item" onClick={handleUserClick}>
             <span className="action-icon user-icon"></span>
             <span>{user ? user.prenom_user : 'Mon compte'}</span>
           </a>
         </nav>
       </div>
-
+ 
       {window.location.pathname.endsWith('index.html') || window.location.pathname === '/' || window.location.pathname.endsWith('/') ? (
         <div className={`header-categories ${isSidebarOpen ? 'hidden' : ''}`}>
           <a href="index.html?cat=Homme" className="header-cat-link" onClick={(e) => {
@@ -726,13 +726,13 @@ window.Header = function({ onCategoryClick, isSidebarOpen }) {
           }}>Enfant</a>
         </div>
       ) : null}
-
-      <AuthModal 
-        isOpen={isAuthOpen} 
-        onClose={() => setIsAuthOpen(false)} 
-        onLoginSuccess={handleLogin} 
+ 
+      <AuthModal
+        isOpen={isAuthOpen}
+        onClose={() => setIsAuthOpen(false)}
+        onLoginSuccess={handleLogin}
       />
-
+ 
       <NotificationsModal
         isOpen={isNotifOpen}
         user={user}
@@ -741,9 +741,9 @@ window.Header = function({ onCategoryClick, isSidebarOpen }) {
     </header>
   );
 };
-
+ 
 window.NavBar = function() { return null; };
-
+ 
 window.Footer = function() {
   return (
     <footer className="footer">
@@ -758,7 +758,7 @@ window.Footer = function() {
             <li><a href="protection-acheteur.html" className="footer-link">Protection de l'acheteur</a></li>
           </ul>
         </div>
-
+ 
         {/* Colonne 2: Modes de paiement */}
         <div className="footer-column">
           <h3>Modes de paiement</h3>
@@ -778,7 +778,7 @@ window.Footer = function() {
             </div>
           </div>
         </div>
-
+ 
         {/* Colonne 3: Livraison */}
         <div className="footer-column">
           <h3>Modes de livraison</h3>
@@ -798,18 +798,24 @@ window.Footer = function() {
             </div>
           </div>
         </div>
-
-        {/* Colonne 4: Newsletter / Social (Optionnel mais pro) */}
+ 
+        {/* Colonne 4: Social */}
         <div className="footer-column">
           <h3>Suivez-nous</h3>
           <div className="footer-icons-group">
-            <a href="#" className="footer-link">Instagram</a>
-            <a href="#" className="footer-link">Facebook</a>
-            <a href="#" className="footer-link">Twitter</a>
+            <a href="#" className="footer-icon-badge" title="Instagram" style={{ padding: '8px' }}>
+              <img src="../images/instagram.png" alt="Instagram" style={{ maxHeight: '24px' }} />
+            </a>
+            <a href="#" className="footer-icon-badge" title="Facebook" style={{ padding: '8px' }}>
+              <img src="../images/facebook.png" alt="Facebook" style={{ maxHeight: '24px' }} />
+            </a>
+            <a href="#" className="footer-icon-badge" title="Twitter" style={{ padding: '8px' }}>
+              <img src="../images/twitter.png" alt="Twitter" style={{ maxHeight: '24px' }} />
+            </a>
           </div>
         </div>
       </div>
-
+ 
       <div className="footer-bottom">
         <div className="footer-copyright">
           © 2026 Mercato Nova. Tous droits réservés.
@@ -823,3 +829,4 @@ window.Footer = function() {
     </footer>
   );
 };
+ 
