@@ -42,7 +42,7 @@ function App() {
               </div>
               <div>
                 <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>Message</label>
-                <textarea required minLength="10" maxLength="1000" rows="6" style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', resize: 'vertical' }} placeholder="Décrivez votre demande en détail (min. 10 car.)..."></textarea>
+                <textarea required minLength="10" maxLength="1000" rows="6" style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', resize: 'vertical' }} placeholder=""></textarea>
               </div>
               <button type="submit" style={{ padding: '15px', background: 'var(--jaune)', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>Envoyer mon message</button>
             </form>
