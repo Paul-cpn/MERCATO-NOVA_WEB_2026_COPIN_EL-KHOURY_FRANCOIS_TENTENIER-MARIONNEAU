@@ -14,11 +14,11 @@ function App() {
           
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px', marginBottom: '40px' }}>
             <div style={{ padding: '25px', background: '#fff', borderRadius: '15px', boxShadow: '0 4px 15px rgba(0,0,0,0.05)' }}>
-              <h3 style={{ color: 'var(--jaune)', marginBottom: '15px' }}>🔒 Paiements Sécurisés</h3>
+              <h3 style={{ color: 'var(--jaune)', marginBottom: '15px' }}> Paiements Sécurisés</h3>
               <p>Votre argent est conservé en toute sécurité par notre partenaire bancaire. Il n'est versé au vendeur que lorsque vous confirmez la réception de votre article.</p>
             </div>
             <div style={{ padding: '25px', background: '#fff', borderRadius: '15px', boxShadow: '0 4px 15px rgba(0,0,0,0.05)' }}>
-              <h3 style={{ color: 'var(--jaune)', marginBottom: '15px' }}>📦 Remboursement Garanti</h3>
+              <h3 style={{ color: 'var(--jaune)', marginBottom: '15px' }}> Remboursement Garanti</h3>
               <p>Si l'article n'arrive jamais, s'il est endommagé ou s'il ne correspond pas du tout à la description, vous êtes remboursé intégralement.</p>
             </div>
           </div>
