@@ -34,9 +34,12 @@ function Galerie({ images, isFavorite, onToggleFavorite }) {
     }
   };
 
-  useEffect(() => {
-    setImgStyle({ opacity: 0 });
-  }, [mainImg]);
+  const changeImage = (index) => {
+    if (index !== mainImg) {
+      setImgStyle({ opacity: 0 });
+      setMainImg(index);
+    }
+  };
   
   if (!images || images.length === 0) {
     return (
@@ -111,7 +114,7 @@ function Galerie({ images, isFavorite, onToggleFavorite }) {
             src={img}
             alt={"vue " + (i+1)}
             className={"thumb" + (mainImg === i ? " active" : "")}
-            onClick={() => setMainImg(i)}
+            onClick={() => changeImage(i)}
             style={{ width: '75px', height: '75px', borderRadius: '8px', cursor: 'pointer', objectFit: 'contain', background: '#fff', border: mainImg === i ? '2px solid var(--jaune)' : '1px solid #eee', flexShrink: 0 }}
           />
         ))}
